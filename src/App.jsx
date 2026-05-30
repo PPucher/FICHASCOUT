@@ -1,4 +1,4 @@
-import "./storage.js";
+import { supabase } from "./supabase.js";
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
          RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
@@ -1240,9 +1240,15 @@ const NAV = [
   {id:"benchmarks",icon:"📊",label:"Benchmarks SA",roles:["scout","tecnico","club"]},
 ];
 
-export default function ScoutLatinoApp() {
+export default function ScoutLatinoApp({ session }) {
   const [tab, setTab] = useState("dashboard");
   const [role, setRole] = useState(null);
+  const userNombre = session?.user?.user_metadata?.nombre || session?.user?.email?.split('@')[0] || 'Usuario';
+  const userRol = session?.user?.user_metadata?.rol || null;
+  
+  async function handleLogout() {
+    await supabase.auth.signOut();
+  }
   const [data, setData] = useState({ligas:[], talentos:[]});
   const [collapsed, setCollapsed] = useState(false);
 
@@ -1322,9 +1328,17 @@ export default function ScoutLatinoApp() {
 
         {/* Footer del sidebar */}
         <div style={{padding:"10px 6px",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
+          {!collapsed && <div style={{padding:"6px 10px",marginBottom:4,background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.12)",borderRadius:8}}>
+            <div style={{color:"#eef2f6",fontSize:12,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>👤 {userNombre}</div>
+            {userRol && <div style={{color:"#4a6070",fontSize:10,marginTop:1}}>{userRol==="scout"?"🔍 Ojeador":userRol==="tecnico"?"📋 Técnico":"🏟️ Director"}</div>}
+          </div>}
           <button onClick={()=>setRole(null)} title="Cambiar rol" style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
             <span style={{fontSize:16,flexShrink:0,minWidth:20,textAlign:"center"}}>🔄</span>
             {!collapsed && <span style={{color:"#4a6070",fontSize:12}}>Cambiar rol</span>}
+          </button>
+          <button onClick={handleLogout} title="Cerrar sesión" style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit"}} onMouseEnter={e=>{e.currentTarget.style.background="rgba(239,68,68,0.08)"}} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+            <span style={{fontSize:15,flexShrink:0,minWidth:20,textAlign:"center"}}>🚪</span>
+            {!collapsed && <span style={{color:"#ef4444",fontSize:12}}>Cerrar sesión</span>}
           </button>
           <button onClick={()=>setCollapsed(c=>!c)} style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
             <span style={{fontSize:15,flexShrink:0,minWidth:20,textAlign:"center"}}>{collapsed?"►":"◄"}</span>
