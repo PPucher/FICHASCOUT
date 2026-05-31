@@ -298,7 +298,7 @@ function PerfilModal({jug, eqNombre, ligaNombre, ligaObj, onClose}) {
           ) : (
             <Card>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-                <span style={{color:"#eef2f6",fontWeight:600,fontSize:14}}>🤖 Análisis Scout Latino</span>
+                <span style={{color:"#eef2f6",fontWeight:600,fontSize:14}}>🤖 Análisis FichaScout</span>
                 <Bdg color="#8b5cf6">IA</Bdg>
               </div>
               <div style={{color:"#94a3b8",lineHeight:1.85,fontSize:13,whiteSpace:"pre-wrap"}}>{inf}</div>
@@ -1242,19 +1242,18 @@ function ModBenchmarks() {
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 const NAV = [
-  {id:"dashboard",  icon:"🏠", label:"Dashboard",         roles:["scout","tecnico","club"]},
-  {id:"ligas",      icon:"🏆", label:"Ligas",              roles:["scout","tecnico","club"]},
-  {id:"scouting",   icon:"🎬", label:"Scouting",           roles:["scout","tecnico","club"]},
-  {id:"plantilla",  icon:"👥", label:"Plantilla",          roles:["tecnico","club"]},
-  {id:"talentos",   icon:"🔍", label:"Talentos",           roles:["scout","club"]},
-  {id:"pipeline",   icon:"📋", label:"Pipeline Fichajes",  roles:["club","scout"]},
-  {id:"comparador", icon:"⚖️", label:"Comparar Jugadores", roles:["scout","tecnico","club"], badge:"PRO"},
-  {id:"rival",      icon:"⚔️", label:"Análisis Rival",     roles:["tecnico","club","scout"]},
-  {id:"tactico",    icon:"🗺️", label:"Análisis Táctico",   roles:["tecnico","club","scout"]},
-  {id:"benchmarks", icon:"📊", label:"Benchmarks SA",      roles:["scout","tecnico","club"]},
+  {id:"dashboard",icon:"🏠",label:"Dashboard",roles:["scout","tecnico","club"]},
+  {id:"ligas",icon:"🏆",label:"Ligas",roles:["scout","tecnico","club"]},
+  {id:"scouting",icon:"🎬",label:"Scouting",roles:["scout","tecnico","club"]},
+  {id:"plantilla",icon:"👥",label:"Plantilla",roles:["tecnico","club"]},
+  {id:"talentos",icon:"🔍",label:"Talentos",roles:["scout","club"]},
+  {id:"pipeline",icon:"📋",label:"Pipeline Fichajes",roles:["club","scout"]},
+  {id:"rival",icon:"⚔️",label:"Análisis Rival",roles:["tecnico","club","scout"]},
+  {id:"tactico",icon:"🗺️",label:"Análisis Táctico",roles:["tecnico","club","scout"]},
+  {id:"benchmarks",icon:"📊",label:"Benchmarks SA",roles:["scout","tecnico","club"]},
 ];
 
-export default function ScoutLatinoApp() {
+export default function FichaScoutApp() {
   const [tab, setTab] = useState("dashboard");
   const [role, setRole] = useState(null);
   const [data, setData] = useState({ligas:[], talentos:[]});
@@ -1290,7 +1289,7 @@ export default function ScoutLatinoApp() {
       <style>{`*{box-sizing:border-box} select option{background:#07111a}`}</style>
       <div style={{maxWidth:500,width:"100%",textAlign:"center"}}>
         <div style={{width:70,height:70,borderRadius:18,background:"linear-gradient(135deg,#00e87a,#00c96a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:34,margin:"0 auto 28px",boxShadow:"0 0 40px rgba(0,232,122,0.25)"}}>⚽</div>
-        <div style={{fontWeight:800,color:"#eef2f6",fontSize:32,letterSpacing:"-1px",marginBottom:6}}>Scout Latino</div>
+        <div style={{fontWeight:800,color:"#eef2f6",fontSize:32,letterSpacing:"-1px",marginBottom:6}}>FichaScout</div>
         <div style={{color:"#4a6070",fontSize:15,marginBottom:40}}>Selecciona tu perfil para acceder</div>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           {ROLES.map(r=>(
@@ -1321,7 +1320,7 @@ export default function ScoutLatinoApp() {
         {/* Logo */}
         <div style={{padding:collapsed?"14px 10px":"18px 14px 14px",borderBottom:"1px solid rgba(255,255,255,0.05)",display:"flex",alignItems:"center",gap:10}}>
           <div style={{width:32,height:32,borderRadius:8,background:"linear-gradient(135deg,#00e87a,#00c96a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>⚽</div>
-          {!collapsed && <div><div style={{fontWeight:800,fontSize:13,color:"#eef2f6",whiteSpace:"nowrap"}}>Scout Latino</div><div style={{fontSize:9,color:"#4a6070",whiteSpace:"nowrap"}}>{roleData?.icon} {roleData?.label}</div></div>}
+          {!collapsed && <div><div style={{fontWeight:800,fontSize:13,color:"#eef2f6",whiteSpace:"nowrap"}}>FichaScout</div><div style={{fontSize:9,color:"#4a6070",whiteSpace:"nowrap"}}>{roleData?.icon} {roleData?.label}</div></div>}
         </div>
 
         {/* Nav */}
