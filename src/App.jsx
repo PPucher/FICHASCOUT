@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { generarPDF } from "./PDFExport.jsx";
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
          RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
@@ -186,13 +186,21 @@ function PerfilModal({jug, eqNombre, ligaNombre, ligaObj, onClose}) {
       <div onClick={e=>e.stopPropagation()} style={{maxWidth:820,margin:"0 auto",background:"#07111a",border:"1px solid rgba(255,255,255,0.1)",borderRadius:20,padding:28}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}}>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
-            <div style={{width:52,height:52,borderRadius:14,background:`${posData?.color||"#334155"}18`,border:`2px solid ${posData?.color||"#334155"}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>{posData?.icon||"⚽"}</div>
+            {jug.foto ? (
+              <img src={jug.foto} alt={jug.nombre} style={{width:56,height:56,borderRadius:14,objectFit:"cover",border:`2px solid ${posData?.color||"#334155"}44`}} onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}} />
+            ) : null}
+            <div style={{width:56,height:56,borderRadius:14,background:`${posData?.color||"#334155"}18`,border:`2px solid ${posData?.color||"#334155"}44`,display:jug.foto?"none":"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>{posData?.icon||"⚽"}</div>
             <div>
               <div style={{fontWeight:800,color:"#eef2f6",fontSize:22,letterSpacing:"-0.5px"}}>{jug.nombre}</div>
               <div style={{color:"#4a6070",fontSize:13,marginTop:2}}>{jug.posicion} · {eqNombre} · {ligaNombre}{jug.edad?` · ${jug.edad}a`:""}{ jug.numero?` · #${jug.numero}`:""}</div>
             </div>
           </div>
-          <button onClick={onClose} style={{background:"none",border:"none",color:"#4a6070",cursor:"pointer",fontSize:26,lineHeight:1}}>✕</button>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={()=>generarPDF(jug,eqNombre,ligaNombre,dims,hist,inf)} style={{background:"linear-gradient(135deg,#00e87a,#00c96a)",border:"none",borderRadius:9,padding:"8px 16px",color:"#000",fontWeight:700,fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}>
+              📄 Exportar PDF
+            </button>
+            <button onClick={onClose} style={{background:"none",border:"none",color:"#4a6070",cursor:"pointer",fontSize:26,lineHeight:1}}>✕</button>
+          </div>
         </div>
 
         <div style={{display:"flex",gap:4,marginBottom:20,background:"rgba(255,255,255,0.04)",borderRadius:10,padding:4}}>
@@ -460,7 +468,11 @@ function ModLigas({data, setData}) {
                 <div key={j.id} onClick={()=>setPerfil({jug:j,eqNombre:equipo.nombre,ligaNombre:liga.nombre,ligaObj:liga})} style={{background:"rgba(255,255,255,0.03)",borderRadius:13,borderLeft:`3px solid ${pd?.color||"#334155"}`,padding:14,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.03)"}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:18,marginBottom:2}}>{pd?.icon||"⚽"}</div>
+                      {j.foto ? (
+                        <img src={j.foto} alt={j.nombre} style={{width:36,height:36,borderRadius:9,objectFit:"cover",marginBottom:4,border:`1px solid ${pd?.color||"#334155"}33`}} onError={e=>e.target.style.display="none"}/>
+                      ) : (
+                        <div style={{fontSize:18,marginBottom:2}}>{pd?.icon||"⚽"}</div>
+                      )}
                       <div style={{fontWeight:700,color:"#eef2f6",fontSize:13}}>{j.nombre}</div>
                       <div style={{color:"#4a6070",fontSize:11,marginTop:1}}>{j.posicion}{j.numero?` · #${j.numero}`:""}</div>
                       {avgSc && <div style={{marginTop:6,color:avgSc>=7?"#00e87a":avgSc>=5?"#f59e0b":"#ef4444",fontWeight:800,fontSize:13}}>{avgSc}/10</div>}
@@ -1240,15 +1252,9 @@ const NAV = [
   {id:"benchmarks",icon:"📊",label:"Benchmarks SA",roles:["scout","tecnico","club"]},
 ];
 
-export default function ScoutLatinoApp({ session }) {
+export default function ScoutLatinoApp() {
   const [tab, setTab] = useState("dashboard");
   const [role, setRole] = useState(null);
-  const userNombre = session?.user?.user_metadata?.nombre || session?.user?.email?.split('@')[0] || 'Usuario';
-  const userRol = session?.user?.user_metadata?.rol || null;
-  
-  async function handleLogout() {
-    await supabase.auth.signOut();
-  }
   const [data, setData] = useState({ligas:[], talentos:[]});
   const [collapsed, setCollapsed] = useState(false);
 
@@ -1328,17 +1334,9 @@ export default function ScoutLatinoApp({ session }) {
 
         {/* Footer del sidebar */}
         <div style={{padding:"10px 6px",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
-          {!collapsed && <div style={{padding:"6px 10px",marginBottom:4,background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.12)",borderRadius:8}}>
-            <div style={{color:"#eef2f6",fontSize:12,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>👤 {userNombre}</div>
-            {userRol && <div style={{color:"#4a6070",fontSize:10,marginTop:1}}>{userRol==="scout"?"🔍 Ojeador":userRol==="tecnico"?"📋 Técnico":"🏟️ Director"}</div>}
-          </div>}
           <button onClick={()=>setRole(null)} title="Cambiar rol" style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit",marginBottom:2}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
             <span style={{fontSize:16,flexShrink:0,minWidth:20,textAlign:"center"}}>🔄</span>
             {!collapsed && <span style={{color:"#4a6070",fontSize:12}}>Cambiar rol</span>}
-          </button>
-          <button onClick={handleLogout} title="Cerrar sesión" style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit"}} onMouseEnter={e=>{e.currentTarget.style.background="rgba(239,68,68,0.08)"}} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-            <span style={{fontSize:15,flexShrink:0,minWidth:20,textAlign:"center"}}>🚪</span>
-            {!collapsed && <span style={{color:"#ef4444",fontSize:12}}>Cerrar sesión</span>}
           </button>
           <button onClick={()=>setCollapsed(c=>!c)} style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:"transparent",cursor:"pointer",fontFamily:"inherit"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
             <span style={{fontSize:15,flexShrink:0,minWidth:20,textAlign:"center"}}>{collapsed?"►":"◄"}</span>
