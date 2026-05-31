@@ -1243,15 +1243,17 @@ function ModBenchmarks() {
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 const NAV = [
-  {id:"dashboard",icon:"🏠",label:"Dashboard",roles:["scout","tecnico","club"]},
-  {id:"ligas",icon:"🏆",label:"Ligas",roles:["scout","tecnico","club"]},
-  {id:"scouting",icon:"🎬",label:"Scouting",roles:["scout","tecnico","club"]},
-  {id:"plantilla",icon:"👥",label:"Plantilla",roles:["tecnico","club"]},
-  {id:"talentos",icon:"🔍",label:"Talentos",roles:["scout","club"]},
-  {id:"pipeline",icon:"📋",label:"Pipeline Fichajes",roles:["club","scout"]},
-  {id:"rival",icon:"⚔️",label:"Análisis Rival",roles:["tecnico","club","scout"]},
-  {id:"tactico",icon:"🗺️",label:"Análisis Táctico",roles:["tecnico","club","scout"]},
-  {id:"benchmarks",icon:"📊",label:"Benchmarks SA",roles:["scout","tecnico","club"]},
+  {id:"dashboard", icon:"🏠", label:"Dashboard",          roles:["scout","tecnico","club"]},
+  {id:"ligas",     icon:"🏆", label:"Ligas",               roles:["scout","tecnico","club"]},
+  {id:"scouting",  icon:"🎬", label:"Scouting",            roles:["scout","tecnico","club"]},
+  {id:"plantilla", icon:"👥", label:"Plantilla",           roles:["tecnico","club"]},
+  {id:"talentos",  icon:"🔍", label:"Talentos",            roles:["scout","club"]},
+  {id:"pipeline",  icon:"📋", label:"Pipeline Fichajes",   roles:["club","scout"]},
+  {id:"basepro",   icon:"🌍", label:"Base Pro Mundial",    roles:["scout","tecnico","club"], badge:"60K"},
+  {id:"comparador",icon:"⚖️", label:"Comparar Jugadores",  roles:["scout","tecnico","club"], badge:"PRO"},
+  {id:"rival",     icon:"⚔️", label:"Análisis Rival",      roles:["tecnico","club","scout"]},
+  {id:"tactico",   icon:"🗺️", label:"Análisis Táctico",    roles:["tecnico","club","scout"]},
+  {id:"benchmarks",icon:"📊", label:"Benchmarks SA",       roles:["scout","tecnico","club"]},
 ];
 
 export default function FichaScoutApp() {
@@ -1329,7 +1331,8 @@ export default function FichaScoutApp() {
           {navItems.map(n=>(
             <button key={n.id} onClick={()=>setTab(n.id)} title={n.label} style={{display:"flex",alignItems:"center",gap:9,width:"100%",padding:collapsed?"10px":"9px 10px",borderRadius:9,border:"none",background:tab===n.id?"rgba(0,232,122,0.1)":"transparent",cursor:"pointer",marginBottom:2,fontFamily:"inherit",textAlign:"left"}} onMouseEnter={e=>{if(tab!==n.id)e.currentTarget.style.background="rgba(255,255,255,0.04)";}} onMouseLeave={e=>{if(tab!==n.id)e.currentTarget.style.background="transparent";}}>
               <span style={{fontSize:17,flexShrink:0,lineHeight:1,minWidth:20,textAlign:"center"}}>{n.icon}</span>
-              {!collapsed && <span style={{color:tab===n.id?"#00e87a":"#607080",fontSize:12,fontWeight:tab===n.id?600:400,whiteSpace:"nowrap"}}>{n.label}</span>}
+              {!collapsed && <span style={{color:tab===n.id?"#00e87a":"#607080",fontSize:12,fontWeight:tab===n.id?600:400,whiteSpace:"nowrap",flex:1}}>{n.label}</span>}
+              {!collapsed && n.badge && <span style={{background:n.badge==="60K"?"rgba(0,232,122,0.2)":"linear-gradient(135deg,#00e87a,#00c96a)",color:n.badge==="60K"?"#00e87a":"#000",fontSize:8,fontWeight:800,borderRadius:4,padding:"1px 5px",letterSpacing:.3}}>{n.badge}</span>}
             </button>
           ))}
         </nav>
