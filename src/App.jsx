@@ -1,3 +1,4 @@
+import ComparadorPro from "./ComparadorPro.jsx";
 import { generarPDF } from "./PDFExport.jsx";
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -1355,6 +1356,7 @@ export default function ScoutLatinoApp() {
           {tab==="talentos"   && <ModTalentos  data={data} setData={setData}/>}
           {tab==="pipeline"   && <ModPipeline  data={data} setData={setData}/>}
           {tab==="rival"      && <ModRival/>}
+          {tab==="comparador" && <ComparadorPro realPlayers={[]}/>}
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
         </div>
