@@ -1,3 +1,4 @@
+import BasePro from "./BasePro.jsx";
 import ComparadorPro from "./ComparadorPro.jsx";
 import { generarPDF } from "./PDFExport.jsx";
 import { useState, useEffect, useRef } from "react";
@@ -1357,6 +1358,7 @@ export default function FichaScoutApp() {
           {tab==="pipeline"   && <ModPipeline  data={data} setData={setData}/>}
           {tab==="rival"      && <ModRival/>}
           {tab==="comparador" && <ComparadorPro realPlayers={[]}/>}
+          {tab==="basepro"    && <BasePro/>}
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
         </div>
