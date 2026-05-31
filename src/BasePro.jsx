@@ -1,30 +1,37 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+
+// ─── CONFIGURACIÓN API ────────────────────────────────────────────────────────
+// Agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables
+const ANTHROPIC_KEY = import.meta.env?.VITE_ANTHROPIC_KEY || "";
+const API_HEADERS = {
+  "Content-Type": "application/json",
+  "anthropic-dangerous-direct-browser-access": "true",
+  ...(ANTHROPIC_KEY ? {"x-api-key": ANTHROPIC_KEY} : {}),
+};
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
 const G = "#00e87a";
 const SLOTS = ["#00e87a","#3b82f6","#f59e0b","#ec4899"];
-
 const POS_ICON  = {"Arquero":"🧤","Defensor":"🛡️","Volante":"🎨","Delantero":"🎯"};
 const POS_COLOR = {"Arquero":"#f59e0b","Defensor":"#3b82f6","Volante":"#10b981","Delantero":"#ef4444"};
 
 const STATS_DEF = [
-  {k:"rat",l:"Rating",      max:10,  dec:true},
-  {k:"g",  l:"Goles",       max:40},
-  {k:"a",  l:"Asistencias", max:25},
-  {k:"pts",l:"Partidos",    max:38},
-  {k:"min",l:"Minutos",     max:3400},
-  {k:"pas",l:"Pases totales",max:2000},
-  {k:"pc", l:"Pases clave", max:100},
-  {k:"dis",l:"Disparos arco",max:80},
-  {k:"reg",l:"Regates",     max:80},
-  {k:"tac",l:"Tackles",     max:100},
+  {k:"rat",l:"Rating",        max:10,  dec:true},
+  {k:"g",  l:"Goles",         max:40},
+  {k:"a",  l:"Asistencias",   max:25},
+  {k:"pts",l:"Partidos",      max:38},
+  {k:"min",l:"Minutos",       max:3400},
+  {k:"pas",l:"Pases totales", max:2000},
+  {k:"pc", l:"Pases clave",   max:100},
+  {k:"dis",l:"Disparos arco", max:80},
+  {k:"reg",l:"Regates",       max:80},
+  {k:"tac",l:"Tackles",       max:100},
   {k:"int",l:"Intercepciones",max:80},
   {k:"due",l:"Duelos ganados",max:200},
-  {k:"ata",l:"Atajadas",    max:120},
-  {k:"am", l:"Amarillas",   max:12, neg:true},
+  {k:"ata",l:"Atajadas",      max:120},
+  {k:"am", l:"Amarillas",     max:12, neg:true},
 ];
 
-// Stats relevantes por posición
 const STATS_POS = {
   "Arquero":   ["rat","pts","min","ata","pas","am"],
   "Defensor":  ["rat","pts","min","tac","int","due","pas","g","am"],
@@ -32,209 +39,365 @@ const STATS_POS = {
   "Delantero": ["rat","pts","min","g","a","dis","reg","due","pas"],
 };
 
-const API_HEADERS = {
-  "Content-Type":"application/json",
-  "anthropic-dangerous-direct-browser-access":"true"
+// ─── DIFICULTAD DE LIGAS (0.55 - 1.00) ───────────────────────────────────────
+const LIGA_DIF = {
+  2:1.00, 39:0.97, 140:0.96, 78:0.95, 135:0.94, 61:0.93,  // CL + Big5
+  3:0.92, 848:0.88, 94:0.87, 88:0.86, 144:0.85, 203:0.84, // UEL + ligas secundarias
+  9:0.88, 13:0.87, 11:0.83,                                 // Copas SA
+  128:0.82, 71:0.83, 253:0.81, 262:0.80,                   // Argentina, Brasil, MLS, México
+  239:0.74, 268:0.72, 283:0.71, 240:0.70, 292:0.68,        // Colombia, Uruguay, Perú, Ecuador, Venezuela
+  265:0.73, 266:0.61, 267:0.58,                             // Chile 1ª, 1B, Copa
+  209:0.67, 282:0.66, 285:0.65,                             // Bolivia, Paraguay
+  40:0.83, 141:0.81, 79:0.81, 136:0.79, 62:0.79,           // Seconds Europe
+  98:0.80, 307:0.78, 106:0.76, 235:0.74,                   // J1, Saudi, Ekstraklasa, Rusia
 };
+const DIF_DEFAULT = 0.63;
 
-const IN = {background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:9,padding:"8px 12px",color:"#eef2f6",fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
+// Etiquetas de dificultad
+const DIF_LABEL = (d) =>
+  d >= 0.95 ? {l:"Élite Mundial",   c:"#a855f7"} :
+  d >= 0.88 ? {l:"Alta Exigencia",  c:"#ef4444"} :
+  d >= 0.80 ? {l:"Alta",            c:"#f97316"} :
+  d >= 0.72 ? {l:"Media-Alta",      c:"#f59e0b"} :
+  d >= 0.65 ? {l:"Media",           c:"#3b82f6"} :
+              {l:"Media-Baja",      c:"#64748b"};
 
-// ─── PROMPT IA SCOUT ─────────────────────────────────────────────────────────
-function promptIndividual(j) {
+// ─── SCOUT SCORE ─────────────────────────────────────────────────────────────
+function calcScoutScore(j) {
+  const s = j.s;
+  if (!s || (!s.rat && !s.pts)) return null;
+
+  const rat    = parseFloat(s.rat) || 0;
+  const edad   = j.e || 25;
+  const pts    = s.pts  || 0;
+  const min    = s.min  || 0;
+  const pos    = j.pos  || "Volante";
+  const ligaDif= LIGA_DIF[j.l_id] || DIF_DEFAULT;
+
+  // ── 1. RENDIMIENTO (30%) ─────────────────────────────────────────────────
+  // Basado en rating + G+A por partido + stats defensivas según posición
+  let rend = 0;
+  if (rat > 0) rend += (rat / 10) * 55;  // rating base (55pts máx)
+  const ga = ((s.g || 0) + (s.a || 0));
+  if (pts > 0) rend += Math.min((ga / pts) * 25, 30); // G+A por partido
+  if (pos === "Defensor" || pos === "Arquero") {
+    const def = ((s.tac||0)+(s.int||0)) / Math.max(pts,1);
+    rend += Math.min(def * 2, 15);
+  }
+  if (pos === "Arquero" && s.ata) rend += Math.min((s.ata / Math.max(pts,1)) * 3, 15);
+  rend = Math.min(rend, 100);
+
+  // ── 2. EDAD / CURVA DE CARRERA (25%) ─────────────────────────────────────
+  // Pico de valor a los 23-26 años
+  let edadScore = 0;
+  if      (edad <= 19) edadScore = 72 + (20 - edad) * 2;
+  else if (edad <= 23) edadScore = 78 + (23 - edad) * 1.5;
+  else if (edad <= 26) edadScore = 92 + (25 - Math.abs(edad - 25)) * 2;
+  else if (edad <= 29) edadScore = 85 - (edad - 26) * 4;
+  else if (edad <= 32) edadScore = 73 - (edad - 29) * 4;
+  else                 edadScore = Math.max(61 - (edad - 32) * 3, 20);
+  edadScore = Math.min(edadScore, 100);
+
+  // ── 3. POTENCIAL (20%) ───────────────────────────────────────────────────
+  // Joven + alto rendimiento = altísimo potencial
+  const ratNorm = rat > 0 ? (rat / 10) : 0.65;
+  let potencial = 0;
+  if      (edad <= 21) potencial = Math.min(ratNorm * 100 * 1.35, 100);
+  else if (edad <= 24) potencial = Math.min(ratNorm * 100 * 1.20, 100);
+  else if (edad <= 27) potencial = Math.min(ratNorm * 100 * 1.05, 100);
+  else                 potencial = Math.min(ratNorm * 100 * 0.85, 100);
+
+  // ── 4. REGULARIDAD (15%) ─────────────────────────────────────────────────
+  // Cuántos partidos de 38 posibles jugó y % de minutos disponibles
+  let regular = 0;
+  const ptsNorm = Math.min((pts / 30) * 100, 100);     // 30P = 100%
+  const minNorm = min > 0 ? Math.min((min / 2500) * 100, 100) : ptsNorm * 0.7;
+  regular = ptsNorm * 0.4 + minNorm * 0.6;
+
+  // ── 5. NIVEL COMPETITIVO (10%) ───────────────────────────────────────────
+  const nivelScore = ligaDif * 100;
+
+  // ── SCORE PONDERADO ──────────────────────────────────────────────────────
+  const raw =
+    rend     * 0.30 +
+    edadScore* 0.25 +
+    potencial* 0.20 +
+    regular  * 0.15 +
+    nivelScore * 0.10;
+
+  // Multiplicador por exigencia de liga (penaliza/premia según competencia)
+  const ajustado = raw * (0.6 + ligaDif * 0.55);
+  const total = Math.min(Math.round(ajustado), 100);
+
+  const label =
+    total >= 88 ? {l:"ÉLITE",         c:"#a855f7", bg:"rgba(168,85,247,0.15)"} :
+    total >= 78 ? {l:"DESTACADO",     c:"#00a855", bg:"rgba(0,168,85,0.12)"}  :
+    total >= 68 ? {l:"SÓLIDO",        c:"#3b82f6", bg:"rgba(59,130,246,0.12)"} :
+    total >= 58 ? {l:"PROMEDIO",      c:"#f59e0b", bg:"rgba(245,158,11,0.12)"} :
+                  {l:"EN DESARROLLO", c:"#ef4444", bg:"rgba(239,68,68,0.12)"};
+
+  return {
+    total,
+    label,
+    dif: ligaDif,
+    difLabel: DIF_LABEL(ligaDif),
+    comp: {
+      rendimiento: Math.round(rend),
+      edad:        Math.round(edadScore),
+      potencial:   Math.round(potencial),
+      regularidad: Math.round(regular),
+      nivel:       Math.round(nivelScore),
+    }
+  };
+}
+
+// ─── COMPONENTE SCOUT SCORE ───────────────────────────────────────────────────
+function ScoutScoreBar({score, compact=false}) {
+  if (!score) return null;
+  const {total, label, difLabel, comp} = score;
+
+  if (compact) return(
+    <div style={{background:label.bg,border:`1px solid ${label.c}33`,borderRadius:8,padding:"5px 10px",display:"flex",alignItems:"center",gap:8}}>
+      <div style={{fontWeight:900,fontSize:19,color:label.c,lineHeight:1}}>{total}</div>
+      <div>
+        <div style={{fontSize:9,fontWeight:700,color:label.c,letterSpacing:.5}}>{label.l}</div>
+        <div style={{fontSize:9,color:"#4a6070"}}>Scout Score</div>
+      </div>
+    </div>
+  );
+
+  const bars = [
+    {l:"Rendimiento",  v:comp.rendimiento, c:"#00e87a",  p:30},
+    {l:"Edad/Curva",   v:comp.edad,        c:"#3b82f6",  p:25},
+    {l:"Potencial",    v:comp.potencial,   c:"#a855f7",  p:20},
+    {l:"Regularidad",  v:comp.regularidad, c:"#f59e0b",  p:15},
+    {l:"Nivel liga",   v:comp.nivel,       c:difLabel.c, p:10},
+  ];
+
+  return(
+    <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:12,padding:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <div>
+          <div style={{fontSize:11,color:"#4a6070",fontWeight:600,letterSpacing:.5,marginBottom:3}}>🏅 SCOUT SCORE</div>
+          <div style={{fontSize:10,color:"#3a5060"}}>Algoritmo exclusivo FichaScout · No disponible en API-Football</div>
+        </div>
+        <div style={{textAlign:"center",background:label.bg,border:`1px solid ${label.c}44`,borderRadius:12,padding:"8px 14px"}}>
+          <div style={{fontWeight:900,fontSize:32,color:label.c,lineHeight:1}}>{total}</div>
+          <div style={{fontSize:8,color:label.c,fontWeight:700,letterSpacing:.5,marginTop:2}}>/100 · {label.l}</div>
+        </div>
+      </div>
+
+      {bars.map(b=>(
+        <div key={b.l} style={{marginBottom:7}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{fontSize:11,color:"#64748b"}}>{b.l}</span>
+              <span style={{fontSize:9,color:"#3a5060",background:"rgba(255,255,255,0.04)",borderRadius:3,padding:"0 4px"}}>{b.p}%</span>
+            </div>
+            <span style={{fontSize:11,fontWeight:700,color:b.c}}>{b.v}<span style={{fontSize:9,color:"#4a6070"}}>/100</span></span>
+          </div>
+          <div style={{height:5,background:"rgba(255,255,255,0.06)",borderRadius:3}}>
+            <div style={{width:`${b.v}%`,height:"100%",background:b.c,borderRadius:3,transition:"width .4s ease"}}/>
+          </div>
+        </div>
+      ))}
+
+      <div style={{marginTop:10,padding:"7px 10px",background:`${difLabel.c}10`,border:`1px solid ${difLabel.c}25`,borderRadius:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontSize:11,color:"#64748b"}}>Exigencia de liga:</span>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontWeight:700,color:difLabel.c,fontSize:11}}>{difLabel.l}</span>
+          <span style={{background:`${difLabel.c}20`,color:difLabel.c,borderRadius:4,padding:"1px 6px",fontSize:10,fontWeight:700}}>×{score.dif.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PROMPTS IA ───────────────────────────────────────────────────────────────
+function buildPromptIndividual(j, ss) {
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
   const statsStr = statsKeys.map(k=>{
     const def = STATS_DEF.find(s=>s.k===k);
     const v = j.s?.[k];
-    if(v==null) return null;
-    return `${def?.l||k}: ${v}${def?.dec?"":""}`
+    return v!=null ? `${def?.l||k}: ${v}` : null;
   }).filter(Boolean).join(" | ");
 
-  return `Eres un Chief Scout de alto nivel con 20 años de experiencia en fútbol profesional sudamericano y europeo. Analiza este jugador de forma crítica y profesional:
+  const ssInfo = ss ? `Scout Score FichaScout: ${ss.total}/100 (${ss.label.l})
+  - Rendimiento: ${ss.comp.rendimiento}/100 (peso 30%)
+  - Potencial de edad: ${ss.comp.edad}/100 (peso 25%)
+  - Potencial: ${ss.comp.potencial}/100 (peso 20%)
+  - Regularidad: ${ss.comp.regularidad}/100 (peso 15%)
+  - Nivel competitivo: ${ss.comp.nivel}/100 (peso 10%)
+  - Multiplicador de liga: ×${ss.dif.toFixed(2)} (${ss.difLabel.l})` : "";
 
-━━━ DATOS DEL JUGADOR ━━━
-Nombre: ${j.n}
-Posición: ${j.pos}
-Edad: ${j.e||"—"} años | País: ${j.pais||"—"} | Altura: ${j.alt||"—"} | Peso: ${j.pes||"—"}
-Club: ${j.eq} | Liga: ${j.l} | Región: ${j.reg}
-Nivel competitivo: ${j.nv===1?"1ª División (máximo nivel)":j.nv===2?"2ª División":j.nv===3?"Copa/Regional":"—"}
+  return `Eres un Chief Scout con 20 años de experiencia en fútbol profesional latinoamericano y europeo. Analiza este jugador de forma crítica y fundamentada:
+
+━━━ FICHA COMPLETA ━━━
+${j.n} | ${j.pos} | ${j.e||"—"} años | ${j.pais||"—"}
+${j.alt||""} ${j.pes||""} | ${j.eq} | ${j.l} | ${j.reg}
+Nivel de liga: ${j.nv===1?"1ª División":j.nv===2?"2ª División":"Copa/Regional"}
 
 ━━━ ESTADÍSTICAS TEMPORADA 2024 ━━━
-${statsStr || "Sin estadísticas disponibles"}
+${statsStr}
 
-Genera un informe scout profesional estructurado así:
+━━━ INTELIGENCIA DEPORTIVA FICHASCOUT ━━━
+${ssInfo}
+
+Genera el informe scout con esta estructura exacta:
 
 🔍 PERFIL DE JUEGO
-(Describe su estilo, rol dentro del equipo y características técnicas principales)
+(2-3 líneas describiendo su estilo, rol y características únicas)
 
-📈 FORTALEZAS DESTACADAS
-(Mínimo 3 puntos fuertes respaldados con los datos estadísticos específicos)
+📈 FORTALEZAS ESTADÍSTICAS
+(3-4 puntos fuertes CITANDO NÚMEROS CONCRETOS de las estadísticas)
 
-⚠️ ÁREAS A DESARROLLAR
-(Puntos débiles honestos con datos)
+⚠️ ÁREAS DE MEJORA
+(2-3 puntos débiles honestos con datos)
 
-🏆 NIVEL COMPETITIVO Y PROYECCIÓN
-(¿A qué nivel puede llegar? ¿Está en la etapa ideal de su carrera? ¿Tiene margen de mejora?)
+🏆 PROYECCIÓN Y CURVA DE CARRERA
+(Considerando su edad: ¿está en su mejor momento? ¿puede mejorar? ¿cuántos años de alto rendimiento le quedan?)
 
-🎯 PERFIL DE EQUIPO IDEAL
-(Describe el sistema táctico y tipo de club que maximizaría sus virtudes)
+🎯 EQUIPO IDEAL
+(Sistema táctico específico, rol y perfil de club que lo potenciaría)
 
-⭐ VALORACIÓN FINAL: [X/10]
-(Justificación breve y recomendación de fichaje: PRIORITARIO / RECOMENDADO / SEGUIMIENTO / NO RECOMENDADO)`;
+💰 VALOR DE MERCADO ESTIMADO
+(Rango realista en USD considerando la liga donde juega y su Scout Score)
+
+⭐ VEREDICTO FINAL
+Scout Score: ${ss?.total||"N/A"}/100 → [PRIORIDAD DE FICHAJE: PRIORITARIO/RECOMENDADO/SEGUIMIENTO/NO RECOMENDADO]
+(2-3 líneas de justificación clara)`;
 }
 
-function promptComparacion(jugadores) {
-  const ficha = (j) => {
+function buildPromptComparacion(jugadores, scores) {
+  const ficha = (j, ss, idx) => {
     const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
-    return `${j.n} (${j.pos}, ${j.e||"—"}a, ${j.pais||"—"})
-  Club: ${j.eq} | ${j.l} | Nivel ${j.nv}
-  ${statsKeys.map(k=>{const def=STATS_DEF.find(s=>s.k===k);const v=j.s?.[k];return v!=null?`${def?.l||k}:${v}`:null}).filter(Boolean).join(" | ")}`;
+    const stats = statsKeys.map(k=>{const def=STATS_DEF.find(s=>s.k===k);const v=j.s?.[k];return v!=null?`${def?.l||k}:${v}`:null}).filter(Boolean).join(" | ");
+    return `OPCIÓN ${idx+1}: ${j.n} (${j.pos}, ${j.e||"—"}a, ${j.pais||"—"})
+  Club: ${j.eq} | Liga: ${j.l} (Exigencia: ${ss ? ss.difLabel.l+" ×"+ss.dif.toFixed(2) : "N/A"})
+  Scout Score: ${ss?.total||"N/A"}/100 → ${ss?.label.l||""}
+  Stats: ${stats}
+  Desglose Scout Score: Rend.${ss?.comp.rendimiento||0} | Pot.${ss?.comp.potencial||0} | Edad:${ss?.comp.edad||0} | Reg:${ss?.comp.regularidad||0} | Liga:${ss?.comp.nivel||0}`;
   };
 
-  return `Eres un Director Técnico con experiencia en fichajes internacionales. Analiza estos ${jugadores.length} jugadores para una decisión de fichaje:
+  return `Eres Director Técnico con experiencia en fichajes internacionales. Compara estos ${jugadores.length} jugadores para una decisión de fichaje INMEDIATA:
 
-${jugadores.map((j,i)=>`OPCIÓN ${i+1}: ${ficha(j)}`).join("\n\n")}
+${jugadores.map((j,i)=>ficha(j,scores[i],i)).join("\n\n")}
 
-Genera el análisis comparativo profesional:
+ANÁLISIS COMPARATIVO PROFESIONAL:
 
-📊 RESUMEN EJECUTIVO
-(En 3 líneas: quién destaca y cuál es la decisión recomendada)
+📊 RESUMEN EJECUTIVO (3 líneas máximo)
+¿Quién lidera claramente? ¿Qué diferencia al mejor del resto?
 
-⚖️ COMPARATIVA ESTADÍSTICA DETALLADA
-(Para cada estadística clave: quién lidera, cuánto lo diferencia del resto, qué significa tácticamente)
+⚖️ COMPARATIVA SCOUT SCORE
+Analiza por qué cada uno tiene su puntuación. ¿Es justo el ranking? ¿Quién tiene mejor relación rendimiento/liga?
+
+🔑 ESTADÍSTICAS DIFERENCIADORAS
+Para cada métrica clave: quién lidera, qué ventaja tiene y qué significa tácticamente
 
 👤 PERFIL INDIVIDUAL
-${jugadores.map((_,i)=>`Opción ${i+1}: fortalezas únicas y limitaciones principales`).join("\n")}
+${jugadores.map((_,i)=>`Opción ${i+1}: en 2 líneas, qué lo hace único y cuál es su principal limitación`).join("\n")}
 
-🔄 COMPATIBILIDAD TÁCTICA
-(Para qué sistema de juego es ideal cada uno: 4-3-3, 4-4-2, presión alta, bloque bajo, etc.)
+🔄 AJUSTE POR EXIGENCIA DE LIGA
+¿Cuánto cambia el ranking si normalizamos el rendimiento por la dificultad de la liga donde juegan?
 
-💰 RELACIÓN VALOR/RENDIMIENTO
-(Considerando liga de origen y nivel competitivo, ¿cuál ofrece mejor valor de mercado?)
-
-🏆 RECOMENDACIÓN FINAL DE FICHAJE
-(Ranking de preferencia con justificación clara: 1º, 2º, 3º...)
-¿Para qué tipo de club es cada uno? ¿Cuál ficharías si solo pudieras elegir uno?`;
+💡 RECOMENDACIÓN FINAL
+Ranking ${jugadores.map((_,i)=>i+1+"°").join(" → ")} con justificación
+¿Para qué tipo de equipo y sistema es cada uno?
+Si solo pudieras fichar a UNO, ¿cuál y por qué?`;
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
-function exportPDFIndividual(j, iaText) {
+function exportPDFIndividual(j, iaText, ss) {
   const fecha = new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
   const c = POS_COLOR[j.pos] || G;
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
 
-  const barRow = (k) => {
-    const def = STATS_DEF.find(s=>s.k===k);
-    if(!def||j.s?.[k]==null) return "";
-    const v = parseFloat(j.s[k])||0;
-    const pct = Math.min((v/(def.max||100))*100,100);
-    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">
-      <span style="font-size:11px;color:#374151;min-width:120px">${def.l}</span>
-      <div style="flex:1;height:5px;background:#e2e8f0;border-radius:3px">
-        <div style="width:${pct}%;height:100%;background:${c};border-radius:3px"></div>
-      </div>
-      <span style="font-size:12px;font-weight:700;color:${c};min-width:32px;text-align:right">${j.s[k]}</span>
-    </div>`;
-  };
+  const ssHTML = ss ? `
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div><div style="font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px">🏅 SCOUT SCORE FICHASCOUT</div><div style="font-size:9px;color:#94a3b8;margin-top:1px">Algoritmo exclusivo · No disponible en API-Football</div></div>
+      <div style="background:${ss.label.bg};border:1px solid ${ss.label.c}44;border-radius:10px;padding:8px 14px;text-align:center"><div style="font-size:28px;font-weight:900;color:${ss.label.c};line-height:1">${ss.total}</div><div style="font-size:9px;color:${ss.label.c};font-weight:700">/100 · ${ss.label.l}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px">
+      ${[["Rendimiento",ss.comp.rendimiento,"#00e87a","30%"],["Edad/Curva",ss.comp.edad,"#3b82f6","25%"],["Potencial",ss.comp.potencial,"#a855f7","20%"],["Regularidad",ss.comp.regularidad,"#f59e0b","15%"],["Nivel liga",ss.comp.nivel,ss.difLabel.c,"10%"]].map(([l,v,col,p])=>`
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:7px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:${col}">${v}</div>
+        <div style="font-size:8px;color:#374151;margin-top:1px">${l}</div>
+        <div style="font-size:8px;color:#94a3b8">${p}</div>
+      </div>`).join("")}
+    </div>
+    <div style="background:${ss.difLabel.c}10;border:1px solid ${ss.difLabel.c}25;border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:10px;color:#374151">Exigencia de liga:</span>
+      <span style="font-weight:700;color:${ss.difLabel.c};font-size:11px">${ss.difLabel.l} · ×${ss.dif.toFixed(2)}</span>
+    </div>
+  </div>` : "";
 
   const html = `<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8"/><title>FichaScout — ${j.n}</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:13px}
-  @page{size:A4;margin:14mm}
-</style></head>
-<body>
+<html lang="es"><head><meta charset="UTF-8"/><title>FichaScout — ${j.n}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:13mm}</style>
+</head><body>
 
 <!-- HEADER -->
-<div style="background:linear-gradient(135deg,#040a0f,#071520);padding:20px 28px;display:flex;justify-content:space-between;align-items:center;border-radius:10px;margin-bottom:18px">
+<div style="background:linear-gradient(135deg,#040a0f,#071520);padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-radius:10px;margin-bottom:16px">
   <div style="display:flex;align-items:center;gap:12px">
-    <div style="width:44px;height:44px;background:linear-gradient(135deg,#00e87a,#00c96a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">⚽</div>
-    <div>
-      <div style="font-weight:800;font-size:21px;color:#fff">Ficha<span style="color:#00e87a">Scout</span></div>
-      <div style="font-size:9px;color:#3a5060;letter-spacing:2px">PLATAFORMA DE SCOUTING PROFESIONAL</div>
-    </div>
+    <div style="width:42px;height:42px;background:linear-gradient(135deg,#00e87a,#00c96a);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px">⚽</div>
+    <div><div style="font-weight:800;font-size:20px;color:#fff">Ficha<span style="color:#00e87a">Scout</span></div><div style="font-size:9px;color:#3a5060;letter-spacing:2px">PLATAFORMA DE SCOUTING PROFESIONAL</div></div>
   </div>
-  <div style="text-align:right">
-    <div style="color:#fff;font-weight:800;font-size:14px">FICHA DE SCOUTING PROFESIONAL</div>
-    <div style="color:#3a5060;font-size:10px;margin-top:2px">${fecha} · fichascout.com</div>
-  </div>
+  <div style="text-align:right"><div style="color:#fff;font-weight:800;font-size:14px">FICHA DE SCOUTING PROFESIONAL</div><div style="color:#3a5060;font-size:10px;margin-top:2px">${fecha} · fichascout.com</div></div>
 </div>
 
 <!-- JUGADOR -->
-<div style="display:flex;gap:20px;background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid ${c};border-radius:12px;padding:18px 20px;margin-bottom:18px">
-  <div style="width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid ${c}55;flex-shrink:0">
-    <img src="${j.foto}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:36px>${POS_ICON[j.pos]||"⚽"}</div>'"/>
+<div style="display:flex;gap:18px;background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid ${c};border-radius:12px;padding:16px 18px;margin-bottom:14px">
+  <div style="width:82px;height:82px;border-radius:50%;overflow:hidden;border:3px solid ${c}55;flex-shrink:0">
+    <img src="${j.foto}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:32px>${POS_ICON[j.pos]||"⚽"}</div>'"/>
   </div>
   <div style="flex:1">
-    <div style="display:inline-block;background:${c}15;color:${c};border:1px solid ${c}44;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;margin-bottom:6px">${POS_ICON[j.pos]||""} ${j.pos}</div>
-    <div style="font-weight:800;font-size:24px;color:#0f172a;margin-bottom:4px;line-height:1">${j.n}</div>
-    <div style="font-size:13px;color:#64748b;margin-bottom:10px">${j.eq} · ${j.l} · ${j.reg}${j.nv===1?" · 1ª División":j.nv===2?" · 2ª División":""}</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      ${[["Edad",j.e?`${j.e} años`:"—"],["País",j.pais||"—"],["Altura",j.alt||"—"],["Peso",j.pes||"—"]].map(([l,v])=>`
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;text-align:center;min-width:68px">
-        <div style="font-size:14px;font-weight:800;color:#0f172a">${v}</div>
-        <div style="font-size:9px;color:#94a3b8;margin-top:1px">${l}</div>
-      </div>`).join("")}
-      ${j.s?.rat?`<div style="background:${c}10;border:1px solid ${c}44;border-radius:8px;padding:7px 12px;text-align:center">
-        <div style="font-size:18px;font-weight:800;color:${parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#dc2626"}">★ ${j.s.rat}</div>
-        <div style="font-size:9px;color:#94a3b8;margin-top:1px">Rating</div>
-      </div>`:""}
+    <div style="display:inline-block;background:${c}15;color:${c};border:1px solid ${c}44;border-radius:5px;padding:2px 9px;font-size:10px;font-weight:700;margin-bottom:5px">${POS_ICON[j.pos]||""} ${j.pos}</div>
+    <div style="font-weight:800;font-size:22px;color:#0f172a;margin-bottom:3px">${j.n}</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:8px">${j.eq} · ${j.l} · ${j.reg}${j.nv===1?" · 1ª División":j.nv===2?" · 2ª División":""}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${[["Edad",j.e?`${j.e}a`:"—"],["País",j.pais||"—"],["Altura",j.alt||"—"],["Peso",j.pes||"—"]].map(([l,v])=>`<div style="background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:6px 10px;text-align:center"><div style="font-size:13px;font-weight:800;color:#0f172a">${v}</div><div style="font-size:8px;color:#94a3b8;margin-top:1px">${l}</div></div>`).join("")}
+      ${j.s?.rat?`<div style="background:${c}10;border:1px solid ${c}44;border-radius:7px;padding:6px 10px;text-align:center"><div style="font-size:16px;font-weight:800;color:${parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#dc2626"}">★ ${j.s.rat}</div><div style="font-size:8px;color:#94a3b8;margin-top:1px">Rating</div></div>`:""}
+      ${ss?`<div style="background:${ss.label.bg};border:1px solid ${ss.label.c}44;border-radius:7px;padding:6px 10px;text-align:center"><div style="font-size:16px;font-weight:800;color:${ss.label.c}">${ss.total}</div><div style="font-size:8px;color:${ss.label.c};margin-top:1px">Scout Score</div></div>`:""}
     </div>
-  </div>
-  <div style="text-align:center;padding:12px;background:${c}08;border-radius:10px;border:1px solid ${c}20">
-    <img src="${j.eq_logo||""}" style="width:44px;height:44px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'"/>
-    <div style="font-weight:700;font-size:12px;color:#0f172a">${j.eq}</div>
-    <div style="font-size:10px;color:#64748b">Nivel ${j.nv}</div>
   </div>
 </div>
 
-<!-- ESTADÍSTICAS + IA -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-  <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
-    <div style="background:#f1f5f9;padding:9px 14px;font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px;border-bottom:1px solid #e2e8f0">ESTADÍSTICAS DE TEMPORADA</div>
-    <div style="padding:14px">${statsKeys.map(k=>barRow(k)).join("")}</div>
-  </div>
-  <div>
-    <div style="background:${c}08;border:1px solid ${c}25;border-radius:10px;padding:14px;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:700;color:${c};letter-spacing:.5px;margin-bottom:10px">CONTRIBUCIÓN TOTAL</div>
-      <div style="display:flex;gap:14px;justify-content:space-around">
-        ${[["⚽",j.s?.g??0,"Goles"],["🅰️",j.s?.a??0,"Asist."],["⏱️",j.s?.pts??0,"Partidos"],["🕐",(j.s?.min||0)+"'","Minutos"]].map(([ic,v,l])=>`
-        <div style="text-align:center">
-          <div style="font-size:11px;margin-bottom:2px">${ic}</div>
-          <div style="font-size:19px;font-weight:800;color:#0f172a">${v}</div>
-          <div style="font-size:9px;color:#94a3b8">${l}</div>
-        </div>`).join("")}
-      </div>
-    </div>
-    ${j.s?.tac!=null?`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px">
-      <div style="font-size:10px;font-weight:700;color:#374151;letter-spacing:.5px;margin-bottom:8px">DATOS DEFENSIVOS</div>
-      ${[["Tackles",j.s?.tac],["Intercepciones",j.s?.int],["Duelos ganados",j.s?.due]].map(([l,v])=>v!=null?`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><span style="color:#374151">${l}</span><span style="font-weight:700;color:${c}">${v}</span></div>`:"").join("")}
-    </div>`:""} 
+<!-- SCOUT SCORE -->
+${ssHTML}
+
+<!-- ESTADÍSTICAS -->
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:14px">
+  <div style="background:#f1f5f9;padding:8px 14px;font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px;border-bottom:1px solid #e2e8f0">ESTADÍSTICAS DE TEMPORADA · ${j.l} 2024</div>
+  <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+    ${statsKeys.filter(k=>j.s?.[k]!=null).map(k=>{
+      const def=STATS_DEF.find(s=>s.k===k);
+      const v=parseFloat(j.s[k])||0;
+      const pct=Math.min((v/(def?.max||100))*100,100);
+      return `<div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:#374151;min-width:105px">${def?.l||k}</span>
+        <div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px"><div style="width:${pct}%;height:100%;background:${c};border-radius:2px"></div></div>
+        <span style="font-size:11px;font-weight:700;color:${c};min-width:28px;text-align:right">${j.s[k]}</span>
+      </div>`;
+    }).join("")}
   </div>
 </div>
 
 ${iaText?`
 <!-- ANÁLISIS IA -->
-<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:16px;margin-bottom:16px">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;margin-bottom:14px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS SCOUT CON INTELIGENCIA ARTIFICIAL</div>
-    <span style="background:#00a85515;color:#00a855;border-radius:5px;padding:2px 9px;font-size:10px;font-weight:700">🤖 FichaScout PRO</span>
+    <span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">🤖 FichaScout PRO</span>
   </div>
-  <div style="font-size:11.5px;color:#166534;line-height:1.8;white-space:pre-wrap">${iaText.substring(0,2000)}${iaText.length>2000?"...":""}</div>
+  <div style="font-size:11px;color:#166534;line-height:1.8;white-space:pre-wrap">${iaText.substring(0,2200)}</div>
 </div>`:""}
 
-<!-- FOOTER -->
-<div style="background:#040a0f;border-radius:8px;padding:12px 20px;display:flex;justify-content:space-between;align-items:center">
-  <div style="display:flex;align-items:center;gap:8px">
-    <div style="width:20px;height:20px;background:#00e87a;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px">⚽</div>
-    <span style="color:#00e87a;font-weight:800;font-size:13px">FichaScout</span>
-    <span style="color:#3a5060;font-size:10px">· fichascout.com</span>
-  </div>
-  <span style="color:#3a5060;font-size:10px">Informe generado con Inteligencia Artificial</span>
-  <span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700">🔒 CONFIDENCIAL</span>
+<div style="background:#040a0f;border-radius:8px;padding:10px 18px;display:flex;justify-content:space-between;align-items:center">
+  <div style="display:flex;align-items:center;gap:8px"><div style="width:20px;height:20px;background:#00e87a;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px">⚽</div><span style="color:#00e87a;font-weight:800;font-size:12px">FichaScout</span><span style="color:#3a5060;font-size:10px">· fichascout.com</span></div>
+  <span style="color:#3a5060;font-size:10px">Scout Score™ · Algoritmo exclusivo FichaScout</span>
+  <span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700">🔒 CONFIDENCIAL</span>
 </div>
-
 </body></html>`;
 
   const v=window.open("","_blank","width=900,height=700");
@@ -243,93 +406,117 @@ ${iaText?`
 }
 
 // ─── PDF COMPARACIÓN ──────────────────────────────────────────────────────────
-function exportPDFComparacion(jugadores, iaText) {
+function exportPDFComparacion(jugadores, scores, iaText) {
   const fecha = new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
   const cols = SLOTS.slice(0,jugadores.length);
 
+  const playerCard = (j,ss,i) => `
+  <div style="background:#f8fafc;border:2px solid ${cols[i]}33;border-radius:12px;padding:14px;text-align:center">
+    <div style="width:60px;height:60px;border-radius:50%;overflow:hidden;margin:0 auto 8px;border:2px solid ${cols[i]}">
+      <img src="${j.foto}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=padding:8px;font-size:24px>${POS_ICON[j.pos]||"⚽"}</div>'"/>
+    </div>
+    <div style="font-weight:800;font-size:13px;color:#0f172a;margin-bottom:2px">${j.n}</div>
+    <div style="font-size:10px;color:#64748b">${j.eq}</div>
+    <div style="font-size:9px;color:#94a3b8;margin-bottom:6px">${j.l}</div>
+    ${j.e?`<span style="background:#f1f5f9;color:#374151;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:600">${j.e}a</span> `:""}
+    <span style="background:${cols[i]}15;color:${cols[i]};border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700">${POS_ICON[j.pos]} ${j.pos}</span>
+    ${j.s?.rat?`<div style="font-size:16px;font-weight:800;color:${parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#dc2626"};margin-top:5px">★${j.s.rat}</div>`:""}
+    ${ss?`<div style="background:${ss.label.bg};border:1px solid ${ss.label.c}33;border-radius:7px;padding:5px;margin-top:5px">
+      <div style="font-size:18px;font-weight:900;color:${ss.label.c}">${ss.total}</div>
+      <div style="font-size:8px;color:${ss.label.c};font-weight:700">Scout Score · ${ss.label.l}</div>
+      <div style="font-size:8px;color:#94a3b8">×${ss.dif.toFixed(2)} ${ss.difLabel.l}</div>
+    </div>`:""}
+  </div>`;
+
   const statsRelevantes = jugadores.length>0
-    ? (STATS_POS[jugadores[0].pos] || STATS_DEF.map(s=>s.k)).filter(k=>jugadores.some(j=>j.s?.[k]!=null))
+    ? (STATS_POS[jugadores[0].pos]||STATS_DEF.map(s=>s.k)).filter(k=>jugadores.some(j=>j.s?.[k]!=null))
     : STATS_DEF.filter(st=>jugadores.some(j=>j.s?.[st.k]!=null)).map(s=>s.k);
 
-  const playerCard = (j,i) => `
-    <div style="background:#f8fafc;border:2px solid ${cols[i]}33;border-radius:12px;padding:16px;text-align:center">
-      <div style="width:68px;height:68px;border-radius:50%;overflow:hidden;margin:0 auto 9px;border:2px solid ${cols[i]}">
-        <img src="${j.foto}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=padding:10px;font-size:28px>${POS_ICON[j.pos]||"⚽"}</div>'"/>
-      </div>
-      <div style="font-weight:800;font-size:14px;color:#0f172a;margin-bottom:2px">${j.n}</div>
-      <div style="font-size:11px;color:#64748b;margin-bottom:2px">${j.eq}</div>
-      <div style="font-size:10px;color:#94a3b8;margin-bottom:8px">${j.l}</div>
-      <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
-        ${j.e?`<span style="background:#f1f5f9;color:#374151;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600">${j.e}a</span>`:""}
-        <span style="background:${cols[i]}15;color:${cols[i]};border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">${POS_ICON[j.pos]||""} ${j.pos}</span>
-      </div>
-      ${j.s?.rat?`<div style="font-size:20px;font-weight:800;color:${parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#dc2626"};margin-top:7px">★ ${j.s.rat}</div>`:""}
-    </div>`;
-
   const statRow = (k) => {
-    const def = STATS_DEF.find(s=>s.k===k);
+    const def=STATS_DEF.find(s=>s.k===k);
     if(!def) return "";
-    const vals = jugadores.map(j=>parseFloat(j.s?.[k])||0);
-    const max = Math.max(...vals);
+    const vals=jugadores.map(j=>parseFloat(j.s?.[k])||0);
+    const max=Math.max(...vals);
     return `<tr>
-      <td style="padding:7px 12px;font-size:11px;color:#374151;font-weight:500;border-bottom:1px solid #f1f5f9;white-space:nowrap">${def.l}</td>
-      ${jugadores.map((j,i)=>{
-        const v=j.s?.[k]; const n=parseFloat(v)||0;
-        const pct=def.max?Math.min((n/def.max)*100,100):(max>0?Math.min((n/max)*100,100):0);
-        const best=n===max&&max>0&&!def.neg;
-        return `<td style="padding:7px 12px;border-bottom:1px solid #f1f5f9;min-width:120px">
-          <div style="display:flex;align-items:center;gap:7px">
-            <div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px">
-              <div style="width:${pct}%;height:100%;background:${best?cols[i]:"#cbd5e1"};border-radius:2px"></div>
-            </div>
-            <span style="font-size:12px;font-weight:${best?800:500};color:${best?cols[i]:"#374151"};min-width:28px;text-align:right">${v??'—'}</span>
-          </div>
-          ${best?`<div style="font-size:9px;color:${cols[i]};font-weight:700;margin-top:1px">▲ MEJOR</div>`:""}
-        </td>`;
-      }).join("")}
+      <td style="padding:6px 11px;font-size:10px;color:#374151;border-bottom:1px solid #f1f5f9;white-space:nowrap">${def.l}</td>
+      ${jugadores.map((j,i)=>{const v=j.s?.[k];const n=parseFloat(v)||0;const best=n===max&&max>0&&!def.neg;const pct=def.max?Math.min((n/def.max)*100,100):(max>0?Math.min((n/max)*100,100):0);
+      return `<td style="padding:6px 11px;border-bottom:1px solid #f1f5f9;min-width:110px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="flex:1;height:3px;background:#e2e8f0;border-radius:1px"><div style="width:${pct}%;height:100%;background:${best?cols[i]:"#cbd5e1"}"></div></div>
+          <span style="font-size:11px;font-weight:${best?800:500};color:${best?cols[i]:"#374151"};min-width:24px;text-align:right">${v??'—'}</span>
+        </div>
+        ${best?`<div style="font-size:8px;color:${cols[i]};font-weight:700">▲ MEJOR</div>`:""}
+      </td>`;}).join("")}
     </tr>`;
   };
 
+  const ssRow = (label, key) => `<tr>
+    <td style="padding:5px 11px;font-size:10px;color:#374151;border-bottom:1px solid #f8fafc">${label}</td>
+    ${scores.map((ss,i)=>{
+      const v=ss?.comp?.[key]||0;
+      const max=Math.max(...scores.map(s=>s?.comp?.[key]||0));
+      const best=v===max&&max>0;
+      return `<td style="padding:5px 11px;border-bottom:1px solid #f8fafc;text-align:center"><span style="font-size:11px;font-weight:${best?800:500};color:${best?cols[i]:"#374151"}">${v}${best?" ▲":""}</span></td>`;
+    }).join("")}
+  </tr>`;
+
   const html = `<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"/>
-<title>FichaScout — Comparación</title>
+<html lang="es"><head><meta charset="UTF-8"/><title>FichaScout — Comparación</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:11mm}</style>
 </head><body>
-<div style="background:linear-gradient(135deg,#040a0f,#071520);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-radius:10px;margin-bottom:14px">
+
+<div style="background:linear-gradient(135deg,#040a0f,#071520);padding:15px 22px;display:flex;justify-content:space-between;align-items:center;border-radius:10px;margin-bottom:12px">
   <div style="display:flex;align-items:center;gap:10px">
-    <div style="width:38px;height:38px;background:linear-gradient(135deg,#00e87a,#00c96a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px">⚽</div>
-    <div><div style="font-weight:800;font-size:18px;color:#fff">Ficha<span style="color:#00e87a">Scout</span></div><div style="font-size:8px;color:#3a5060;letter-spacing:2px">PLATAFORMA DE SCOUTING PROFESIONAL</div></div>
+    <div style="width:36px;height:36px;background:linear-gradient(135deg,#00e87a,#00c96a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px">⚽</div>
+    <div><div style="font-weight:800;font-size:17px;color:#fff">Ficha<span style="color:#00e87a">Scout</span></div><div style="font-size:8px;color:#3a5060;letter-spacing:2px">PLATAFORMA DE SCOUTING PROFESIONAL</div></div>
   </div>
-  <div style="text-align:right"><div style="color:#fff;font-weight:800;font-size:14px">INFORME COMPARATIVO DE JUGADORES</div><div style="color:#3a5060;font-size:10px;margin-top:1px">${jugadores.length} jugadores · ${fecha} · fichascout.com</div></div>
+  <div style="text-align:right"><div style="color:#fff;font-weight:800;font-size:13px">INFORME COMPARATIVO · SCOUT SCORE™</div><div style="color:#3a5060;font-size:9px;margin-top:1px">${jugadores.length} jugadores · ${fecha} · fichascout.com</div></div>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(${jugadores.length},1fr);gap:10px;margin-bottom:14px">
-  ${jugadores.map((j,i)=>playerCard(j,i)).join("")}
+<div style="display:grid;grid-template-columns:repeat(${jugadores.length},1fr);gap:10px;margin-bottom:12px">
+  ${jugadores.map((j,i)=>playerCard(j,scores[i],i)).join("")}
 </div>
 
-<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:14px">
-  <div style="background:#f8fafc;padding:8px 14px;border-bottom:2px solid #e2e8f0;font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px">ESTADÍSTICAS COMPARATIVAS · ▲ MEJOR = Líder en la categoría</div>
-  <table style="width:100%;border-collapse:collapse">
-    <thead><tr style="background:#f8fafc">
-      <th style="padding:7px 12px;font-size:10px;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;font-weight:600">ESTADÍSTICA</th>
-      ${jugadores.map((j,i)=>`<th style="padding:7px 12px;font-size:12px;font-weight:700;color:${cols[i]};text-align:left;border-bottom:2px solid ${cols[i]};min-width:120px">${j.n.split(" ")[0].toUpperCase()}</th>`).join("")}
-    </tr></thead>
-    <tbody>${statsRelevantes.map(k=>statRow(k)).join("")}</tbody>
-  </table>
-</div>
-
-${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS DE COMPARACIÓN — FichaScout IA</div>
-    <span style="background:#00a85515;color:#00a855;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700">🤖 Scout IA</span>
+<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:12px">
+  <!-- Scout Scores -->
+  <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#f1f5f9,#e8edf5);padding:8px 12px;border-bottom:2px solid #e2e8f0;font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px">🏅 SCOUT SCORE™ — Algoritmo Exclusivo FichaScout</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#f8fafc">
+        <th style="padding:6px 11px;font-size:9px;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0">COMPONENTE</th>
+        ${jugadores.map((j,i)=>`<th style="padding:6px 11px;font-size:10px;font-weight:700;color:${cols[i]};text-align:center;border-bottom:2px solid ${cols[i]}">${j.n.split(" ")[0]}</th>`).join("")}
+      </tr></thead>
+      <tbody>
+        <tr style="background:#f0fdf4"><td style="padding:7px 11px;font-size:11px;font-weight:800;color:#374151;border-bottom:2px solid #e2e8f0">TOTAL /100</td>${scores.map((ss,i)=>{const max=Math.max(...scores.map(s=>s?.total||0));const best=(ss?.total||0)===max;return `<td style="padding:7px 11px;text-align:center;border-bottom:2px solid ${best?cols[i]:"#e2e8f0"}"><span style="font-size:17px;font-weight:900;color:${best?cols[i]:"#374151"}">${ss?.total||"N/A"}</span> ${best?"▲":""}</td>`;}).join("")}</tr>
+        ${ssRow("Rendimiento (30%)", "rendimiento")}
+        ${ssRow("Edad/Curva (25%)", "edad")}
+        ${ssRow("Potencial (20%)", "potencial")}
+        ${ssRow("Regularidad (15%)", "regularidad")}
+        ${ssRow("Nivel liga (10%)", "nivel")}
+        <tr><td style="padding:6px 11px;font-size:10px;color:#374151">Multiplicador liga</td>${scores.map((ss,i)=>`<td style="padding:6px 11px;text-align:center;font-size:10px;color:${ss?.difLabel?.c||"#374151"};font-weight:700">×${ss?.dif?.toFixed(2)||"—"}<br/><span style="font-size:8px">${ss?.difLabel?.l||""}</span></td>`).join("")}</tr>
+      </tbody>
+    </table>
   </div>
-  <div style="font-size:11px;color:#166534;line-height:1.75;white-space:pre-wrap">${iaText.substring(0,2500)}${iaText.length>2500?"...":""}</div>
+
+  <!-- Stats -->
+  <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+    <div style="background:#f8fafc;padding:8px 12px;border-bottom:2px solid #e2e8f0;font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px">ESTADÍSTICAS COMPARATIVAS · ▲ MEJOR</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr><th style="padding:6px 11px;font-size:9px;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0">ESTADÍSTICA</th>${jugadores.map((j,i)=>`<th style="padding:6px 11px;font-size:10px;font-weight:700;color:${cols[i]};text-align:left;border-bottom:2px solid ${cols[i]}">${j.n.split(" ")[0]}</th>`).join("")}</tr></thead>
+      <tbody>${statsRelevantes.map(k=>statRow(k)).join("")}</tbody>
+    </table>
+  </div>
+</div>
+
+${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><div style="font-size:10px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS COMPARATIVO — FichaScout IA PROFESIONAL</div><span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">🤖 Scout IA</span></div>
+  <div style="font-size:10px;color:#166534;line-height:1.75;white-space:pre-wrap">${iaText.substring(0,2800)}</div>
 </div>`:""}
 
-<div style="background:#040a0f;border-radius:8px;padding:11px 18px;display:flex;justify-content:space-between;align-items:center">
-  <div style="display:flex;align-items:center;gap:7px"><div style="width:18px;height:18px;background:#00e87a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px">⚽</div><span style="color:#00e87a;font-weight:800;font-size:12px">FichaScout</span></div>
-  <span style="color:#3a5060;font-size:10px">Análisis generado con Inteligencia Artificial · fichascout.com</span>
-  <span style="background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700">🔒 CONFIDENCIAL</span>
+<div style="background:#040a0f;border-radius:8px;padding:9px 16px;display:flex;justify-content:space-between;align-items:center">
+  <div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:16px;background:#00e87a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px">⚽</div><span style="color:#00e87a;font-weight:800;font-size:11px">FichaScout</span></div>
+  <span style="color:#3a5060;font-size:9px">Scout Score™ · Algoritmo exclusivo · fichascout.com</span>
+  <span style="background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700">🔒 CONFIDENCIAL</span>
 </div>
 </body></html>`;
 
@@ -339,23 +526,26 @@ ${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:
 }
 
 // ─── MODAL JUGADOR ────────────────────────────────────────────────────────────
-function ModalJugador({j, onClose, onToggleCompar, enCompar}) {
+function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
   const [iaText, setIaText] = useState("");
   const [loadIA, setLoadIA] = useState(false);
   const c = POS_COLOR[j.pos] || G;
 
   async function generarIA() {
+    if (!ANTHROPIC_KEY) {
+      setIaText("⚙️ Para activar el análisis IA, agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables → VITE_ANTHROPIC_KEY = tu_api_key_de_anthropic");
+      return;
+    }
     setLoadIA(true); setIaText("");
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1200, messages:[{role:"user",content:promptIndividual(j)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1200, messages:[{role:"user",content:buildPromptIndividual(j,ss)}]})
       });
+      if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
-      setIaText(d.content?.[0]?.text || "Error al generar el análisis.");
-    } catch(e) {
-      setIaText("Error de conexión con el servidor de IA.");
-    }
+      setIaText(d.content?.[0]?.text || "Error al generar.");
+    } catch(e) { setIaText(`Error: ${e.message}`); }
     setLoadIA(false);
   }
 
@@ -363,62 +553,68 @@ function ModalJugador({j, onClose, onToggleCompar, enCompar}) {
 
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.88)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div style={{background:"#07111a",borderRadius:18,border:"1px solid rgba(255,255,255,0.09)",width:"100%",maxWidth:740,maxHeight:"92vh",overflowY:"auto"}}>
+      <div style={{background:"#07111a",borderRadius:18,border:"1px solid rgba(255,255,255,0.09)",width:"100%",maxWidth:760,maxHeight:"92vh",overflowY:"auto"}}>
 
         {/* Header */}
-        <div style={{background:`${c}0a`,padding:"18px 22px",borderBottom:"1px solid rgba(255,255,255,0.07)",display:"flex",gap:14,alignItems:"center",position:"sticky",top:0,backdropFilter:"blur(20px)",zIndex:1,borderRadius:"18px 18px 0 0"}}>
-          <div style={{width:60,height:60,borderRadius:50,overflow:"hidden",border:`2px solid ${c}44`,flexShrink:0}}>
-            <img src={j.foto} alt={j.n} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.parentElement.innerHTML=`<div style="width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:26px">${POS_ICON[j.pos]||"⚽"}</div>`;}}/>
+        <div style={{background:`${c}0a`,padding:"16px 20px",borderBottom:"1px solid rgba(255,255,255,0.07)",display:"flex",gap:13,alignItems:"center",position:"sticky",top:0,backdropFilter:"blur(20px)",zIndex:1,borderRadius:"18px 18px 0 0"}}>
+          <div style={{width:56,height:56,borderRadius:28,overflow:"hidden",border:`2px solid ${c}44`,flexShrink:0}}>
+            <img src={j.foto} alt={j.n} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.parentElement.innerHTML=`<div style="width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:24px">${POS_ICON[j.pos]||"⚽"}</div>`;}}/>
           </div>
           <div style={{flex:1}}>
-            <div style={{display:"inline-block",background:`${c}15`,color:c,borderRadius:6,padding:"2px 8px",fontSize:11,fontWeight:700,marginBottom:4}}>{POS_ICON[j.pos]} {j.pos}</div>
-            <div style={{fontWeight:800,fontSize:19,color:"#eef2f6",lineHeight:1.2}}>{j.n}</div>
-            <div style={{color:"#4a6070",fontSize:12,marginTop:2}}>{j.eq} · {j.l}{j.e?` · ${j.e} años`:""} · {j.pais||""}</div>
+            <div style={{display:"inline-block",background:`${c}15`,color:c,borderRadius:5,padding:"2px 7px",fontSize:10,fontWeight:700,marginBottom:3}}>{POS_ICON[j.pos]} {j.pos}</div>
+            <div style={{fontWeight:800,fontSize:18,color:"#eef2f6",lineHeight:1.2}}>{j.n}</div>
+            <div style={{color:"#4a6070",fontSize:12,marginTop:1}}>{j.eq} · {j.l}{j.e?` · ${j.e}a`:""} · {j.pais||""}</div>
           </div>
-          <div style={{display:"flex",gap:8,flexShrink:0}}>
-            <button onClick={()=>onToggleCompar(j)} style={{background:enCompar?`${c}20`:"rgba(255,255,255,0.06)",border:`1px solid ${enCompar?c+"44":"rgba(255,255,255,0.1)"}`,borderRadius:9,padding:"7px 13px",color:enCompar?c:"#eef2f6",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit"}}>
-              {enCompar?"✓ En comparación":"⚖️ Comparar"}
+          <div style={{display:"flex",gap:7,flexShrink:0,alignItems:"center"}}>
+            {ss&&<div style={{background:ss.label.bg,border:`1px solid ${ss.label.c}44`,borderRadius:10,padding:"5px 10px",textAlign:"center"}}>
+              <div style={{fontWeight:900,fontSize:18,color:ss.label.c,lineHeight:1}}>{ss.total}</div>
+              <div style={{fontSize:8,color:ss.label.c,fontWeight:700,letterSpacing:.3}}>SCOUT</div>
+            </div>}
+            <button onClick={()=>onToggle(j)} style={{background:enCompar?`${c}20`:"rgba(255,255,255,0.05)",border:`1px solid ${enCompar?c+"44":"rgba(255,255,255,0.1)"}`,borderRadius:8,padding:"7px 12px",color:enCompar?c:"#eef2f6",cursor:"pointer",fontSize:11,fontWeight:600,fontFamily:"inherit"}}>
+              {enCompar?"✓ En comp.":"⚖️ Comparar"}
             </button>
-            <button onClick={onClose} style={{background:"none",border:"none",color:"#4a6070",cursor:"pointer",fontSize:22,padding:0}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:"none",color:"#4a6070",cursor:"pointer",fontSize:20,padding:0}}>✕</button>
           </div>
         </div>
 
-        <div style={{padding:"16px 22px"}}>
+        <div style={{padding:"14px 20px"}}>
           {/* Stats grid */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:16}}>
-            {[
-              j.s?.rat!=null&&["★",j.s.rat,"Rating",parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444"],
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:14}}>
+            {[j.s?.rat!=null&&["★",j.s.rat,"Rating",parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444"],
               j.s?.g!=null&&["⚽",j.s.g,"Goles",c],
-              j.s?.a!=null&&["🅰️",j.s.a,"Asistencias",c],
+              j.s?.a!=null&&["🅰️",j.s.a,"Asist.",c],
               j.s?.pts!=null&&["📅",j.s.pts,"Partidos","#64748b"],
               j.s?.min!=null&&["⏱️",j.s.min+"'","Minutos","#64748b"],
               j.s?.pas!=null&&["📊",j.s.pas,"Pases","#64748b"],
               j.s?.tac!=null&&["🛡️",j.s.tac,"Tackles","#64748b"],
               j.s?.ata!=null&&["🧤",j.s.ata,"Atajadas","#64748b"],
             ].filter(Boolean).slice(0,8).map(([ico,v,l,col])=>(
-              <div key={l} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"9px 11px",textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}>
-                <div style={{fontSize:12,marginBottom:2}}>{ico}</div>
-                <div style={{fontWeight:800,fontSize:16,color:col}}>{v}</div>
-                <div style={{fontSize:10,color:"#4a6070",marginTop:1}}>{l}</div>
+              <div key={l} style={{background:"rgba(255,255,255,0.04)",borderRadius:9,padding:"8px 10px",textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}>
+                <div style={{fontSize:11,marginBottom:2}}>{ico}</div>
+                <div style={{fontWeight:800,fontSize:15,color:col}}>{v}</div>
+                <div style={{fontSize:9,color:"#4a6070",marginTop:1}}>{l}</div>
               </div>
             ))}
           </div>
 
+          {/* Scout Score */}
+          {ss&&<div style={{marginBottom:14}}><ScoutScoreBar score={ss}/></div>}
+
           {/* Barras */}
-          <div style={{background:"rgba(255,255,255,0.03)",borderRadius:12,padding:"12px 14px",marginBottom:14}}>
-            <div style={{color:"#4a6070",fontSize:11,fontWeight:600,letterSpacing:.5,marginBottom:9}}>ESTADÍSTICAS DE TEMPORADA</div>
+          <div style={{background:"rgba(255,255,255,0.03)",borderRadius:12,padding:"11px 13px",marginBottom:12}}>
+            <div style={{color:"#4a6070",fontSize:10,fontWeight:600,letterSpacing:.5,marginBottom:8}}>ESTADÍSTICAS DE TEMPORADA</div>
             {statsKeys.filter(k=>j.s?.[k]!=null).map(k=>{
-              const def = STATS_DEF.find(s=>s.k===k);
+              const def=STATS_DEF.find(s=>s.k===k);
               if(!def) return null;
-              const v = parseFloat(j.s[k])||0;
-              const pct = Math.min((v/(def.max||100))*100,100);
+              const v=parseFloat(j.s[k])||0;
+              const pct=Math.min((v/(def.max||100))*100,100);
               return(
-                <div key={k} style={{display:"grid",gridTemplateColumns:"110px 1fr 40px",gap:8,alignItems:"center",marginBottom:6}}>
-                  <div style={{fontSize:12,color:"#64748b"}}>{def.l}</div>
-                  <div style={{height:4,background:"rgba(255,255,255,0.06)",borderRadius:2}}>
+                <div key={k} style={{display:"grid",gridTemplateColumns:"105px 1fr 36px",gap:7,alignItems:"center",marginBottom:5}}>
+                  <div style={{fontSize:11,color:"#64748b"}}>{def.l}</div>
+                  <div style={{height:3.5,background:"rgba(255,255,255,0.06)",borderRadius:2}}>
                     <div style={{width:`${pct}%`,height:"100%",background:c,borderRadius:2}}/>
                   </div>
-                  <div style={{fontSize:12,fontWeight:700,color:c,textAlign:"right"}}>{j.s[k]}</div>
+                  <div style={{fontSize:11,fontWeight:700,color:c,textAlign:"right"}}>{j.s[k]}</div>
                 </div>
               );
             })}
@@ -426,26 +622,26 @@ function ModalJugador({j, onClose, onToggleCompar, enCompar}) {
 
           {/* IA */}
           {!iaText?(
-            <button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:11,padding:"12px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:14,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              {loadIA?<><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando como scout profesional...</>:"🤖 Análisis Scout IA Profesional"}
+            <button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:10,padding:"11px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              {loadIA?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando como Chief Scout...</>:"🤖 Análisis Scout IA con Scout Score"}
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
             </button>
           ):(
-            <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:12,padding:14,marginBottom:12}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:11,padding:13,marginBottom:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9}}>
                 <span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>🤖 Análisis Scout IA Profesional</span>
-                <div style={{display:"flex",gap:8}}>
-                  <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:5,padding:"2px 8px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
-                  <button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:7,padding:"3px 10px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
+                <div style={{display:"flex",gap:7}}>
+                  <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:5,padding:"2px 7px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
+                  <button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 9px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
                 </div>
               </div>
-              <div style={{color:"#c4b5fd",lineHeight:1.85,fontSize:13,whiteSpace:"pre-wrap"}}>{iaText}</div>
+              <div style={{color:"#c4b5fd",lineHeight:1.85,fontSize:12.5,whiteSpace:"pre-wrap"}}>{iaText}</div>
             </div>
           )}
 
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            <button onClick={()=>exportPDFIndividual(j,iaText)} style={{border:"none",borderRadius:10,padding:"11px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:13,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>📄 PDF Individual</button>
-            <button onClick={()=>onToggleCompar(j)} style={{border:`1px solid ${enCompar?"rgba(0,232,122,.4)":"rgba(255,255,255,.1)"}`,borderRadius:10,padding:"11px",color:enCompar?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:13,background:enCompar?"rgba(0,232,122,.1)":"transparent",fontFamily:"inherit"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+            <button onClick={()=>exportPDFIndividual(j,iaText,ss)} style={{border:"none",borderRadius:10,padding:"10px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:12,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>📄 PDF con Scout Score</button>
+            <button onClick={()=>onToggle(j)} style={{border:`1px solid ${enCompar?"rgba(0,232,122,.4)":"rgba(255,255,255,.1)"}`,borderRadius:10,padding:"10px",color:enCompar?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:12,background:enCompar?"rgba(0,232,122,.1)":"transparent",fontFamily:"inherit"}}>
               ⚖️ {enCompar?"Quitar comparación":"Agregar a comparación"}
             </button>
           </div>
@@ -457,26 +653,26 @@ function ModalJugador({j, onClose, onToggleCompar, enCompar}) {
 
 // ─── MÓDULO PRINCIPAL ─────────────────────────────────────────────────────────
 export default function BasePro() {
-  const [db,        setDb]        = useState(null);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState("");
+  const [db,       setDb]       = useState(null);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState("");
 
-  const [region,    setRegion]    = useState("");
-  const [ligaId,    setLigaId]    = useState("");
-  const [equipo,    setEquipo]    = useState("");
-  const [posicion,  setPosicion]  = useState("");
-  const [busqueda,  setBusqueda]  = useState("");
-  const [edadMin,   setEdadMin]   = useState("");
-  const [edadMax,   setEdadMax]   = useState("");
-  const [soloStats, setSoloStats] = useState(true);
-  const [ordenar,   setOrdenar]   = useState("rat");
-  const [pagina,    setPagina]    = useState(0);
+  const [region,   setRegion]   = useState("");
+  const [ligaId,   setLigaId]   = useState("");
+  const [equipo,   setEquipo]   = useState("");
+  const [posicion, setPosicion] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [edadMin,  setEdadMin]  = useState("");
+  const [edadMax,  setEdadMax]  = useState("");
+  const [soloStats,setSoloStats]= useState(true);
+  const [ordenar,  setOrdenar]  = useState("score");
+  const [pagina,   setPagina]   = useState(0);
 
-  const [modal,     setModal]     = useState(null);
-  const [comparar,  setComparar]  = useState([]);
-  const [panelComp, setPanelComp] = useState(false);
-  const [iaComp,    setIaComp]    = useState("");
-  const [loadIa,    setLoadIa]    = useState(false);
+  const [modal,    setModal]    = useState(null);
+  const [comparar, setComparar] = useState([]);
+  const [panel,    setPanel]    = useState(false);
+  const [iaComp,   setIaComp]   = useState("");
+  const [loadIa,   setLoadIa]   = useState(false);
 
   const PER = 40;
 
@@ -484,7 +680,7 @@ export default function BasePro() {
     fetch("/fichascout_pro_data.json")
       .then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
       .then(d=>{ setDb(d); setLoading(false); })
-      .catch(e=>{ setError("No se pudo cargar. Verifica que fichascout_pro_data.json esté en la carpeta public/."); setLoading(false); });
+      .catch(e=>{ setError("No se pudo cargar. Verifica que fichascout_pro_data.json esté en public/."); setLoading(false); });
   },[]);
 
   const regiones = useMemo(()=>{
@@ -499,7 +695,7 @@ export default function BasePro() {
 
   const equiposDisp = useMemo(()=>{
     if(!db||!ligaId) return [];
-    const lid = parseInt(ligaId);
+    const lid=parseInt(ligaId);
     return [...new Map(Object.values(db.equipos).filter(e=>e.liga_id===lid).map(e=>[e.nombre,e])).values()].sort((a,b)=>a.nombre.localeCompare(b.nombre));
   },[db,ligaId]);
 
@@ -513,15 +709,13 @@ export default function BasePro() {
     if(posicion)  list = list.filter(j=>j.pos===posicion);
     if(edadMin)   list = list.filter(j=>j.e>=(+edadMin));
     if(edadMax)   list = list.filter(j=>j.e<=(+edadMax));
-    if(busqueda){
-      const q = busqueda.toLowerCase();
-      list = list.filter(j=>(j.n||"").toLowerCase().includes(q)||(j.eq||"").toLowerCase().includes(q));
-    }
+    if(busqueda){ const q=busqueda.toLowerCase(); list=list.filter(j=>(j.n||"").toLowerCase().includes(q)||(j.eq||"").toLowerCase().includes(q)); }
     return [...list].sort((a,b)=>{
-      if(ordenar==="rat")    return (parseFloat(b.s?.rat)||0)-(parseFloat(a.s?.rat)||0);
-      if(ordenar==="g")      return (b.s?.g||0)-(a.s?.g||0);
-      if(ordenar==="min")    return (b.s?.min||0)-(a.s?.min||0);
-      if(ordenar==="nombre") return (a.n||"").localeCompare(b.n||"");
+      if(ordenar==="score"){ const sa=calcScoutScore(a),sb=calcScoutScore(b); return (sb?.total||0)-(sa?.total||0); }
+      if(ordenar==="rat")   return (parseFloat(b.s?.rat)||0)-(parseFloat(a.s?.rat)||0);
+      if(ordenar==="g")     return (b.s?.g||0)-(a.s?.g||0);
+      if(ordenar==="edad")  return (a.e||99)-(b.e||99);
+      if(ordenar==="nombre")return (a.n||"").localeCompare(b.n||"");
       return 0;
     });
   },[db,region,ligaId,equipo,posicion,edadMin,edadMax,busqueda,soloStats,ordenar]);
@@ -538,53 +732,62 @@ export default function BasePro() {
     });
   },[]);
 
-  async function analizarComparacion(){
+  async function analizarComparacion() {
     if(comparar.length<2) return;
+    if (!ANTHROPIC_KEY) {
+      setIaComp("⚙️ Para activar el análisis IA, agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables.");
+      return;
+    }
     setLoadIa(true); setIaComp("");
+    const scores = comparar.map(j=>calcScoutScore(j));
     try{
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1400, messages:[{role:"user",content:promptComparacion(comparar)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
+      if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
       setIaComp(d.content?.[0]?.text||"Error.");
-    }catch(e){
-      setIaComp("Error de conexión. Verifique su conexión a internet.");
-    }
+    }catch(e){ setIaComp(`Error: ${e.message}`); }
     setLoadIa(false);
   }
 
   if(loading) return(
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:80,gap:14,color:"#4a6070"}}>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:80,gap:14}}>
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#00e87a" strokeWidth="2" style={{animation:"spin 1.2s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      <div style={{fontWeight:600,color:"#64748b"}}>Cargando 43.400 jugadores profesionales...</div>
+      <div style={{color:"#64748b",fontWeight:600}}>Cargando base de datos + calculando Scout Scores...</div>
     </div>
   );
+  if(error) return <div style={{padding:24,background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:12,margin:20,color:"#fca5a5",fontSize:13}}><b>⚠ Error:</b> {error}</div>;
 
-  if(error) return <div style={{padding:28,background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:12,margin:20,color:"#fca5a5",fontSize:13}}><b>⚠ Error:</b> {error}</div>;
-
-  const enComp = (j)=>!!comparar.find(p=>p.id===j.id);
-  const compIdx= (j)=>comparar.findIndex(p=>p.id===j.id);
+  const enComp  = (j)=>!!comparar.find(p=>p.id===j.id);
+  const getIdx  = (j)=>comparar.findIndex(p=>p.id===j.id);
+  const IN = {background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:8,padding:"7px 11px",color:"#eef2f6",fontSize:12,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
 
   return(
     <div style={{fontFamily:"system-ui,sans-serif"}}>
-      {modal&&<ModalJugador j={modal} onClose={()=>setModal(null)} onToggleCompar={toggle} enCompar={enComp(modal)}/>}
+      {modal&&<ModalJugador j={modal} ss={calcScoutScore(modal)} onClose={()=>setModal(null)} onToggle={toggle} enCompar={enComp(modal)}/>}
 
       {/* HEADER */}
-      <div style={{background:"linear-gradient(135deg,rgba(0,232,122,0.08),rgba(59,130,246,0.05))",border:"1px solid rgba(0,232,122,0.15)",borderRadius:14,padding:"14px 20px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+      <div style={{background:"linear-gradient(135deg,rgba(0,232,122,0.08),rgba(59,130,246,0.05))",border:"1px solid rgba(0,232,122,0.15)",borderRadius:14,padding:"13px 18px",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
         <div>
-          <div style={{fontWeight:800,color:"#eef2f6",fontSize:18,marginBottom:2}}>🌍 Base de Jugadores Profesionales</div>
-          <div style={{color:"#4a6070",fontSize:13}}>
+          <div style={{fontWeight:800,color:"#eef2f6",fontSize:17,marginBottom:2}}>🌍 Base Pro Mundial + Scout Score™</div>
+          <div style={{color:"#4a6070",fontSize:12}}>
             <span style={{color:G,fontWeight:700}}>{db?.meta?.total?.toLocaleString()}</span> jugadores únicos ·
             <span style={{color:G,fontWeight:700}}> {db?.meta?.ligas}</span> ligas ·
-            <span style={{color:G,fontWeight:700}}> {db?.meta?.equipos?.toLocaleString()}</span> equipos ·
+            <span style={{color:"#a855f7",fontWeight:700}}> Scout Score™</span> exclusivo FichaScout ·
             <span style={{color:G,fontWeight:700}}> {filtrados.length.toLocaleString()}</span> resultados
           </div>
         </div>
-        <div style={{display:"flex",gap:8}}>
+        <div style={{display:"flex",gap:7}}>
+          {!ANTHROPIC_KEY&&(
+            <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:8,padding:"6px 12px",fontSize:11,color:"#f59e0b",display:"flex",alignItems:"center",gap:6}}>
+              ⚙️ <span>Agrega VITE_ANTHROPIC_KEY en Vercel para activar IA</span>
+            </div>
+          )}
           {comparar.length>0&&(
-            <button onClick={()=>setPanelComp(p=>!p)} style={{background:panelComp?"rgba(0,232,122,0.15)":"rgba(255,255,255,0.07)",border:`1px solid ${panelComp?"rgba(0,232,122,0.3)":"rgba(255,255,255,0.1)"}`,borderRadius:9,padding:"8px 16px",color:panelComp?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:13,fontFamily:"inherit"}}>
+            <button onClick={()=>setPanel(p=>!p)} style={{background:panel?"rgba(0,232,122,0.15)":"rgba(255,255,255,0.07)",border:`1px solid ${panel?"rgba(0,232,122,0.3)":"rgba(255,255,255,0.1)"}`,borderRadius:8,padding:"7px 14px",color:panel?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>
               ⚖️ Comparando ({comparar.length}/4)
             </button>
           )}
@@ -592,195 +795,213 @@ export default function BasePro() {
       </div>
 
       {/* FILTROS */}
-      <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:"13px 16px",marginBottom:14}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:9,marginBottom:9}}>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>REGIÓN</div>
-            <select style={IN} value={region} onChange={e=>{setRegion(e.target.value);setLigaId("");setEquipo("");setPagina(0);}}>
+      <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"12px 15px",marginBottom:13}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,marginBottom:8}}>
+          {[["REGIÓN",<select style={IN} value={region} onChange={e=>{setRegion(e.target.value);setLigaId("");setEquipo("");setPagina(0);}}>
               <option value="">Todas las regiones</option>
               {regiones.map(r=><option key={r} value={r}>{r}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>LIGA</div>
-            <select style={IN} value={ligaId} onChange={e=>{setLigaId(e.target.value);setEquipo("");setPagina(0);}}>
+            </select>],
+            ["LIGA",<select style={IN} value={ligaId} onChange={e=>{setLigaId(e.target.value);setEquipo("");setPagina(0);}}>
               <option value="">Todas las ligas</option>
               {ligasDisp.map(l=><option key={l.id} value={l.id}>{l.nombre}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>EQUIPO</div>
-            <select style={IN} value={equipo} onChange={e=>{setEquipo(e.target.value);setPagina(0);}}>
+            </select>],
+            ["EQUIPO",<select style={IN} value={equipo} onChange={e=>{setEquipo(e.target.value);setPagina(0);}}>
               <option value="">Todos los equipos</option>
               {equiposDisp.map(e=><option key={e.id} value={e.nombre}>{e.nombre}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>POSICIÓN</div>
-            <select style={IN} value={posicion} onChange={e=>{setPosicion(e.target.value);setPagina(0);}}>
+            </select>],
+            ["POSICIÓN",<select style={IN} value={posicion} onChange={e=>{setPosicion(e.target.value);setPagina(0);}}>
               <option value="">Todas las posiciones</option>
               {["Arquero","Defensor","Volante","Delantero"].map(p=><option key={p} value={p}>{POS_ICON[p]} {p}</option>)}
-            </select>
-          </div>
+            </select>],
+          ].map(([l,el])=><div key={l}><div style={{fontSize:9,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>{l}</div>{el}</div>)}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"2fr 70px 70px 160px auto",gap:9,alignItems:"end"}}>
+        <div style={{display:"grid",gridTemplateColumns:"2fr 65px 65px 155px auto",gap:8,alignItems:"end"}}>
           <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>BUSCAR</div>
+            <div style={{fontSize:9,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>BUSCAR</div>
             <input style={IN} placeholder="🔍  Nombre o equipo..." value={busqueda} onChange={e=>{setBusqueda(e.target.value);setPagina(0);}}/>
           </div>
+          <div><div style={{fontSize:9,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>EDAD MÍN</div><input style={IN} type="number" placeholder="16" value={edadMin} onChange={e=>{setEdadMin(e.target.value);setPagina(0);}}/></div>
+          <div><div style={{fontSize:9,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>EDAD MÁX</div><input style={IN} type="number" placeholder="40" value={edadMax} onChange={e=>{setEdadMax(e.target.value);setPagina(0);}}/></div>
           <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>EDAD MÍN</div>
-            <input style={IN} type="number" placeholder="16" value={edadMin} onChange={e=>{setEdadMin(e.target.value);setPagina(0);}}/>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>EDAD MÁX</div>
-            <input style={IN} type="number" placeholder="40" value={edadMax} onChange={e=>{setEdadMax(e.target.value);setPagina(0);}}/>
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>ORDENAR POR</div>
+            <div style={{fontSize:9,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>ORDENAR POR</div>
             <select style={IN} value={ordenar} onChange={e=>setOrdenar(e.target.value)}>
+              <option value="score">🏅 Scout Score</option>
               <option value="rat">★ Rating</option>
               <option value="g">⚽ Goles</option>
-              <option value="min">⏱ Minutos</option>
+              <option value="edad">🎂 Más joven</option>
               <option value="nombre">🔤 Nombre A-Z</option>
             </select>
           </div>
-          <div style={{display:"flex",gap:8,alignItems:"center",paddingBottom:1}}>
-            <label style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:12,color:"#64748b",whiteSpace:"nowrap"}}>
-              <input type="checkbox" checked={soloStats} onChange={e=>{setSoloStats(e.target.checked);setPagina(0);}} style={{accentColor:G}}/>
-              Con stats
+          <div style={{display:"flex",gap:7,alignItems:"center",paddingBottom:1}}>
+            <label style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>
+              <input type="checkbox" checked={soloStats} onChange={e=>{setSoloStats(e.target.checked);setPagina(0);}} style={{accentColor:G}}/>Con stats
             </label>
-            <button onClick={()=>{setRegion("");setLigaId("");setEquipo("");setPosicion("");setBusqueda("");setEdadMin("");setEdadMax("");setPagina(0);}} style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:8,padding:"7px 12px",color:"#f87171",cursor:"pointer",fontSize:12,fontFamily:"inherit",fontWeight:600,whiteSpace:"nowrap"}}>✕ Limpiar</button>
+            <button onClick={()=>{setRegion("");setLigaId("");setEquipo("");setPosicion("");setBusqueda("");setEdadMin("");setEdadMax("");setPagina(0);}} style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:7,padding:"6px 11px",color:"#f87171",cursor:"pointer",fontSize:11,fontFamily:"inherit",fontWeight:600,whiteSpace:"nowrap"}}>✕</button>
           </div>
         </div>
       </div>
 
       {/* PANEL COMPARACIÓN */}
-      {panelComp&&comparar.length>0&&(
-        <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:16,marginBottom:14}}>
-          <div style={{color:"#4a6070",fontSize:11,fontWeight:600,letterSpacing:.5,marginBottom:12}}>PANEL DE COMPARACIÓN · {comparar.length}/4 JUGADORES</div>
+      {panel&&comparar.length>0&&(()=>{
+        const scores = comparar.map(j=>calcScoutScore(j));
+        const statsKeys = comparar.length>0 ? (STATS_POS[comparar[0].pos]||STATS_DEF.map(s=>s.k)).filter(k=>comparar.some(j=>j.s?.[k]!=null)) : [];
+        return(
+          <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:14,marginBottom:13}}>
+            <div style={{color:"#4a6070",fontSize:10,fontWeight:700,letterSpacing:.5,marginBottom:11}}>PANEL DE COMPARACIÓN · SCOUT SCORE™ · {comparar.length}/4 JUGADORES</div>
 
-          {/* Tarjetas */}
-          <div style={{display:"grid",gridTemplateColumns:`repeat(${comparar.length},1fr)`,gap:10,marginBottom:14}}>
-            {comparar.map((j,i)=>(
-              <div key={j.id} style={{background:`${SLOTS[i]}10`,border:`1px solid ${SLOTS[i]}33`,borderRadius:12,padding:12,textAlign:"center",position:"relative"}}>
-                <button onClick={()=>toggle(j)} style={{position:"absolute",top:6,right:6,background:"rgba(239,68,68,0.1)",border:"none",borderRadius:5,color:"#ef4444",cursor:"pointer",fontSize:10,padding:"1px 5px",fontFamily:"inherit"}}>✕</button>
-                <img src={j.foto} alt={j.n} style={{width:42,height:42,borderRadius:"50%",objectFit:"cover",border:`2px solid ${SLOTS[i]}`,marginBottom:6}} onError={e=>e.target.style.display="none"}/>
-                <div style={{fontWeight:700,color:"#eef2f6",fontSize:12,lineHeight:1.2}}>{j.n}</div>
-                <div style={{color:"#4a6070",fontSize:10,marginTop:1}}>{j.eq}</div>
-                <div style={{color:SLOTS[i],fontSize:10}}>{j.l}</div>
-                {j.s?.rat&&<div style={{fontWeight:800,color:SLOTS[i],fontSize:15,marginTop:3}}>★{j.s.rat}</div>}
-              </div>
-            ))}
-          </div>
-
-          {/* Tabla stats */}
-          {(()=>{
-            const statsKeys = comparar.length>0
-              ? (STATS_POS[comparar[0].pos]||STATS_DEF.map(s=>s.k)).filter(k=>comparar.some(j=>j.s?.[k]!=null))
-              : [];
-            return(
-              <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,overflow:"hidden",marginBottom:12}}>
-                <div style={{display:"grid",gridTemplateColumns:`120px repeat(${comparar.length},1fr)`,gap:8,padding:"7px 12px",borderBottom:"1px solid rgba(255,255,255,0.05)",fontSize:10,fontWeight:700,color:"#4a6070",letterSpacing:.5}}>
-                  <div>ESTADÍSTICA</div>
-                  {comparar.map((j,i)=><div key={i} style={{color:SLOTS[i]}}>{j.n.split(" ")[0]}</div>)}
-                </div>
-                {statsKeys.map(k=>{
-                  const def=STATS_DEF.find(s=>s.k===k);
-                  const vals=comparar.map(j=>parseFloat(j.s?.[k])||0);
-                  const max=Math.max(...vals);
-                  return(
-                    <div key={k} style={{display:"grid",gridTemplateColumns:`120px repeat(${comparar.length},1fr)`,gap:8,padding:"6px 12px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
-                      <div style={{fontSize:11,color:"#4a6070"}}>{def?.l||k}</div>
-                      {comparar.map((j,i)=>{
-                        const v=parseFloat(j.s?.[k])||0;
-                        const best=v===max&&max>0&&!def?.neg;
-                        const pct=def?.max?Math.min((v/def.max)*100,100):(max>0?Math.min((v/max)*100,100):0);
-                        return(
-                          <div key={i}>
-                            <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:1}}>
-                              <div style={{flex:1,height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}>
-                                <div style={{width:`${pct}%`,height:"100%",background:best?SLOTS[i]:"rgba(255,255,255,0.15)",borderRadius:2}}/>
-                              </div>
-                              <span style={{fontSize:11,fontWeight:best?800:400,color:best?SLOTS[i]:"#64748b",minWidth:22,textAlign:"right"}}>{j.s?.[k]??'—'}</span>
-                            </div>
-                            {best&&<div style={{fontSize:9,color:SLOTS[i],fontWeight:700}}>▲ MEJOR</div>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-
-          <div style={{display:"flex",gap:10,marginBottom:iaComp?12:0}}>
-            <button onClick={analizarComparacion} disabled={loadIa||comparar.length<2} style={{flex:1,border:"none",borderRadius:10,padding:"11px",color:"#fff",fontWeight:700,cursor:loadIa||comparar.length<2?"not-allowed":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",opacity:comparar.length<2?0.4:1,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              {loadIa?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando como Director Técnico...</>:"🤖 Análisis IA de Comparación"}
-            </button>
-            <button onClick={()=>exportPDFComparacion(comparar,iaComp)} style={{flex:1,border:"none",borderRadius:10,padding:"11px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:13,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>
-              📄 Exportar PDF Comparación
-            </button>
-          </div>
-
-          {iaComp&&(
-            <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:12,padding:14}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                <span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>🤖 Análisis Comparativo Scout IA</span>
-                <div style={{display:"flex",gap:8}}>
-                  <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:5,padding:"2px 8px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
-                  <button onClick={()=>setIaComp("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:7,padding:"3px 10px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
-                </div>
-              </div>
-              <div style={{color:"#c4b5fd",lineHeight:1.85,fontSize:13,whiteSpace:"pre-wrap"}}>{iaComp}</div>
+            {/* Cards */}
+            <div style={{display:"grid",gridTemplateColumns:`repeat(${comparar.length},1fr)`,gap:9,marginBottom:13}}>
+              {comparar.map((j,i)=>{
+                const ss=scores[i];
+                return(
+                  <div key={j.id} style={{background:`${SLOTS[i]}10`,border:`1px solid ${SLOTS[i]}33`,borderRadius:11,padding:11,textAlign:"center",position:"relative"}}>
+                    <button onClick={()=>toggle(j)} style={{position:"absolute",top:5,right:5,background:"rgba(239,68,68,0.1)",border:"none",borderRadius:4,color:"#ef4444",cursor:"pointer",fontSize:10,padding:"1px 5px",fontFamily:"inherit"}}>✕</button>
+                    <img src={j.foto} alt={j.n} style={{width:40,height:40,borderRadius:"50%",objectFit:"cover",border:`2px solid ${SLOTS[i]}`,marginBottom:5}} onError={e=>e.target.style.display="none"}/>
+                    <div style={{fontWeight:700,color:"#eef2f6",fontSize:11,lineHeight:1.2}}>{j.n}</div>
+                    <div style={{color:"#4a6070",fontSize:9,marginTop:1}}>{j.eq}</div>
+                    <div style={{color:SLOTS[i],fontSize:9}}>{j.l}</div>
+                    {j.s?.rat&&<div style={{fontWeight:800,color:SLOTS[i],fontSize:13,marginTop:3}}>★{j.s.rat}</div>}
+                    {ss&&<div style={{background:ss.label.bg,border:`1px solid ${ss.label.c}33`,borderRadius:6,padding:"3px 6px",marginTop:4}}>
+                      <div style={{fontWeight:900,fontSize:15,color:ss.label.c,lineHeight:1}}>{ss.total}</div>
+                      <div style={{fontSize:8,color:ss.label.c,fontWeight:700}}>Scout Score · {ss.label.l}</div>
+                    </div>}
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Scout Score detalle */}
+            <div style={{background:"rgba(168,85,247,0.06)",border:"1px solid rgba(168,85,247,0.15)",borderRadius:11,padding:"10px 13px",marginBottom:11}}>
+              <div style={{color:"#a855f7",fontSize:10,fontWeight:700,letterSpacing:.5,marginBottom:8}}>🏅 COMPARATIVA SCOUT SCORE™ — Algoritmo Exclusivo FichaScout</div>
+              {[["TOTAL /100",null],["Rendimiento (30%)","rendimiento"],["Edad/Curva (25%)","edad"],["Potencial (20%)","potencial"],["Regularidad (15%)","regularidad"],["Nivel liga (10%)","nivel"]].map(([l,k])=>{
+                const vals = k ? scores.map(ss=>ss?.comp?.[k]||0) : scores.map(ss=>ss?.total||0);
+                const maxV = Math.max(...vals);
+                return(
+                  <div key={l} style={{display:"grid",gridTemplateColumns:`140px repeat(${comparar.length},1fr)`,gap:7,padding:"4px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                    <div style={{fontSize:11,color:k?"#4a6070":"#eef2f6",fontWeight:k?400:700}}>{l}</div>
+                    {vals.map((v,i)=>{
+                      const best=v===maxV&&maxV>0;
+                      return <div key={i} style={{display:"flex",alignItems:"center",gap:5}}>
+                        <div style={{flex:1,height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}>
+                          <div style={{width:`${v}%`,height:"100%",background:best?SLOTS[i]:"rgba(255,255,255,0.15)",borderRadius:2}}/>
+                        </div>
+                        <span style={{fontSize:11,fontWeight:best?800:400,color:best?SLOTS[i]:"#64748b",minWidth:20,textAlign:"right"}}>{v}{best?" ▲":""}</span>
+                      </div>;
+                    })}
+                  </div>
+                );
+              })}
+              <div style={{display:"grid",gridTemplateColumns:`140px repeat(${comparar.length},1fr)`,gap:7,paddingTop:5}}>
+                <div style={{fontSize:11,color:"#4a6070"}}>Multiplicador liga</div>
+                {scores.map((ss,i)=><div key={i} style={{fontSize:10,fontWeight:700,color:ss?.difLabel?.c||"#64748b"}}>×{ss?.dif?.toFixed(2)||"—"} {ss?.difLabel?.l||""}</div>)}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,overflow:"hidden",marginBottom:11}}>
+              <div style={{display:"grid",gridTemplateColumns:`115px repeat(${comparar.length},1fr)`,gap:7,padding:"6px 11px",borderBottom:"1px solid rgba(255,255,255,0.05)",fontSize:9,fontWeight:700,color:"#4a6070",letterSpacing:.5}}>
+                <div>ESTADÍSTICA</div>{comparar.map((j,i)=><div key={i} style={{color:SLOTS[i]}}>{j.n.split(" ")[0]}</div>)}
+              </div>
+              {statsKeys.map(k=>{
+                const def=STATS_DEF.find(s=>s.k===k);
+                const vals=comparar.map(j=>parseFloat(j.s?.[k])||0);
+                const maxV=Math.max(...vals);
+                return(
+                  <div key={k} style={{display:"grid",gridTemplateColumns:`115px repeat(${comparar.length},1fr)`,gap:7,padding:"5px 11px",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
+                    <div style={{fontSize:10,color:"#4a6070"}}>{def?.l||k}</div>
+                    {comparar.map((j,i)=>{
+                      const v=parseFloat(j.s?.[k])||0; const best=v===maxV&&maxV>0&&!def?.neg;
+                      const pct=def?.max?Math.min((v/def.max)*100,100):(maxV>0?Math.min((v/maxV)*100,100):0);
+                      return <div key={i}>
+                        <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:1}}>
+                          <div style={{flex:1,height:3,background:"rgba(255,255,255,0.05)",borderRadius:2}}><div style={{width:`${pct}%`,height:"100%",background:best?SLOTS[i]:"rgba(255,255,255,0.15)",borderRadius:2}}/></div>
+                          <span style={{fontSize:11,fontWeight:best?800:400,color:best?SLOTS[i]:"#64748b",minWidth:20,textAlign:"right"}}>{j.s?.[k]??'—'}</span>
+                        </div>
+                        {best&&<div style={{fontSize:8,color:SLOTS[i],fontWeight:700}}>▲ MEJOR</div>}
+                      </div>;
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{display:"flex",gap:9,marginBottom:iaComp?11:0}}>
+              <button onClick={analizarComparacion} disabled={loadIa||comparar.length<2} style={{flex:1,border:"none",borderRadius:9,padding:"10px",color:"#fff",fontWeight:700,cursor:loadIa?"not-allowed":"pointer",fontSize:12,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",opacity:comparar.length<2?0.4:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+                {loadIa?<><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando...</>:"🤖 Análisis IA con Scout Score"}
+              </button>
+              <button onClick={()=>exportPDFComparacion(comparar,scores,iaComp)} style={{flex:1,border:"none",borderRadius:9,padding:"10px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:12,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>
+                📄 PDF con Scout Score™
+              </button>
+            </div>
+
+            {iaComp&&(
+              <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:11,padding:13}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9}}>
+                  <span style={{color:"#eef2f6",fontWeight:700,fontSize:12}}>🤖 Análisis Comparativo Scout IA</span>
+                  <div style={{display:"flex",gap:7}}>
+                    <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:4,padding:"2px 7px",fontSize:9,fontWeight:700}}>FichaScout PRO</span>
+                    <button onClick={()=>setIaComp("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 8px",color:"#4a6070",cursor:"pointer",fontSize:10,fontFamily:"inherit"}}>↻</button>
+                  </div>
+                </div>
+                <div style={{color:"#c4b5fd",lineHeight:1.85,fontSize:12.5,whiteSpace:"pre-wrap"}}>{iaComp}</div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* GRID */}
       {filtrados.length===0?(
         <div style={{textAlign:"center",padding:48,color:"#4a6070"}}>
-          <div style={{fontSize:34,marginBottom:10}}>🔍</div>
+          <div style={{fontSize:32,marginBottom:10}}>🔍</div>
           <div style={{fontWeight:600,marginBottom:6}}>Sin resultados</div>
           <div style={{fontSize:13}}>Cambie los filtros para ver jugadores</div>
         </div>
       ):(
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(175px,1fr))",gap:9,marginBottom:14}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(172px,1fr))",gap:8,marginBottom:13}}>
           {pageData.map(j=>{
             const c=POS_COLOR[j.pos]||G;
-            const ec=enComp(j);
-            const ci=compIdx(j);
+            const ec=enComp(j); const ci=getIdx(j);
+            const ss=calcScoutScore(j);
             return(
-              <div key={j.id} onClick={()=>setModal(j)} style={{background:ec?`${SLOTS[ci]}10`:"rgba(255,255,255,0.03)",border:`1px solid ${ec?SLOTS[ci]+"44":"rgba(255,255,255,0.07)"}`,borderRadius:12,padding:13,cursor:"pointer",transition:"all .15s",position:"relative"}}
+              <div key={j.id} onClick={()=>setModal(j)} style={{background:ec?`${SLOTS[ci]}10`:"rgba(255,255,255,0.03)",border:`1px solid ${ec?SLOTS[ci]+"44":"rgba(255,255,255,0.07)"}`,borderRadius:11,padding:12,cursor:"pointer",transition:"all .15s",position:"relative"}}
                 onMouseEnter={e=>{if(!ec)e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.transform="translateY(-2px)";}}
                 onMouseLeave={e=>{if(!ec)e.currentTarget.style.background="rgba(255,255,255,0.03)";e.currentTarget.style.transform="translateY(0)";}}>
 
-                {ec&&<div style={{position:"absolute",top:6,right:6,width:19,height:19,borderRadius:"50%",background:SLOTS[ci],display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#000"}}>{ci+1}</div>}
+                {ec&&<div style={{position:"absolute",top:5,right:5,width:18,height:18,borderRadius:"50%",background:SLOTS[ci],display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:800,color:"#000"}}>{ci+1}</div>}
 
-                <div style={{width:52,height:52,borderRadius:"50%",overflow:"hidden",margin:"0 auto 9px",border:`2px solid ${c}33`}}>
-                  <img src={j.foto} alt={j.n} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.parentElement.innerHTML=`<div style="width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:20px">${POS_ICON[j.pos]||"⚽"}</div>`;}}/>
+                <div style={{width:48,height:48,borderRadius:"50%",overflow:"hidden",margin:"0 auto 8px",border:`2px solid ${c}33`}}>
+                  <img src={j.foto} alt={j.n} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.parentElement.innerHTML=`<div style="width:100%;height:100%;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:19px">${POS_ICON[j.pos]||"⚽"}</div>`;}}/>
                 </div>
 
-                <div style={{fontWeight:700,color:"#eef2f6",fontSize:12,marginBottom:2,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{j.n}</div>
-                <div style={{color:"#4a6070",fontSize:10,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginBottom:1}}>{j.eq}</div>
-                <div style={{color:"#3a5060",fontSize:10,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginBottom:7}}>{j.l}</div>
+                <div style={{fontWeight:700,color:"#eef2f6",fontSize:12,marginBottom:1,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{j.n}</div>
+                <div style={{color:"#4a6070",fontSize:9.5,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginBottom:1}}>{j.eq}</div>
+                <div style={{color:"#3a5060",fontSize:9.5,textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginBottom:6}}>{j.l}</div>
 
-                <div style={{display:"flex",justifyContent:"center",gap:5,marginBottom:5,flexWrap:"wrap"}}>
-                  <span style={{background:`${c}15`,color:c,borderRadius:5,padding:"1px 7px",fontSize:9.5,fontWeight:700}}>{POS_ICON[j.pos]} {j.pos}</span>
-                  {j.e&&<span style={{color:"#4a6070",fontSize:9.5}}>{j.e}a</span>}
+                <div style={{display:"flex",justifyContent:"center",gap:4,marginBottom:5,flexWrap:"wrap"}}>
+                  <span style={{background:`${c}15`,color:c,borderRadius:4,padding:"1px 6px",fontSize:9,fontWeight:700}}>{POS_ICON[j.pos]} {j.pos}</span>
+                  {j.e&&<span style={{color:"#4a6070",fontSize:9}}>{j.e}a</span>}
                 </div>
 
-                {j.s?.rat&&<div style={{textAlign:"center",fontWeight:800,color:parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444",fontSize:15,marginBottom:3}}>★ {j.s.rat}</div>}
-
-                <div style={{display:"flex",gap:7,justifyContent:"center",marginBottom:7}}>
-                  {j.s?.g!=null&&<span style={{fontSize:10,color:"#64748b"}}>{j.s.g}⚽</span>}
-                  {j.s?.a!=null&&<span style={{fontSize:10,color:"#64748b"}}>{j.s.a}🅰️</span>}
-                  {j.s?.pts!=null&&<span style={{fontSize:10,color:"#64748b"}}>{j.s.pts}P</span>}
+                {/* Rating + Scout Score */}
+                <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:6}}>
+                  {j.s?.rat&&<div style={{textAlign:"center"}}>
+                    <div style={{fontWeight:800,color:parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444",fontSize:14}}>★{j.s.rat}</div>
+                    <div style={{fontSize:8,color:"#3a5060"}}>Rating</div>
+                  </div>}
+                  {ss&&<div style={{textAlign:"center",background:ss.label.bg,borderRadius:6,padding:"2px 6px"}}>
+                    <div style={{fontWeight:900,color:ss.label.c,fontSize:14}}>{ss.total}</div>
+                    <div style={{fontSize:8,color:ss.label.c,fontWeight:700}}>Scout</div>
+                  </div>}
                 </div>
 
-                <button onClick={e=>{e.stopPropagation();toggle(j);}} disabled={comparar.length>=4&&!ec} style={{width:"100%",border:`1px solid ${ec?SLOTS[ci]+"44":"rgba(255,255,255,0.07)"}`,borderRadius:7,padding:"5px",color:ec?SLOTS[ci]:"#4a6070",background:"transparent",cursor:comparar.length>=4&&!ec?"not-allowed":"pointer",fontSize:10.5,fontFamily:"inherit",fontWeight:600,opacity:comparar.length>=4&&!ec?0.3:1}}>
+                <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:6}}>
+                  {j.s?.g!=null&&<span style={{fontSize:9.5,color:"#64748b"}}>{j.s.g}⚽</span>}
+                  {j.s?.a!=null&&<span style={{fontSize:9.5,color:"#64748b"}}>{j.s.a}🅰️</span>}
+                  {j.s?.pts!=null&&<span style={{fontSize:9.5,color:"#64748b"}}>{j.s.pts}P</span>}
+                </div>
+
+                <button onClick={e=>{e.stopPropagation();toggle(j);}} disabled={comparar.length>=4&&!ec} style={{width:"100%",border:`1px solid ${ec?SLOTS[ci]+"44":"rgba(255,255,255,0.07)"}`,borderRadius:6,padding:"5px",color:ec?SLOTS[ci]:"#4a6070",background:"transparent",cursor:comparar.length>=4&&!ec?"not-allowed":"pointer",fontSize:10,fontFamily:"inherit",fontWeight:600,opacity:comparar.length>=4&&!ec?0.3:1}}>
                   {ec?"✓ En comparación":"⚖️ Comparar"}
                 </button>
               </div>
@@ -789,12 +1010,11 @@ export default function BasePro() {
         </div>
       )}
 
-      {/* PAGINACIÓN */}
       {totalPags>1&&(
-        <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:8,padding:"10px 0"}}>
-          <button onClick={()=>setPagina(p=>Math.max(0,p-1))} disabled={pagina===0} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:8,padding:"7px 14px",color:pagina===0?"#1a2e3d":"#eef2f6",cursor:pagina===0?"not-allowed":"pointer",fontFamily:"inherit",fontSize:12}}>← Anterior</button>
-          <span style={{color:"#4a6070",fontSize:12}}>{pagina+1} / {totalPags} · {filtrados.length.toLocaleString()} jugadores</span>
-          <button onClick={()=>setPagina(p=>Math.min(totalPags-1,p+1))} disabled={pagina>=totalPags-1} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:8,padding:"7px 14px",color:pagina>=totalPags-1?"#1a2e3d":"#eef2f6",cursor:pagina>=totalPags-1?"not-allowed":"pointer",fontFamily:"inherit",fontSize:12}}>Siguiente →</button>
+        <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:7,padding:"8px 0"}}>
+          <button onClick={()=>setPagina(p=>Math.max(0,p-1))} disabled={pagina===0} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:7,padding:"6px 13px",color:pagina===0?"#1a2e3d":"#eef2f6",cursor:pagina===0?"not-allowed":"pointer",fontFamily:"inherit",fontSize:11}}>← Anterior</button>
+          <span style={{color:"#4a6070",fontSize:11}}>{pagina+1} / {totalPags} · {filtrados.length.toLocaleString()} jugadores</span>
+          <button onClick={()=>setPagina(p=>Math.min(totalPags-1,p+1))} disabled={pagina>=totalPags-1} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:7,padding:"6px 13px",color:pagina>=totalPags-1?"#1a2e3d":"#eef2f6",cursor:pagina>=totalPags-1?"not-allowed":"pointer",fontFamily:"inherit",fontSize:11}}>Siguiente →</button>
         </div>
       )}
     </div>
