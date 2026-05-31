@@ -1242,15 +1242,16 @@ function ModBenchmarks() {
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 const NAV = [
-  {id:"dashboard",icon:"🏠",label:"Dashboard",roles:["scout","tecnico","club"]},
-  {id:"ligas",icon:"🏆",label:"Ligas",roles:["scout","tecnico","club"]},
-  {id:"scouting",icon:"🎬",label:"Scouting",roles:["scout","tecnico","club"]},
-  {id:"plantilla",icon:"👥",label:"Plantilla",roles:["tecnico","club"]},
-  {id:"talentos",icon:"🔍",label:"Talentos",roles:["scout","club"]},
-  {id:"pipeline",icon:"📋",label:"Pipeline Fichajes",roles:["club","scout"]},
-  {id:"rival",icon:"⚔️",label:"Análisis Rival",roles:["tecnico","club","scout"]},
-  {id:"tactico",icon:"🗺️",label:"Análisis Táctico",roles:["tecnico","club","scout"]},
-  {id:"benchmarks",icon:"📊",label:"Benchmarks SA",roles:["scout","tecnico","club"]},
+  {id:"dashboard",  icon:"🏠", label:"Dashboard",         roles:["scout","tecnico","club"]},
+  {id:"ligas",      icon:"🏆", label:"Ligas",              roles:["scout","tecnico","club"]},
+  {id:"scouting",   icon:"🎬", label:"Scouting",           roles:["scout","tecnico","club"]},
+  {id:"plantilla",  icon:"👥", label:"Plantilla",          roles:["tecnico","club"]},
+  {id:"talentos",   icon:"🔍", label:"Talentos",           roles:["scout","club"]},
+  {id:"pipeline",   icon:"📋", label:"Pipeline Fichajes",  roles:["club","scout"]},
+  {id:"comparador", icon:"⚖️", label:"Comparar Jugadores", roles:["scout","tecnico","club"], badge:"PRO"},
+  {id:"rival",      icon:"⚔️", label:"Análisis Rival",     roles:["tecnico","club","scout"]},
+  {id:"tactico",    icon:"🗺️", label:"Análisis Táctico",   roles:["tecnico","club","scout"]},
+  {id:"benchmarks", icon:"📊", label:"Benchmarks SA",      roles:["scout","tecnico","club"]},
 ];
 
 export default function ScoutLatinoApp() {
