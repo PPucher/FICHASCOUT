@@ -1245,7 +1245,7 @@ function ModBenchmarks() {
     if(r>=0.5)return 18; return 8;
   };
   const metricasFilled = metricas.map(m => {
-    const jv = jugSel?.(jugSel.s?.[m.k]??null):null;
+    const jv = jugSel ? (jugSel.s?.[m.k] ?? null) : null;
     const lv = bkPro[m.k]??bk[m.k]??null;
     return {...m, jugVal:jv, ligaVal:lv, diff:calcDiff(jv,lv,m.k), percentil:calcPct(jv,lv)};
   }).filter(m=>m.ligaVal!=null);
