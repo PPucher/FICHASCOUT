@@ -1257,24 +1257,15 @@ function ModBenchmarks() {
     if (!jugSel||!ANTHROPIC_KEY) { setIaText("⚙️ Configura VITE_ANTHROPIC_KEY en Vercel para activar IA."); return; }
     setLoadIA(true); setIaText("");
     const metStr = metricasFilled.map(m=>m.l+": jug="+(m.jugVal??'N/D')+" vs liga="+(m.ligaVal??'N/D')+(m.diff?(" ("+( m.diff.pct>0?"+":"")+m.diff.pct+"%)"):""  )).join(" | ");
-    const prompt = "Eres Chief Scout. Analiza este benchmark.
-
-JUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e??"—")+"a | "+jugSel.eq+" | "+jugSel.l+"
-LIGA: "+pais+" · "+div+" (Nivel "+nv+")
-RATING: "+(jugSel.s?.rat??"N/D")+" | PERCENTIL: "+(percentilGlobal??"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio??"N/D")+"/"+metricasFilled.length+"
-MÉTRICAS: "+metStr+"
-
-━━━ 📊 POSICIONAMIENTO EN LIGA ━━━
-¿En qué percentil real está? ¿Qué lo distingue del jugador promedio?
-
-━━━ 💪 MÉTRICAS DESTACADAS ━━━
-Las 2-3 stats donde más supera y su impacto táctico.
-
-━━━ ⚠️ BRECHAS CRÍTICAS ━━━
-Donde está bajo promedio y qué riesgo implica.
-
-━━━ ⭐ VEREDICTO BENCHMARK ━━━
-¿Supera, iguala o está bajo el promedio de "+div+"? ¿Vale el fichaje? Sé directo y concreto.";
+    const prompt = "Eres Chief Scout. Analiza este benchmark.\n\n"
+      + "JUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e||"—")+"a | "+jugSel.eq+" | "+jugSel.l+"\n"
+      + "LIGA: "+pais+" - "+div+" (Nivel "+nv+")\n"
+      + "RATING: "+(jugSel.s?.rat||"N/D")+" | PERCENTIL: "+(percentilGlobal||"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio||"N/D")+"/"+metricasFilled.length+"\n"
+      + "METRICAS: "+metStr+"\n\n"
+      + "1. POSICIONAMIENTO EN LIGA\nEn que percentil real esta? Que lo distingue del jugador promedio?\n\n"
+      + "2. METRICAS DESTACADAS\nLas 2-3 stats donde mas supera y su impacto tactico.\n\n"
+      + "3. BRECHAS CRITICAS\nDonde esta bajo promedio y que riesgo implica.\n\n"
+      + "4. VEREDICTO BENCHMARK\nSupera, iguala o esta bajo el promedio de "+div+"? Vale el fichaje? Se directo y concreto.";
     try {
       const rr = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:900,messages:[{role:"user",content:prompt}]})});
       const d = await rr.json();
