@@ -347,7 +347,7 @@ function buildPromptComparacion(jugadores, scores) {
   Desglose Scout Score: Rend.${ss?.comp.rendimiento||0} | Pot.${ss?.comp.potencial||0} | Edad:${ss?.comp.edad||0} | Reg:${ss?.comp.regularidad||0} | Liga:${ss?.comp.nivel||0}`;
   };
 
-  return `Eres Chief Scout de un club profesional. Genera un informe comparativo COMPLETO para el Director Deportivo. ES OBLIGATORIO completar las SEIS secciones sin excepción — la sección de RECOMENDACIÓN FINAL es la más importante y NUNCA puede quedar incompleta. Sé conciso (máx 4 líneas por jugador por sección) pero cubre a TODOS los jugadores en TODAS las secciones.
+  return `Eres Chief Scout de un club profesional. Genera un informe comparativo COMPLETO para el Director Deportivo. ES OBLIGATORIO completar las SEIS secciones sin excepción. IMPORTANTE: en la sección de FORTALEZAS Y DEBILIDADES incluye para CADA jugador su valor de mercado estimado (dato disponible en el análisis) — la sección de RECOMENDACIÓN FINAL es la más importante y NUNCA puede quedar incompleta. Sé conciso (máx 4 líneas por jugador por sección) pero cubre a TODOS los jugadores en TODAS las secciones.
 
 ${jugadores.map((j,i)=>ficha(j,scores[i],i)).join("\n\n")}
 
@@ -371,6 +371,25 @@ VEREDICTO CLARO — SI SOLO PUEDES FICHAR UNO:
 · ¿Para qué perfil de club es ideal?
 · ¿Cuándo ficharlo — ahora, próxima ventana o esperar?
 · Scout Score líder: ${Math.max(...scores.map(s=>s?.total||0))}/100 — ¿justifica la inversión vs los demás?`;
+}
+
+function mdToHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/^### (.+)$/gm, '<h4 style="font-size:13px;font-weight:800;color:#0f172a;margin:14px 0 5px;padding-bottom:4px;border-bottom:1px solid #e2e8f0">$1</h4>')
+    .replace(/^## (.+)$/gm, '<h3 style="font-size:15px;font-weight:800;color:#0f172a;margin:18px 0 7px;border-bottom:2px solid #00e87a55;padding-bottom:5px">$1</h3>')
+    .replace(/^# (.+)$/gm, '<h2 style="font-size:17px;font-weight:900;color:#0f172a;margin:20px 0 8px">$1</h2>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:700;color:#0f172a">$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em style="color:#374151">$1</em>')
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #e2e8f0;margin:12px 0"/>')
+    .replace(/^> (.+)$/gm, '<div style="border-left:3px solid #00e87a;padding:7px 12px;background:#f8fffe;margin:8px 0;color:#065f46;font-size:11.5px;font-style:italic">$1</div>')
+    .replace(/^[\-\*] (.+)$/gm, '<li style="margin:3px 0;padding-left:2px;text-align:left">$1</li>')
+    .replace(/^\|(.+)\|$/gm,(m,cells)=>{if(/^[\s|\-:]+$/.test(cells))return '';const tds=cells.split('|').map(t=>t.trim()).filter(Boolean);return '<tr>'+ tds.map((t,i)=>`<td style="padding:6px 9px;border:1px solid #e2e8f0;font-size:11px${i===0?';font-weight:600':''};${t.startsWith('**')?'font-weight:700':''}">'+t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')+'</td>').join('')+'</tr>';})
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g,m=>`<ul style="margin:6px 0 6px 18px;padding:0">${m}</ul>`)
+    .replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g,m=>`<table style="width:100%;border-collapse:collapse;margin:10px 0;font-family:inherit">${m}</table>`)
+    .replace(/\n{2,}/g,'</p><p style="margin:0 0 10px;text-align:justify;line-height:1.8">')
+    .replace(/\n/g,'<br style="margin-bottom:2px">')
+    .replace(/^/,'<p style="margin:0 0 10px;text-align:justify;line-height:1.8">').replace(/$/,'</p>');
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
@@ -457,7 +476,7 @@ ${iaText?`
     <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS SCOUT CON INTELIGENCIA ARTIFICIAL</div>
     <span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">🤖 FichaScout PRO</span>
   </div>
-  <div style="font-size:11px;color:#166534;line-height:1.8;white-space:pre-wrap">${iaText}</div>
+  <div style="font-size:12.5px;color:#1e293b;line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif">${mdToHtml(iaText)}</div>
 </div>`:""}
 
 <div style="background:#040a0f;border-radius:8px;padding:10px 18px;display:flex;justify-content:space-between;align-items:center">
@@ -493,6 +512,7 @@ function exportPDFComparacion(jugadores, scores, iaText) {
       <div style="font-size:8px;color:${ss.label.c};font-weight:700">Scout Score · ${ss.label.l}</div>
       <div style="font-size:8px;color:#94a3b8">×${ss.dif.toFixed(2)} ${ss.difLabel.l}</div>
     </div>`:""}
+    ${(()=>{try{const vm=calcValorMercado(j,ss);return vm?'<div style="background:'+vm.label.c+'10;border:1px solid '+vm.label.c+'33;border-radius:7px;padding:5px;margin-top:4px;text-align:center"><div style="font-size:8px;color:#94a3b8;margin-bottom:1px">💰 VALOR ESTIMADO</div><div style="font-size:14px;font-weight:900;color:'+vm.label.c+'">'+vm.midFmt+'</div><div style="font-size:8px;color:'+vm.label.c+';font-weight:600">'+vm.fmt+'</div></div>':'';}catch(e){return '';}})()}
   </div>`;
 
   const statsRelevantes = jugadores.length>0
@@ -577,7 +597,7 @@ function exportPDFComparacion(jugadores, scores, iaText) {
 
 ${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:10px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><div style="font-size:10px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS COMPARATIVO — FichaScout IA PROFESIONAL</div><span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">🤖 Scout IA</span></div>
-  <div style="font-size:10px;color:#166534;line-height:1.75;white-space:pre-wrap">${iaText}</div>
+  <div style="font-size:12.5px;color:#1e293b;line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif">${iaText}</div>
 </div>`:""}
 
 <div style="background:#040a0f;border-radius:8px;padding:9px 16px;display:flex;justify-content:space-between;align-items:center">
