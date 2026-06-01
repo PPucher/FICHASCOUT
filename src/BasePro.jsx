@@ -347,47 +347,30 @@ function buildPromptComparacion(jugadores, scores) {
   Desglose Scout Score: Rend.${ss?.comp.rendimiento||0} | Pot.${ss?.comp.potencial||0} | Edad:${ss?.comp.edad||0} | Reg:${ss?.comp.regularidad||0} | Liga:${ss?.comp.nivel||0}`;
   };
 
-  return `Eres Director Técnico con 20 años en fichajes internacionales. Compara estos ${jugadores.length} jugadores para presentar al Consejo Directivo. Cada decisión tiene implicaciones económicas reales:
+  return `Eres Chief Scout de un club profesional. Genera un informe comparativo COMPLETO para el Director Deportivo. ES OBLIGATORIO completar las SEIS secciones sin excepción — la sección de RECOMENDACIÓN FINAL es la más importante y NUNCA puede quedar incompleta. Sé conciso (máx 4 líneas por jugador por sección) pero cubre a TODOS los jugadores en TODAS las secciones.
 
 ${jugadores.map((j,i)=>ficha(j,scores[i],i)).join("\n\n")}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 RESUMEN EJECUTIVO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(En 3-4 líneas: cuál es la principal diferencia entre ellos y cuál lidera. Sé directo.)
+━━━ 📊 RESUMEN EJECUTIVO ━━━
+En 3 líneas: diferencia principal entre los ${jugadores.length} jugadores y quién lidera claramente.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📈 ESTADÍSTICAS CLAVE COMPARADAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Para cada estadística importante: quién lidera, por cuánto y qué significa tácticamente para el equipo que los ficharía.)
+━━━ 💪 FORTALEZAS Y ⚠️ DEBILIDADES ━━━
+${jugadores.map((j,i)=>`[${i+1}] ${j.n} — FORTALEZAS: (2 fortalezas clave con dato concreto) | DEBILIDADES: (2 limitaciones reales con dato concreto o ausencia notable)`).join("\n")}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💪 FORTALEZAS INDIVIDUALES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${jugadores.map((j,i)=>`Opción ${i+1} - ${j.n}: sus 3 mayores fortalezas con datos específicos`).join("\n")}
+━━━ 📈 ESTADÍSTICAS Y EXIGENCIA DE LIGA ━━━
+Para las 3 stats más relevantes: quién lidera y por cuánto. Luego ajusta por exigencia: ¿quién rinde más considerando su multiplicador de liga (×${scores.map(s=>s?.dif?.toFixed(2)||'N/A').join(' / ')})?  ¿Cuál tiene mayor mérito estadístico real?
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ DEBILIDADES Y RIESGOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${jugadores.map((j,i)=>`Opción ${i+1} - ${j.n}: sus principales limitaciones y riesgos de fichaje`).join("\n")}
+━━━ 🎯 PERFIL TÁCTICO ━━━
+${jugadores.map((j,i)=>`[${i+1}] ${j.n}: sistema ideal, rol exacto, tipo de club donde encaja.`).join("\n")}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏆 COMPARACIÓN POR LIGA Y EXIGENCIA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Ajusta el análisis por el multiplicador de liga de cada uno. ¿Quién rinde MÁS considerando la dificultad de su competencia? ¿Cuál tiene más mérito estadístico?)
+━━━ ⭐ RECOMENDACIÓN FINAL ━━━
+RANKING: ${jugadores.map((_,i)=>i+1+"°").join(" > ")} (completa el orden de mayor a menor recomendación con los nombres reales)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 PERFIL TÁCTICO DE CADA UNO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Para qué sistema, rol y tipo de club es ideal cada jugador. ¿Son intercambiables o claramente diferentes?)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 RECOMENDACIÓN FINAL DE FICHAJE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Ranking definitivo: ${jugadores.map((_,i)=>i+1+"°").join(" → ")}
-Scout Score ranking: (de mayor a menor)
-
-SI SOLO PUEDES FICHAR UNO: ¿Cuál y por qué? Sé específico sobre el tipo de club que más lo necesita y qué impacto tendría en el equipo.`;
+VEREDICTO CLARO — SI SOLO PUEDES FICHAR UNO:
+· ¿Cuál es y por qué? (nombra al jugador explícitamente)
+· ¿Para qué perfil de club es ideal?
+· ¿Cuándo ficharlo — ahora, próxima ventana o esperar?
+· Scout Score líder: ${Math.max(...scores.map(s=>s?.total||0))}/100 — ¿justifica la inversión vs los demás?`;
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
@@ -842,7 +825,7 @@ export default function BasePro() {
     try{
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:2000, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:3500, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
       if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
