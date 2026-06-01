@@ -63,6 +63,75 @@ const DIF_LABEL = (d) =>
   d >= 0.65 ? {l:"Media",           c:"#3b82f6"} :
               {l:"Media-Baja",      c:"#64748b"};
 
+// ─── VALOR DE MERCADO FICHASCOUT™ ─────────────────────────────────────────────
+// Multiplicadores de mercado por liga (cuánto paga el mercado por liga)
+const LIGA_MERCADO = {
+  // UEFA / Big5
+  2:4.0, 39:3.8, 140:3.2, 78:3.2, 135:3.0, 61:2.8,   // CL, PL, LaLiga, BL, SerieA, Ligue1
+  3:3.5, 848:2.8,                                        // EL, Conference
+  94:2.2, 88:2.2, 144:2.0, 203:1.8,                    // Portugal, Eredivisie, Bélgica, Turquía
+  // Europa secundaria
+  40:2.8, 141:2.5, 79:2.5, 136:2.4, 62:2.3,            // Championship, LaLiga2, BL2, SerieB, Ligue2
+  98:2.0, 307:2.2, 106:1.6, 235:1.4, 197:1.5,          // J1, Saudi, Ekstraklasa, Rusia, Grecia
+  // Sudamérica
+  9:1.8, 13:1.8, 11:1.5,                                // Copa América, Libertadores, Sudamericana
+  71:1.3, 128:1.2,                                       // Brasil SerieA, Argentina
+  239:0.8, 268:0.7, 283:0.7, 240:0.7, 292:0.6,         // Colombia, Uruguay, Perú, Ecuador, Venezuela
+  265:0.45, 266:0.30, 267:0.25,                          // Chile 1ª, 1B, Copa Chile
+  209:0.50, 282:0.45,                                    // Bolivia, Paraguay
+  // CONCACAF
+  253:1.6, 262:1.3, 254:1.0,                            // MLS, LigaMX, USL
+};
+const MERCADO_DEFAULT = 0.5;
+
+// Valor base en millones EUR por posición (jugador promedio nivel 1)
+const BASE_VALOR_POS = {
+  "Delantero": 8, "Volante": 6, "Defensor": 5, "Arquero": 4,
+  "Attacker": 8,  "Midfielder": 6, "Defender": 5, "Goalkeeper": 4,
+};
+
+// Curva de edad para valor de mercado (pico a 24-26 años)
+function edadValorMult(edad) {
+  if (!edad) return 0.8;
+  if (edad <= 19) return 1.4 + (20 - edad) * 0.05;
+  if (edad <= 23) return 1.6 + (23 - edad) * 0.05;
+  if (edad <= 26) return 1.8;
+  if (edad <= 29) return 1.8 - (edad - 26) * 0.12;
+  if (edad <= 33) return 1.44 - (edad - 29) * 0.15;
+  return Math.max(0.84 - (edad - 33) * 0.12, 0.05);
+}
+
+function calcValorMercado(j, ss) {
+  const posBase = BASE_VALOR_POS[j.pos] || 5;
+  const ligaMult = LIGA_MERCADO[j.l_id] || MERCADO_DEFAULT;
+  const edadMult = edadValorMult(j.e);
+  const scoreMult = ss ? (ss.total / 50) : 1.0;
+
+  // Contribución goles+asistencias
+  const ga = j.s ? ((j.s.g || 0) + (j.s.a || 0)) : 0;
+  const pts = j.s?.pts || 1;
+  const gaMult = 1 + Math.min((ga / pts) * 0.4, 0.8);
+
+  const valorBase = posBase * ligaMult * edadMult * scoreMult * gaMult;
+  const min = Math.round(valorBase * 0.75 * 10) / 10;
+  const max = Math.round(valorBase * 1.35 * 10) / 10;
+  const mid = Math.round(valorBase * 10) / 10;
+
+  // Format display
+  const fmt = (v) => v >= 100 ? `€${Math.round(v)}M` : v >= 10 ? `€${v.toFixed(1)}M` : v >= 1 ? `€${v.toFixed(1)}M` : `€${(v*1000).toFixed(0)}K`;
+
+  const label =
+    mid >= 80 ? {l:"Estrella mundial",  c:"#a855f7"} :
+    mid >= 40 ? {l:"Figura de liga top",c:"#ef4444"} :
+    mid >= 20 ? {l:"Jugador de nivel alto",c:"#f97316"} :
+    mid >= 8  ? {l:"Fichaje de valor",  c:"#f59e0b"} :
+    mid >= 2  ? {l:"Jugador de desarrollo",c:"#3b82f6"} :
+                {l:"Promesa regional", c:"#64748b"};
+
+  return { min, max, mid, fmt: `${fmt(min)} – ${fmt(max)}`, midFmt: fmt(mid), label, ligaMult };
+}
+
+
 // ─── SCOUT SCORE ─────────────────────────────────────────────────────────────
 function calcScoutScore(j) {
   const s = j.s;
@@ -215,7 +284,7 @@ function ScoutScoreBar({score, compact=false}) {
 }
 
 // ─── PROMPTS IA ───────────────────────────────────────────────────────────────
-function buildPromptIndividual(j, ss) {
+function buildPromptIndividual(j, ss, vm) {
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
   const statsStr = statsKeys.map(k=>{
     const def = STATS_DEF.find(s=>s.k===k);
@@ -223,74 +292,49 @@ function buildPromptIndividual(j, ss) {
     return v!=null ? `${def?.l||k}: ${v}` : null;
   }).filter(Boolean).join(" | ");
 
-  const ssInfo = ss ? `Scout Score FichaScout: ${ss.total}/100 (${ss.label.l})
-  - Rendimiento: ${ss.comp.rendimiento}/100 (peso 30%)
-  - Potencial de edad: ${ss.comp.edad}/100 (peso 25%)
-  - Potencial: ${ss.comp.potencial}/100 (peso 20%)
-  - Regularidad: ${ss.comp.regularidad}/100 (peso 15%)
-  - Nivel competitivo: ${ss.comp.nivel}/100 (peso 10%)
-  - Multiplicador de liga: ×${ss.dif.toFixed(2)} (${ss.difLabel.l})` : "";
+  const ssInfo = ss ? `Scout Score: ${ss.total}/100 (${ss.label.l}) | Rendimiento:${ss.comp.rendimiento} Edad:${ss.comp.edad} Potencial:${ss.comp.potencial} Regularidad:${ss.comp.regularidad} Nivel:${ss.comp.nivel} | Liga: ${ss.difLabel.l} ×${ss.dif.toFixed(2)}` : "N/A";
+  const vmInfo = vm ? `Rango estimado: ${vm.fmt} (central: ${vm.midFmt}) | Multiplicador mercado liga: ×${vm.ligaMult.toFixed(2)}` : "N/A";
 
-  return `Eres un Chief Scout con 20 años de experiencia en fútbol profesional latinoamericano y europeo. Genera un INFORME PROFESIONAL COMPLETO del siguiente jugador:
+  return `Eres el Chief Scout oficial de un club profesional. Genera el INFORME PROFESIONAL COMPLETO para el Director Deportivo. Usa datos concretos en CADA sección. Sé honesto, profundo y táctico:
 
-━━━ FICHA COMPLETA ━━━
-${j.n} | ${j.pos} | ${j.e||"—"} años | ${j.pais||"—"}
-${j.alt||""} ${j.pes||""} | ${j.eq} | ${j.l} | ${j.reg}
-Nivel de liga: ${j.nv===1?"1ª División":j.nv===2?"2ª División":"Copa/Regional"}
+JUGADOR: ${j.n} | ${j.pos} | ${j.e||"—"}a | ${j.pais||"—"} | ${j.alt||""} ${j.pes||""}
+CLUB: ${j.eq} | ${j.l} | ${j.reg} | Nivel ${j.nv===1?"1ª División":j.nv===2?"2ª División":"Regional"}
+SCOUT SCORE FICHASCOUT™: ${ssInfo}
+ESTADÍSTICAS 2024: ${statsStr}
+VALOR MERCADO ESTIMADO: ${vmInfo}
 
-━━━ ESTADÍSTICAS TEMPORADA 2024 ━━━
-${statsStr}
+Responde con EXACTAMENTE estas 7 secciones:
 
-━━━ INTELIGENCIA DEPORTIVA FICHASCOUT ━━━
-${ssInfo}
+━━━ 📊 ESTADÍSTICAS CLAVE Y CONTEXTO ━━━
+Analiza los 4-5 números más importantes. Para CADA estadística: cita el valor exacto, compara con el promedio de su posición en ${j.l} (dando un porcentaje o percentil aproximado) y explica su impacto táctico real.
 
-Genera el informe con esta estructura EXACTA y COMPLETA:
+━━━ 💪 FORTALEZAS INDIVIDUALES ━━━
+4-5 fortalezas. CADA UNA debe: citar la estadística exacta que la respalda + explicar el beneficio táctico concreto que aporta a un equipo (cómo cambia el juego del equipo cuando este jugador activa esta fortaleza).
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 DATOS DEL JUGADOR
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Nombre: ${j.n} | Posición: ${j.pos} | Edad: ${j.e||"—"}a | País: ${j.pais||"—"}
-Club: ${j.eq} | Liga: ${j.l} | Nivel: ${j.nv===1?"1ª División":j.nv===2?"2ª División":"Copa/Regional"}
-Scout Score FichaScout™: ${ss?.total||"N/A"}/100 (${ss?.label?.l||""}) | Exigencia liga: ${ss?.difLabel?.l||""} ×${ss?.dif?.toFixed(2)||""}
+━━━ ⚠️ DEBILIDADES Y RIESGOS ━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 ESTADÍSTICAS DESTACADAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Analiza los números más relevantes para su posición. Destaca los top 3-4 estadísticos que definen su temporada. Sé específico con los valores.)
+[A] DEBILIDADES PERSONALES DEL JUGADOR:
+Analiza 3 debilidades propias basadas en sus estadísticas o ausencia de ellas: qué hace mal técnicamente, qué evita, qué le falta para ser un jugador completo en su posición. Cita datos específicos (o la ausencia notable de ciertos datos) como evidencia.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💪 FORTALEZAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Mínimo 4 fortalezas con datos concretos. Menciona cómo estas fortalezas benefician a un equipo en términos tácticos.)
+[B] DEBILIDADES QUE GENERA EN EL EQUIPO:
+Analiza 2-3 problemas tácticos que su forma de jugar GENERA AL EQUIPO: espacios que deja desprotegidos, zonas del campo que no cubre, situaciones específicas (transición defensiva, presión alta, balón parado) donde el equipo se ve perjudicado por su estilo. Sé concreto y táctico, no genérico.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ DEBILIDADES Y RIESGOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(3-4 puntos débiles honestos. Incluye también riesgos de fichaje como edad, historial de lesiones implícito en minutos, etc.)
+━━━ 🏆 COMPARACIÓN CON SU LIGA ━━━
+Compara sus stats clave contra el jugador promedio de su posición en ${j.l}. ¿Top 10%, top 25%, promedio, por debajo? Menciona 2-3 jugadores reales de la ${j.l} o ligas similares con quienes se compara favorablemente o desfavorablemente. Qué lo hace diferente del resto.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏆 COMPARACIÓN CON SU LIGA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(¿Cómo se compara con el promedio de su posición en ${j.l}? ¿Está por encima, en la media o por debajo? ¿Qué lo diferencia de otros jugadores del mismo nivel?)
+━━━ 🎯 PERFIL TÁCTICO IDEAL ━━━
+Sistema específico (4-3-3 / 4-4-2 / 3-5-2 etc.) donde maximizaría rendimiento. Rol exacto dentro del sistema. Tipo de compañeros que necesita. Perfil de DT que lo potenciaría. Nombra un club real concreto donde encajaría perfectamente y explica por qué.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 PERFIL TÁCTICO IDEAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Sistema táctico específico donde brillaría: 4-3-3, 4-4-2, etc. Qué rol exacto. Qué perfil de DT lo potenciaría. Un ejemplo de club real donde encajaría perfectamente.)
+━━━ 💰 VALOR DE MERCADO ━━━
+Nuestro algoritmo estima: ${vm?.fmt||"Sin datos"}
+Confirma, ajusta o corrige este rango con tu análisis experto. Cita 2-3 transferencias reales recientes de jugadores comparables como referencia de precio. Considera: liga de origen (${j.l}, multiplicador ×${vm?.ligaMult?.toFixed(2)||"N/A"} vs Premier League), edad, Scout Score ${ss?.total||"N/A"}/100, momento de carrera.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💰 VALOR DE MERCADO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(Rango realista en USD/EUR considerando: liga de origen ×${ss?.dif?.toFixed(2)||""}, edad, rendimiento. Compara con transferencias similares recientes.)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⭐ RECOMENDACIÓN FINAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Scout Score: ${ss?.total||"N/A"}/100
-PRIORIDAD: [PRIORITARIO / RECOMENDADO / SEGUIMIENTO / NO RECOMENDADO]
-
-(3-4 líneas explicando la recomendación final. Sé directo y claro como lo haría un Director Deportivo profesional tomando una decisión real de inversión.)`;
+━━━ ⭐ RECOMENDACIÓN FINAL ━━━
+Scout Score: ${ss?.total||"N/A"}/100 | Valor: ${vm?.midFmt||"N/A"}
+VEREDICTO: [PRIORITARIO / RECOMENDADO / SEGUIMIENTO / NO RECOMENDADO]
+Justificación en 3-4 líneas: por qué esta calificación, para qué perfil de club es ideal, en qué momento ficharlo (ahora / próxima ventana / esperar). Sé directo como en una reunión de directorio.`;
 }
+
 
 function buildPromptComparacion(jugadores, scores) {
   const ficha = (j, ss, idx) => {
@@ -303,7 +347,7 @@ function buildPromptComparacion(jugadores, scores) {
   Desglose Scout Score: Rend.${ss?.comp.rendimiento||0} | Pot.${ss?.comp.potencial||0} | Edad:${ss?.comp.edad||0} | Reg:${ss?.comp.regularidad||0} | Liga:${ss?.comp.nivel||0}`;
   };
 
-  return `Eres Director Técnico con experiencia en fichajes internacionales. Compara estos ${jugadores.length} jugadores para una decisión de fichaje INMEDIATA:
+  return `Eres Director Técnico con 20 años en fichajes internacionales. Compara estos ${jugadores.length} jugadores para presentar al Consejo Directivo. Cada decisión tiene implicaciones económicas reales:
 
 ${jugadores.map((j,i)=>ficha(j,scores[i],i)).join("\n\n")}
 
@@ -347,7 +391,7 @@ SI SOLO PUEDES FICHAR UNO: ¿Cuál y por qué? Sé específico sobre el tipo de 
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
-function exportPDFIndividual(j, iaText, ss) {
+function exportPDFIndividual(j, iaText, ss, vm) {
   const fecha = new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
   const c = POS_COLOR[j.pos] || G;
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
@@ -566,7 +610,7 @@ ${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:
 }
 
 // ─── MODAL JUGADOR ────────────────────────────────────────────────────────────
-function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
+function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
   const [iaText, setIaText] = useState("");
   const [loadIA, setLoadIA] = useState(false);
   const c = POS_COLOR[j.pos] || G;
@@ -580,7 +624,7 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1200, messages:[{role:"user",content:buildPromptIndividual(j,ss)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1600, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
       });
       if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
@@ -637,6 +681,21 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
             ))}
           </div>
 
+          {/* Valor de Mercado */}
+          {vm&&(
+            <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:12,padding:"10px 14px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontSize:10,color:"#4a6070",fontWeight:600,letterSpacing:.5,marginBottom:3}}>💰 VALOR MERCADO FICHASCOUT™</div>
+                <div style={{fontWeight:800,fontSize:18,color:vm.label.c}}>{vm.fmt}</div>
+                <div style={{fontSize:10,color:"#4a6070",marginTop:1}}>{vm.label.l} · mercado {j.l} ×{vm.ligaMult.toFixed(2)}</div>
+              </div>
+              <div style={{textAlign:"center",background:`${vm.label.c}12`,border:`1px solid ${vm.label.c}33`,borderRadius:10,padding:"8px 14px"}}>
+                <div style={{fontWeight:900,fontSize:22,color:vm.label.c,lineHeight:1}}>{vm.midFmt}</div>
+                <div style={{fontSize:9,color:vm.label.c,fontWeight:700,marginTop:2}}>ESTIMACIÓN</div>
+              </div>
+            </div>
+          )}
+
           {/* Scout Score */}
           {ss&&<div style={{marginBottom:14}}><ScoutScoreBar score={ss}/></div>}
 
@@ -680,7 +739,7 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
           )}
 
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-            <button onClick={()=>exportPDFIndividual(j,iaText,ss)} style={{border:"none",borderRadius:10,padding:"11px",color:"#000",fontWeight:800,cursor:"pointer",fontSize:13,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit",letterSpacing:"0.2px"}}>📄 Generar Informe PDF</button>
+            <button onClick={()=>exportPDFIndividual(j,iaText,ss,vm)} style={{border:"none",borderRadius:10,padding:"11px",color:"#000",fontWeight:800,cursor:"pointer",fontSize:13,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit",letterSpacing:"0.2px"}}>📄 Generar Informe PDF</button>
             <button onClick={()=>onToggle(j)} style={{border:`1px solid ${enCompar?"rgba(0,232,122,.4)":"rgba(255,255,255,.1)"}`,borderRadius:10,padding:"11px",color:enCompar?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:13,background:enCompar?"rgba(0,232,122,.1)":"transparent",fontFamily:"inherit"}}>
               ⚖️ {enCompar?"Quitar comparación":"Agregar a comparación"}
             </button>
@@ -783,7 +842,7 @@ export default function BasePro() {
     try{
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
       if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
@@ -807,7 +866,7 @@ export default function BasePro() {
 
   return(
     <div style={{fontFamily:"system-ui,sans-serif"}}>
-      {modal&&<ModalJugador j={modal} ss={calcScoutScore(modal)} onClose={()=>setModal(null)} onToggle={toggle} enCompar={enComp(modal)}/>}
+      {modal&&<ModalJugador j={modal} ss={calcScoutScore(modal)} vm={calcValorMercado(modal,calcScoutScore(modal))} onClose={()=>setModal(null)} onToggle={toggle} enCompar={enComp(modal)}/>}
 
       {/* HEADER */}
       <div style={{background:"linear-gradient(135deg,rgba(0,232,122,0.08),rgba(59,130,246,0.05))",border:"1px solid rgba(0,232,122,0.15)",borderRadius:14,padding:"13px 18px",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
@@ -1024,15 +1083,19 @@ export default function BasePro() {
                 </div>
 
                 {/* Rating + Scout Score */}
-                <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:6}}>
+                <div style={{display:"flex",justifyContent:"center",gap:5,marginBottom:5}}>
                   {j.s?.rat&&<div style={{textAlign:"center"}}>
-                    <div style={{fontWeight:800,color:parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444",fontSize:14}}>★{j.s.rat}</div>
+                    <div style={{fontWeight:800,color:parseFloat(j.s.rat)>=8?"#00a855":parseFloat(j.s.rat)>=6.5?"#d97706":"#ef4444",fontSize:13}}>★{j.s.rat}</div>
                     <div style={{fontSize:8,color:"#3a5060"}}>Rating</div>
                   </div>}
-                  {ss&&<div style={{textAlign:"center",background:ss.label.bg,borderRadius:6,padding:"2px 6px"}}>
-                    <div style={{fontWeight:900,color:ss.label.c,fontSize:14}}>{ss.total}</div>
-                    <div style={{fontSize:8,color:ss.label.c,fontWeight:700}}>Scout</div>
+                  {ss&&<div style={{textAlign:"center",background:ss.label.bg,borderRadius:5,padding:"2px 5px"}}>
+                    <div style={{fontWeight:900,color:ss.label.c,fontSize:13}}>{ss.total}</div>
+                    <div style={{fontSize:7,color:ss.label.c,fontWeight:700}}>Scout</div>
                   </div>}
+                  {(()=>{const v=calcValorMercado(j,ss);return v?(<div style={{textAlign:"center",background:`${v.label.c}12`,borderRadius:5,padding:"2px 5px"}}>
+                    <div style={{fontWeight:800,color:v.label.c,fontSize:10,lineHeight:1.2}}>{v.midFmt}</div>
+                    <div style={{fontSize:7,color:v.label.c,fontWeight:600}}>Valor</div>
+                  </div>):null;})()}
                 </div>
 
                 <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:6}}>
