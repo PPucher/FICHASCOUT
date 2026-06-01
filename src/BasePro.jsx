@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 const ANTHROPIC_KEY = import.meta.env?.VITE_ANTHROPIC_KEY || "";
 const API_HEADERS = {
   "Content-Type": "application/json",
+  "anthropic-version": "2023-06-01",
   "anthropic-dangerous-direct-browser-access": "true",
   ...(ANTHROPIC_KEY ? {"x-api-key": ANTHROPIC_KEY} : {}),
 };
@@ -230,7 +231,7 @@ function buildPromptIndividual(j, ss) {
   - Nivel competitivo: ${ss.comp.nivel}/100 (peso 10%)
   - Multiplicador de liga: ×${ss.dif.toFixed(2)} (${ss.difLabel.l})` : "";
 
-  return `Eres un Chief Scout con 20 años de experiencia en fútbol profesional latinoamericano y europeo. Analiza este jugador de forma crítica y fundamentada:
+  return `Eres un Chief Scout con 20 años de experiencia en fútbol profesional latinoamericano y europeo. Genera un INFORME PROFESIONAL COMPLETO del siguiente jugador:
 
 ━━━ FICHA COMPLETA ━━━
 ${j.n} | ${j.pos} | ${j.e||"—"} años | ${j.pais||"—"}
@@ -243,29 +244,52 @@ ${statsStr}
 ━━━ INTELIGENCIA DEPORTIVA FICHASCOUT ━━━
 ${ssInfo}
 
-Genera el informe scout con esta estructura exacta:
+Genera el informe con esta estructura EXACTA y COMPLETA:
 
-🔍 PERFIL DE JUEGO
-(2-3 líneas describiendo su estilo, rol y características únicas)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 DATOS DEL JUGADOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nombre: ${j.n} | Posición: ${j.pos} | Edad: ${j.e||"—"}a | País: ${j.pais||"—"}
+Club: ${j.eq} | Liga: ${j.l} | Nivel: ${j.nv===1?"1ª División":j.nv===2?"2ª División":"Copa/Regional"}
+Scout Score FichaScout™: ${ss?.total||"N/A"}/100 (${ss?.label?.l||""}) | Exigencia liga: ${ss?.difLabel?.l||""} ×${ss?.dif?.toFixed(2)||""}
 
-📈 FORTALEZAS ESTADÍSTICAS
-(3-4 puntos fuertes CITANDO NÚMEROS CONCRETOS de las estadísticas)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 ESTADÍSTICAS DESTACADAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Analiza los números más relevantes para su posición. Destaca los top 3-4 estadísticos que definen su temporada. Sé específico con los valores.)
 
-⚠️ ÁREAS DE MEJORA
-(2-3 puntos débiles honestos con datos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💪 FORTALEZAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Mínimo 4 fortalezas con datos concretos. Menciona cómo estas fortalezas benefician a un equipo en términos tácticos.)
 
-🏆 PROYECCIÓN Y CURVA DE CARRERA
-(Considerando su edad: ¿está en su mejor momento? ¿puede mejorar? ¿cuántos años de alto rendimiento le quedan?)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ DEBILIDADES Y RIESGOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(3-4 puntos débiles honestos. Incluye también riesgos de fichaje como edad, historial de lesiones implícito en minutos, etc.)
 
-🎯 EQUIPO IDEAL
-(Sistema táctico específico, rol y perfil de club que lo potenciaría)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 COMPARACIÓN CON SU LIGA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(¿Cómo se compara con el promedio de su posición en ${j.l}? ¿Está por encima, en la media o por debajo? ¿Qué lo diferencia de otros jugadores del mismo nivel?)
 
-💰 VALOR DE MERCADO ESTIMADO
-(Rango realista en USD considerando la liga donde juega y su Scout Score)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 PERFIL TÁCTICO IDEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Sistema táctico específico donde brillaría: 4-3-3, 4-4-2, etc. Qué rol exacto. Qué perfil de DT lo potenciaría. Un ejemplo de club real donde encajaría perfectamente.)
 
-⭐ VEREDICTO FINAL
-Scout Score: ${ss?.total||"N/A"}/100 → [PRIORIDAD DE FICHAJE: PRIORITARIO/RECOMENDADO/SEGUIMIENTO/NO RECOMENDADO]
-(2-3 líneas de justificación clara)`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 VALOR DE MERCADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Rango realista en USD/EUR considerando: liga de origen ×${ss?.dif?.toFixed(2)||""}, edad, rendimiento. Compara con transferencias similares recientes.)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⭐ RECOMENDACIÓN FINAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Scout Score: ${ss?.total||"N/A"}/100
+PRIORIDAD: [PRIORITARIO / RECOMENDADO / SEGUIMIENTO / NO RECOMENDADO]
+
+(3-4 líneas explicando la recomendación final. Sé directo y claro como lo haría un Director Deportivo profesional tomando una decisión real de inversión.)`;
 }
 
 function buildPromptComparacion(jugadores, scores) {
@@ -283,27 +307,43 @@ function buildPromptComparacion(jugadores, scores) {
 
 ${jugadores.map((j,i)=>ficha(j,scores[i],i)).join("\n\n")}
 
-ANÁLISIS COMPARATIVO PROFESIONAL:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 RESUMEN EJECUTIVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(En 3-4 líneas: cuál es la principal diferencia entre ellos y cuál lidera. Sé directo.)
 
-📊 RESUMEN EJECUTIVO (3 líneas máximo)
-¿Quién lidera claramente? ¿Qué diferencia al mejor del resto?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📈 ESTADÍSTICAS CLAVE COMPARADAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Para cada estadística importante: quién lidera, por cuánto y qué significa tácticamente para el equipo que los ficharía.)
 
-⚖️ COMPARATIVA SCOUT SCORE
-Analiza por qué cada uno tiene su puntuación. ¿Es justo el ranking? ¿Quién tiene mejor relación rendimiento/liga?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💪 FORTALEZAS INDIVIDUALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${jugadores.map((j,i)=>`Opción ${i+1} - ${j.n}: sus 3 mayores fortalezas con datos específicos`).join("\n")}
 
-🔑 ESTADÍSTICAS DIFERENCIADORAS
-Para cada métrica clave: quién lidera, qué ventaja tiene y qué significa tácticamente
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ DEBILIDADES Y RIESGOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${jugadores.map((j,i)=>`Opción ${i+1} - ${j.n}: sus principales limitaciones y riesgos de fichaje`).join("\n")}
 
-👤 PERFIL INDIVIDUAL
-${jugadores.map((_,i)=>`Opción ${i+1}: en 2 líneas, qué lo hace único y cuál es su principal limitación`).join("\n")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 COMPARACIÓN POR LIGA Y EXIGENCIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Ajusta el análisis por el multiplicador de liga de cada uno. ¿Quién rinde MÁS considerando la dificultad de su competencia? ¿Cuál tiene más mérito estadístico?)
 
-🔄 AJUSTE POR EXIGENCIA DE LIGA
-¿Cuánto cambia el ranking si normalizamos el rendimiento por la dificultad de la liga donde juegan?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 PERFIL TÁCTICO DE CADA UNO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Para qué sistema, rol y tipo de club es ideal cada jugador. ¿Son intercambiables o claramente diferentes?)
 
-💡 RECOMENDACIÓN FINAL
-Ranking ${jugadores.map((_,i)=>i+1+"°").join(" → ")} con justificación
-¿Para qué tipo de equipo y sistema es cada uno?
-Si solo pudieras fichar a UNO, ¿cuál y por qué?`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 RECOMENDACIÓN FINAL DE FICHAJE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ranking definitivo: ${jugadores.map((_,i)=>i+1+"°").join(" → ")}
+Scout Score ranking: (de mayor a menor)
+
+SI SOLO PUEDES FICHAR UNO: ¿Cuál y por qué? Sé específico sobre el tipo de club que más lo necesita y qué impacto tendría en el equipo.`;
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
@@ -552,8 +592,8 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
 
   return(
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.88)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div style={{background:"#07111a",borderRadius:18,border:"1px solid rgba(255,255,255,0.09)",width:"100%",maxWidth:760,maxHeight:"92vh",overflowY:"auto"}}>
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"12px 16px"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:"#07111a",borderRadius:18,border:"1px solid rgba(255,255,255,0.09)",width:"100%",maxWidth:920,maxHeight:"96vh",overflowY:"auto"}}>
 
         {/* Header */}
         <div style={{background:`${c}0a`,padding:"16px 20px",borderBottom:"1px solid rgba(255,255,255,0.07)",display:"flex",gap:13,alignItems:"center",position:"sticky",top:0,backdropFilter:"blur(20px)",zIndex:1,borderRadius:"18px 18px 0 0"}}>
@@ -623,7 +663,7 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
           {/* IA */}
           {!iaText?(
             <button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:10,padding:"11px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              {loadIA?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando como Chief Scout...</>:"🤖 Análisis Scout IA con Scout Score"}
+              {loadIA?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando como Chief Scout...</>:"📋 Generar Informe Scout IA Completo"}
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
             </button>
           ):(
@@ -635,13 +675,13 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
                   <button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 9px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
                 </div>
               </div>
-              <div style={{color:"#c4b5fd",lineHeight:1.85,fontSize:12.5,whiteSpace:"pre-wrap"}}>{iaText}</div>
+              <div style={{color:"#c4b5fd",lineHeight:1.9,fontSize:12.5,whiteSpace:"pre-wrap",fontFamily:"system-ui,sans-serif"}}>{iaText}</div>
             </div>
           )}
 
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
-            <button onClick={()=>exportPDFIndividual(j,iaText,ss)} style={{border:"none",borderRadius:10,padding:"10px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:12,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>📄 PDF con Scout Score</button>
-            <button onClick={()=>onToggle(j)} style={{border:`1px solid ${enCompar?"rgba(0,232,122,.4)":"rgba(255,255,255,.1)"}`,borderRadius:10,padding:"10px",color:enCompar?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:12,background:enCompar?"rgba(0,232,122,.1)":"transparent",fontFamily:"inherit"}}>
+            <button onClick={()=>exportPDFIndividual(j,iaText,ss)} style={{border:"none",borderRadius:10,padding:"11px",color:"#000",fontWeight:800,cursor:"pointer",fontSize:13,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit",letterSpacing:"0.2px"}}>📄 Generar Informe PDF</button>
+            <button onClick={()=>onToggle(j)} style={{border:`1px solid ${enCompar?"rgba(0,232,122,.4)":"rgba(255,255,255,.1)"}`,borderRadius:10,padding:"11px",color:enCompar?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:13,background:enCompar?"rgba(0,232,122,.1)":"transparent",fontFamily:"inherit"}}>
               ⚖️ {enCompar?"Quitar comparación":"Agregar a comparación"}
             </button>
           </div>
@@ -927,7 +967,7 @@ export default function BasePro() {
 
             <div style={{display:"flex",gap:9,marginBottom:iaComp?11:0}}>
               <button onClick={analizarComparacion} disabled={loadIa||comparar.length<2} style={{flex:1,border:"none",borderRadius:9,padding:"10px",color:"#fff",fontWeight:700,cursor:loadIa?"not-allowed":"pointer",fontSize:12,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",opacity:comparar.length<2?0.4:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-                {loadIa?<><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando...</>:"🤖 Análisis IA con Scout Score"}
+                {loadIa?<><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando...</>:"📋 Generar Informe Comparativo IA"}
               </button>
               <button onClick={()=>exportPDFComparacion(comparar,scores,iaComp)} style={{flex:1,border:"none",borderRadius:9,padding:"10px",color:"#000",fontWeight:700,cursor:"pointer",fontSize:12,background:`linear-gradient(135deg,${G},#00c96a)`,fontFamily:"inherit"}}>
                 📄 PDF con Scout Score™
