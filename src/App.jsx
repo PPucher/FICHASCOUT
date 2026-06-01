@@ -1174,69 +1174,363 @@ function ModTactico({data}) {
   );
 }
 
-// ─── BENCHMARKS ───────────────────────────────────────────────────────────────
+// ─── BENCHMARKS AVANZADO ─────────────────────────────────────────────────────
 function ModBenchmarks() {
   const paises = Object.keys(SA);
-  const [pais, setPais] = useState(paises[0]);
-  const [div, setDiv] = useState(Object.keys(SA[paises[0]])[0]);
-  const [pos, setPos] = useState("Delantero Centro");
+  const [pais, setPais]   = useState(paises[0]);
+  const [div,  setDiv]    = useState(Object.keys(SA[paises[0]])[0]);
+  const [pos,  setPos]    = useState("Delantero Centro");
+  const [busq, setBusq]   = useState("");
+  const [jugSel, setJugSel] = useState(null);
+  const [sugerencias, setSugerencias] = useState([]);
+  const [dbPro, setDbPro] = useState(null);
+  const [iaText, setIaText] = useState("");
+  const [loadIA, setLoadIA] = useState(false);
+  const [tab2, setTab2]   = useState("comparacion");
+
   const divData = SA[pais]?.[div];
-  const bk = POS[pos]?.bk[divData?.nv||2]||{};
-  const pd = POS[pos];
-  const nC = {1:"#00e87a",2:"#3b82f6",3:"#f59e0b"};
+  const nv      = divData?.nv || 2;
+  const pd      = POS[pos];
+  const bk      = pd?.bk[nv] || {};
+  const nC      = {1:"#00e87a", 2:"#3b82f6", 3:"#f59e0b", 4:"#64748b"};
+  const nvLbl   = {1:"1ª División", 2:"2ª División", 3:"Copa / Regional", 4:"Amateur"};
+
+  useEffect(() => {
+    if (!dbPro) {
+      fetch("/fichascout_pro_data.json").then(r=>r.json()).then(d=>setDbPro(d)).catch(()=>{});
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!busq || busq.length < 2 || !dbPro) { setSugerencias([]); return; }
+    const q = busq.toLowerCase();
+    setSugerencias(dbPro.jugadores.filter(j=>j.n?.toLowerCase().includes(q)&&j.s?.rat).slice(0,8));
+  }, [busq, dbPro]);
+
+  const BK_BASEPRO = {
+    "Arquero":  {1:{ata:4.2,pas:580,min:2500,pts:28,rat:6.9},2:{ata:3.5,pas:480,min:2200,pts:25,rat:6.7},3:{ata:3.0,pas:380,min:1900,pts:22,rat:6.5}},
+    "Defensor": {1:{tac:3.1,int:2.8,due:4.5,pas:680,g:0.8,rat:6.85},2:{tac:2.6,int:2.2,due:3.7,pas:560,g:0.5,rat:6.7},3:{tac:2.1,int:1.7,due:2.9,pas:440,g:0.3,rat:6.5}},
+    "Volante":  {1:{pas:920,pc:2.1,g:2.5,a:2.8,tac:2.4,int:1.9,rat:6.9},2:{pas:760,pc:1.7,g:1.8,a:2.1,tac:2.0,int:1.5,rat:6.75},3:{pas:600,pc:1.3,g:1.2,a:1.5,tac:1.6,int:1.1,rat:6.55}},
+    "Delantero":{1:{g:8.5,a:3.2,dis:22.0,reg:28.0,due:95.0,min:2100,rat:7.0},2:{g:6.5,a:2.4,dis:17.0,reg:22.0,due:76.0,min:1850,rat:6.8},3:{g:4.5,a:1.7,dis:13.0,reg:16.0,due:58.0,min:1600,rat:6.6}},
+  };
+  const METRICAS_POS = {
+    "Arquero":  [{k:"ata",l:"Atajadas / partido",icon:"🛑"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"min",l:"Minutos jugados",icon:"⏱️"},{k:"pts",l:"Partidos",icon:"📅"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Defensor": [{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"g",l:"Goles",icon:"⚽"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Volante":  [{k:"pas",l:"Pases totales",icon:"📤"},{k:"pc",l:"Pases clave",icon:"🔑"},{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Delantero":[{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"dis",l:"Disparos al arco",icon:"💥"},{k:"reg",l:"Regates exitosos",icon:"🕺"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"min",l:"Minutos jugados",icon:"⏱️"},{k:"rat",l:"Rating",icon:"⭐"}],
+  };
+  const posACateg = p => {
+    if (!p) return "Delantero";
+    if (p.includes("Arquero")||p.includes("Goalkeeper")) return "Arquero";
+    if (p.includes("Defensor")||p.includes("Lateral")||p.includes("Defender")) return "Defensor";
+    if (p.includes("Volante")||p.includes("Midfielder")) return "Volante";
+    return "Delantero";
+  };
+  const catJug   = jugSel ? posACateg(jugSel.pos) : posACateg(pos);
+  const metricas = METRICAS_POS[catJug] || METRICAS_POS["Delantero"];
+  const bkPro    = BK_BASEPRO[catJug]?.[Math.min(nv,3)] || {};
+
+  const calcDiff = (jv, lv, key) => {
+    if (jv==null||lv==null||lv===0) return null;
+    const NEG = new Set(["am","goles_recibidos"]);
+    const pct = ((jv-lv)/lv)*100;
+    const esN = NEG.has(key);
+    return { pct: pct.toFixed(1), mejor: esN?pct<-5:pct>5, peor: esN?pct>5:pct<-5 };
+  };
+  const calcPct = (jv, lv) => {
+    if (!jv||!lv) return null;
+    const r = jv/lv;
+    if(r>=2.0)return 97; if(r>=1.6)return 92; if(r>=1.3)return 82;
+    if(r>=1.1)return 70; if(r>=0.9)return 50; if(r>=0.7)return 30;
+    if(r>=0.5)return 18; return 8;
+  };
+  const metricasFilled = metricas.map(m => {
+    const jv = jugSel?.(jugSel.s?.[m.k]??null):null;
+    const lv = bkPro[m.k]??bk[m.k]??null;
+    return {...m, jugVal:jv, ligaVal:lv, diff:calcDiff(jv,lv,m.k), percentil:calcPct(jv,lv)};
+  }).filter(m=>m.ligaVal!=null);
+
+  const sobrePromedio   = jugSel ? metricasFilled.filter(m=>m.diff?.mejor).length : null;
+  const percentilGlobal = jugSel ? Math.round(metricasFilled.filter(m=>m.percentil).reduce((s,m)=>s+m.percentil,0)/Math.max(metricasFilled.filter(m=>m.percentil).length,1)) : null;
+
+  async function generarIA() {
+    if (!jugSel||!ANTHROPIC_KEY) { setIaText("⚙️ Configura VITE_ANTHROPIC_KEY en Vercel para activar IA."); return; }
+    setLoadIA(true); setIaText("");
+    const metStr = metricasFilled.map(m=>m.l+": jug="+(m.jugVal??'N/D')+" vs liga="+(m.ligaVal??'N/D')+(m.diff?(" ("+( m.diff.pct>0?"+":"")+m.diff.pct+"%)"):""  )).join(" | ");
+    const prompt = "Eres Chief Scout. Analiza este benchmark.
+
+JUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e??"—")+"a | "+jugSel.eq+" | "+jugSel.l+"
+LIGA: "+pais+" · "+div+" (Nivel "+nv+")
+RATING: "+(jugSel.s?.rat??"N/D")+" | PERCENTIL: "+(percentilGlobal??"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio??"N/D")+"/"+metricasFilled.length+"
+MÉTRICAS: "+metStr+"
+
+━━━ 📊 POSICIONAMIENTO EN LIGA ━━━
+¿En qué percentil real está? ¿Qué lo distingue del jugador promedio?
+
+━━━ 💪 MÉTRICAS DESTACADAS ━━━
+Las 2-3 stats donde más supera y su impacto táctico.
+
+━━━ ⚠️ BRECHAS CRÍTICAS ━━━
+Donde está bajo promedio y qué riesgo implica.
+
+━━━ ⭐ VEREDICTO BENCHMARK ━━━
+¿Supera, iguala o está bajo el promedio de "+div+"? ¿Vale el fichaje? Sé directo y concreto.";
+    try {
+      const rr = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:900,messages:[{role:"user",content:prompt}]})});
+      const d = await rr.json();
+      setIaText(d.content?.[0]?.text||"Error.");
+    } catch(err){setIaText("Error: "+err.message);}
+    setLoadIA(false);
+  }
+
+  function BenchRow({m}) {
+    const {l,icon,jugVal,ligaVal,diff,percentil} = m;
+    const hj = jugVal!=null;
+    const bMax = hj?Math.max(jugVal,ligaVal,0.01):ligaVal||1;
+    const lPct = Math.round((ligaVal/bMax)*100);
+    const jPct = hj?Math.round((jugVal/bMax)*100):0;
+    const sc = !hj?"#64748b":diff?.mejor?"#00a855":diff?.peor?"#ef4444":"#f59e0b";
+    const sb = !hj?"transparent":diff?.mejor?"rgba(0,168,85,0.1)":diff?.peor?"rgba(239,68,68,0.1)":"rgba(245,158,11,0.1)";
+    const sl = !hj?"—":diff?.mejor?"▲ Sobre":diff?.peor?"▼ Bajo":"● Promedio";
+    const fmtV = v => v!=null ? (+v<10?(+v).toFixed(2):(+v).toFixed(0)) : "—";
+    return (
+      <div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"9px 14px",borderBottom:"1px solid rgba(255,255,255,0.05)",alignItems:"center"}}>
+        <span style={{fontSize:12,color:"#94a3b8",display:"flex",alignItems:"center",gap:5}}><span style={{fontSize:14}}>{icon}</span>{l}</span>
+        <div>
+          <span style={{fontSize:13,color:"#64748b",display:"block",textAlign:"right",marginBottom:3}}>{fmtV(ligaVal)}</span>
+          <div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:lPct+"%",height:"100%",background:"#475569",borderRadius:2}}/></div>
+        </div>
+        <div>
+          {hj?<><span style={{fontSize:13,fontWeight:700,color:sc,display:"block",textAlign:"right",marginBottom:3}}>{fmtV(jugVal)}</span><div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:jPct+"%",height:"100%",background:sc,borderRadius:2}}/></div></>:<span style={{fontSize:12,color:"#334155",textAlign:"right",display:"block"}}>—</span>}
+        </div>
+        <div style={{textAlign:"right"}}>
+          {hj&&diff?<span style={{fontSize:12,fontWeight:700,color:sc}}>{diff.pct>0?"+":""}{diff.pct}%</span>:<span style={{fontSize:12,color:"#334155"}}>—</span>}
+          {hj&&percentil&&<div style={{fontSize:10,color:"#475569",marginTop:1}}>P{percentil}</div>}
+        </div>
+        <div style={{background:sb,border:"1px solid "+sc+"33",borderRadius:6,padding:"3px 7px",textAlign:"center",fontSize:11,fontWeight:700,color:sc}}>{sl}</div>
+      </div>
+    );
+  }
+
+  function RadarViz() {
+    const mts = metricasFilled.slice(0,6);
+    if(mts.length<3) return null;
+    const n=mts.length, cx=175, cy=165, R=125;
+    const ang = i=>(i*2*Math.PI/n)-Math.PI/2;
+    const pt  = (val,max,i)=>{ const r=R*Math.min(val/(max*1.2),1); return [cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))]; };
+    const pts = mts.map((m,i)=>({
+      liga: pt(m.ligaVal||0, Math.max(m.ligaVal||0,m.jugVal||0,0.01), i),
+      jug:  m.jugVal!=null?pt(m.jugVal, Math.max(m.ligaVal||0,m.jugVal||0,0.01), i):null,
+      lbl:  m.l.split(" ")[0],
+      lPt:  [cx+(R+22)*Math.cos(ang(i)), cy+(R+22)*Math.sin(ang(i))]
+    }));
+    const polyL = pts.map(p=>p.liga.join(",")).join(" ");
+    const polyJ = pts.filter(p=>p.jug).map(p=>p.jug.join(",")).join(" ");
+    return (
+      <svg viewBox="0 0 350 330" style={{width:"100%",maxWidth:340}}>
+        {[.25,.5,.75,1].map(s=><polygon key={s} points={pts.map((_,i)=>{const r=R*s;return[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))].join(",");}).join(" ")} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1"/>)}
+        {pts.map((_,i)=><line key={i} x1={cx} y1={cy} x2={cx+R*Math.cos(ang(i))} y2={cy+R*Math.sin(ang(i))} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>)}
+        <polygon points={polyL} fill="rgba(71,85,105,0.18)" stroke="#475569" strokeWidth="1.5" strokeDasharray="4 3"/>
+        {polyJ&&<polygon points={polyJ} fill="rgba(0,168,85,0.15)" stroke="#00a855" strokeWidth="2"/>}
+        {pts.map(p=>p.jug&&<circle key={p.lbl+"j"} cx={p.jug[0]} cy={p.jug[1]} r="3.5" fill="#00a855"/>)}
+        {pts.map(p=><circle key={p.lbl+"l"} cx={p.liga[0]} cy={p.liga[1]} r="2.5" fill="#475569"/>)}
+        {pts.map(p=><text key={p.lbl+"t"} x={p.lPt[0]} y={p.lPt[1]} textAnchor="middle" dominantBaseline="middle" fontSize="10" fill="#64748b">{p.lbl}</text>)}
+      </svg>
+    );
+  }
+
   return (
     <div>
-      <div style={{marginBottom:22}}>
-        <div style={{fontWeight:700,color:"#eef2f6",fontSize:18}}>📊 Base de Datos Sudamericana</div>
-        <div style={{color:"#4a6070",fontSize:13,marginTop:2}}>255 clubes reales · 30 ligas · 10 países · API-Football 2024</div>
+      <div style={{marginBottom:20}}>
+        <div style={{fontWeight:800,color:"#eef2f6",fontSize:19,marginBottom:3}}>📊 Benchmarks SA — Análisis Comparativo Avanzado</div>
+        <div style={{color:"#4a6070",fontSize:12}}>Compara cualquier jugador de la Base Pro Mundial contra el promedio estadístico de su posición y liga</div>
       </div>
-      <Card style={{marginBottom:16}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-          <div>
-            <Lbl>PAÍS</Lbl>
-            <select style={I} value={pais} onChange={e=>{setPais(e.target.value);setDiv(Object.keys(SA[e.target.value])[0]);}}>
-              {paises.map(p=><option key={p} value={p}>{p}</option>)}
-            </select>
+
+      <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"12px 15px",marginBottom:14}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:10}}>
+          {[["PAÍS / LIGA",<select style={I} value={pais} onChange={e=>{setPais(e.target.value);setDiv(Object.keys(SA[e.target.value])[0]);}}>{paises.map(p=><option key={p} value={p}>{p}</option>)}</select>],
+            ["DIVISIÓN",<select style={I} value={div} onChange={e=>setDiv(e.target.value)}>{Object.keys(SA[pais]||{}).map(d=><option key={d} value={d}>{d}</option>)}</select>],
+            ["POSICIÓN REFERENCIA",<select style={I} value={pos} onChange={e=>setPos(e.target.value)}>{Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select>],
+          ].map(([lbl,el])=><div key={lbl}><div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>{lbl}</div>{el}</div>)}
+        </div>
+        <div style={{position:"relative"}}>
+          <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.5}}>BUSCAR JUGADOR — Base Pro Mundial (opcional)</div>
+          <input style={{...I,paddingLeft:10}} placeholder="🔍 Escribe el nombre del jugador para comparar contra el promedio..." value={busq} onChange={e=>{setBusq(e.target.value);if(!e.target.value){setJugSel(null);setIaText("");}}}/>
+          {sugerencias.length>0&&(
+            <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#0d1f2d",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,zIndex:100,maxHeight:200,overflowY:"auto",marginTop:2}}>
+              {sugerencias.map(j=>(
+                <div key={j.id} onClick={()=>{setJugSel(j);setBusq(j.n);setSugerencias([]);setIaText("");}} style={{padding:"8px 12px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.05)",display:"flex",justifyContent:"space-between",alignItems:"center"}}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(0,232,122,0.07)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                  <div><span style={{color:"#eef2f6",fontSize:13,fontWeight:600}}>{j.n}</span><span style={{color:"#4a6070",fontSize:11,marginLeft:8}}>{j.pos} · {j.eq}</span></div>
+                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                    <span style={{color:"#f59e0b",fontSize:12,fontWeight:700}}>★{j.s?.rat}</span>
+                    <span style={{background:"rgba(0,232,122,0.1)",color:"#00e87a",borderRadius:4,padding:"2px 6px",fontSize:10,fontWeight:700}}>{(j.l||"").substring(0,18)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {jugSel&&(
+          <div style={{marginTop:10,padding:"8px 12px",background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.2)",borderRadius:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <img src={jugSel.foto} style={{width:32,height:32,borderRadius:"50%",objectFit:"cover",border:"1px solid rgba(0,232,122,0.4)"}} onError={e=>e.target.style.display="none"}/>
+              <div><span style={{color:"#00e87a",fontWeight:700,fontSize:13}}>{jugSel.n}</span><span style={{color:"#4a6070",fontSize:11,marginLeft:8}}>{jugSel.pos} · {jugSel.e}a · {jugSel.eq} · {jugSel.l}</span></div>
+            </div>
+            <button onClick={()=>{setJugSel(null);setBusq("");setIaText("");}} style={{background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:16}}>✕</button>
           </div>
-          <div>
-            <Lbl>DIVISIÓN</Lbl>
-            <select style={I} value={div} onChange={e=>setDiv(e.target.value)}>
-              {Object.keys(SA[pais]||{}).map(d=><option key={d} value={d}>{d}</option>)}
-            </select>
+        )}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
+        {[{l:"Nivel liga",v:nvLbl[nv],c:nC[nv],s:pais+" · "+div},{l:"Posición",v:(pd?.icon||"")+" "+pos.split(" ").pop(),c:"#a855f7",s:metricas.length+" métricas"},{l:"Sobre promedio",v:jugSel?(sobrePromedio+"/"+metricasFilled.length):"—",c:"#00a855",s:jugSel?"métricas del jugador":"Selecciona jugador"},{l:"Percentil estimado",v:jugSel?("P"+percentilGlobal):"—",c:"#3b82f6",s:jugSel?"en su posición":"Selecciona jugador"}].map(({l,v,c,s})=>(
+          <div key={l} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:11,padding:"11px 13px"}}>
+            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.4}}>{l}</div>
+            <div style={{fontSize:18,fontWeight:800,color:c,lineHeight:1.2}}>{v}</div>
+            <div style={{fontSize:10,color:"#3a5060",marginTop:3}}>{s}</div>
           </div>
-          <div>
-            <Lbl>POSICIÓN</Lbl>
-            <select style={I} value={pos} onChange={e=>setPos(e.target.value)}>
-              {Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}
-            </select>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+        {[["comparacion","📊 Comparativa"],["radar","🕸️ Radar"],["historia","📈 Percentiles"],["clubes","🏟️ Clubes"]].map(([id,lbl])=>(
+          <button key={id} onClick={()=>setTab2(id)} style={{border:"1px solid "+(tab2===id?"rgba(0,232,122,0.4)":"rgba(255,255,255,0.07)"),borderRadius:7,padding:"6px 13px",color:tab2===id?"#00e87a":"#64748b",background:tab2===id?"rgba(0,232,122,0.08)":"transparent",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit"}}>{lbl}</button>
+        ))}
+      </div>
+
+      {tab2==="comparacion"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,overflow:"hidden",marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.07)",fontSize:10,fontWeight:700,color:"#4a6070",letterSpacing:.5}}>
+            <span>MÉTRICA</span><span style={{textAlign:"right"}}>⌀ LIGA</span><span style={{textAlign:"right"}}>{jugSel?jugSel.n.split(" ")[0].toUpperCase():"JUGADOR"}</span><span style={{textAlign:"right"}}>DIFERENCIA</span><span style={{textAlign:"center"}}>ESTADO</span>
+          </div>
+          {metricasFilled.map(m=><BenchRow key={m.k} m={m}/>)}
+          {metricasFilled.length===0&&<div style={{padding:24,textAlign:"center",color:"#334155",fontSize:13}}>Sin datos benchmark para esta posición y nivel</div>}
+          <div style={{padding:"8px 14px",background:"rgba(245,158,11,0.04)",borderTop:"1px solid rgba(245,158,11,0.1)",fontSize:10,color:"#92400e"}}>
+            ⌀ Liga = promedio por temporada para {pos} en {nvLbl[nv]}. {jugSel?"Valores del jugador de temporada completa.":"Busca un jugador arriba para activar la comparativa."}
           </div>
         </div>
-      </Card>
-      <div style={{display:"grid",gridTemplateColumns:"1.3fr 1fr",gap:16}}>
-        <Card>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-            <span style={{color:"#eef2f6",fontWeight:600,fontSize:14}}>{pd?.icon} {pos} · {div}</span>
-            <Bdg color={nC[divData?.nv||2]}>Nivel {divData?.nv}</Bdg>
+      )}
+
+      {tab2==="radar"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>RADAR — {pos.toUpperCase()}</div>
+              <RadarViz/>
+              <div style={{display:"flex",gap:14,justifyContent:"center",marginTop:6}}>
+                <span style={{fontSize:11,color:"#64748b",display:"flex",alignItems:"center",gap:5}}><span style={{width:20,height:2,background:"#475569",display:"inline-block",borderRadius:1}}/>⌀ Liga</span>
+                {jugSel&&<span style={{fontSize:11,color:"#00a855",display:"flex",alignItems:"center",gap:5}}><span style={{width:12,height:12,background:"rgba(0,168,85,0.15)",border:"2px solid #00a855",display:"inline-block",borderRadius:2}}/>{jugSel.n.split(" ")[0]}</span>}
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>DETALLE POR MÉTRICA</div>
+              {metricasFilled.slice(0,7).map(m=>{
+                const sc = m.diff?.mejor?"#00a855":m.diff?.peor?"#ef4444":"#f59e0b";
+                const bar = m.jugVal&&m.ligaVal?Math.min((m.jugVal/(Math.max(m.jugVal,m.ligaVal)*1.1))*100,100):(m.ligaVal?50:0);
+                return (
+                  <div key={m.k} style={{marginBottom:8}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                      <span style={{fontSize:11,color:"#64748b"}}>{m.icon} {m.l}</span>
+                      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                        <span style={{fontSize:10,color:"#475569"}}>⌀{m.ligaVal}</span>
+                        {m.jugVal&&<span style={{fontSize:11,fontWeight:700,color:sc}}>{(+m.jugVal<10)?(+m.jugVal).toFixed(2):(+m.jugVal).toFixed(0)}</span>}
+                      </div>
+                    </div>
+                    <div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:2}}><div style={{width:bar+"%",height:"100%",background:m.jugVal?sc:"#475569",borderRadius:2}}/></div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {Object.entries(bk).map(([k,v])=>{
-            const ev = pd?.ev.find(e=>e.id===k);
-            return <StatBar key={k} label={`${ev?.icon||""} ${ev?.label||k}`} val={v} bench={null} color={pd?.color||"#00e87a"}/>;
-          })}
-          <div style={{marginTop:10,padding:"8px 12px",background:"rgba(245,158,11,0.06)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:8,fontSize:11,color:"#fbbf24"}}>Promedios estadísticos por partido para este nivel profesional</div>
-        </Card>
-        <Card>
-          <div style={{color:"#eef2f6",fontWeight:600,fontSize:14,marginBottom:12}}>🏆 Clubes — {div}</div>
-          <div style={{display:"flex",flexDirection:"column",gap:5,maxHeight:380,overflowY:"auto"}}>
-            {(divData?.cl||[]).map(c=>(
-              <div key={c} style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.03)",borderRadius:7,padding:"6px 10px"}}>
-                <span style={{color:nC[divData?.nv||2],fontSize:11,fontWeight:800}}>•</span>
-                <span style={{color:"#94a3b8",fontSize:13}}>{c}</span>
+        </div>
+      )}
+
+      {tab2==="historia"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:10,fontWeight:600,letterSpacing:.5}}>DISTRIBUCIÓN RATING — {div.toUpperCase()}</div>
+              {[{l:"Promedio liga",v:bkPro.rat??bk.rat??6.8,c:"#475569"},{l:"Top 25%",v:(bkPro.rat??6.8)*1.07,c:"#3b82f6"},{l:"Top 10%",v:(bkPro.rat??6.8)*1.14,c:"#00e87a"},...(jugSel?.s?.rat?[{l:jugSel.n.split(" ")[0],v:parseFloat(jugSel.s.rat),c:"#f59e0b",hi:true}]:[])].map(n=>(
+                <div key={n.l} style={{marginBottom:9}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                    <span style={{fontSize:11,color:n.hi?n.c:"#64748b",fontWeight:n.hi?700:400}}>{n.l}</span>
+                    <span style={{fontSize:11,fontWeight:700,color:n.c}}>{(+n.v).toFixed(2)}</span>
+                  </div>
+                  <div style={{height:n.hi?7:5,background:"rgba(255,255,255,0.06)",borderRadius:3}}><div style={{width:Math.round((n.v/10)*100)+"%",height:"100%",background:n.c,borderRadius:3,opacity:n.hi?1:0.7}}/></div>
+                </div>
+              ))}
+              <div style={{marginTop:14}}>
+                <div style={{fontSize:11,color:"#4a6070",marginBottom:6,fontWeight:600,letterSpacing:.5}}>CONTEXTO LIGA</div>
+                {[{l:"Nivel",v:nvLbl[nv],c:nC[nv]},{l:"Clubes",v:(divData?.cl?.length||0)+" equipos",c:"#64748b"},{l:"Posición",v:pd?.icon+" "+pos,c:"#a855f7"},{l:"Indicadores",v:metricasFilled.length+" métricas",c:"#3b82f6"}].map(({l,v,c})=>(
+                  <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                    <span style={{fontSize:11,color:"#64748b"}}>{l}</span>
+                    <span style={{fontSize:11,fontWeight:700,color:c}}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>ESCALA DE PERCENTILES</div>
+              {[{r:"P90–100",l:"Élite absoluta",c:"#00a855",min:90},{r:"P75–90",l:"Muy sobre promedio",c:"#3b82f6",min:75},{r:"P50–75",l:"Sobre el promedio",c:"#00e87a",min:50},{r:"P25–50",l:"Promedio de liga",c:"#f59e0b",min:25},{r:"P10–25",l:"Bajo el promedio",c:"#f97316",min:10},{r:"P0–10",l:"Bajo nivel estándar",c:"#ef4444",min:0}].map(({r,l,c,min},idx,arr)=>{
+                const max=(arr[idx-1]?.min??100);
+                const enRango=jugSel&&percentilGlobal!=null&&percentilGlobal>=min&&percentilGlobal<max;
+                return(
+                  <div key={r} style={{display:"flex",gap:8,alignItems:"center",padding:"7px 10px",marginBottom:4,background:enRango?"rgba(0,232,122,0.06)":"rgba(255,255,255,0.02)",borderRadius:7,border:"1px solid "+(enRango?"rgba(0,232,122,0.25)":"rgba(255,255,255,0.04)")}}>
+                    <span style={{fontWeight:700,fontSize:11,color:c,minWidth:65}}>{r}</span>
+                    <span style={{fontSize:11,color:"#64748b",flex:1}}>{l}</span>
+                    {enRango&&<span style={{fontSize:10,fontWeight:700,background:c+"20",color:c,borderRadius:4,padding:"2px 6px",whiteSpace:"nowrap"}}>P{percentilGlobal} ←</span>}
+                  </div>
+                );
+              })}
+              {jugSel&&<div style={{marginTop:12,padding:"10px 12px",background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.2)",borderRadius:8}}>
+                <div style={{fontSize:10,color:"#4a6070",marginBottom:4}}>ESTIMACIÓN GLOBAL DEL JUGADOR</div>
+                <div style={{fontSize:17,fontWeight:800,color:"#00e87a"}}>{jugSel.n.split(" ")[0]} → Percentil {percentilGlobal}/100</div>
+                <div style={{fontSize:11,color:"#4a6070",marginTop:2}}>vs promedio {pos} en {div}</div>
+              </div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab2==="clubes"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:14,marginBottom:12}}>
+          <div style={{fontWeight:700,color:"#eef2f6",fontSize:13,marginBottom:10}}>🏟️ {div} — {pais}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(155px,1fr))",gap:7}}>
+            {(divData?.cl||[]).map(cc=>(
+              <div key={cc} style={{display:"flex",alignItems:"center",gap:7,background:"rgba(255,255,255,0.03)",borderRadius:7,padding:"7px 10px",border:"1px solid rgba(255,255,255,0.05)"}}>
+                <span style={{color:nC[nv],fontSize:10,fontWeight:800}}>●</span>
+                <span style={{color:"#94a3b8",fontSize:12}}>{cc}</span>
               </div>
             ))}
-            {!(divData?.cl?.length) && <div style={{color:"#334155",fontSize:12,textAlign:"center",padding:16}}>Datos no disponibles</div>}
           </div>
-        </Card>
-      </div>
+          {!(divData?.cl?.length)&&<div style={{textAlign:"center",color:"#334155",fontSize:12,padding:20}}>Sin datos</div>}
+          <div style={{marginTop:10,padding:"7px 10px",background:"rgba(255,255,255,0.02)",borderRadius:7,fontSize:10,color:"#475569"}}>
+            {divData?.cl?.length||0} clubes · Nivel {nv} ({nvLbl[nv]}) · Benchmarks calculados sobre este contexto competitivo
+          </div>
+        </div>
+      )}
+
+      {jugSel&&(
+        <div style={{marginTop:4}}>
+          {!iaText?(
+            <button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:10,padding:"11px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:loadIA?0.7:1}}>
+              {loadIA?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando benchmark...</>:"🤖 Análisis IA del Benchmark — "+jugSel.n}
+              <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+            </button>
+          ):(
+            <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:11,padding:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>🤖 Análisis IA — Benchmark {jugSel.n}</span>
+                <div style={{display:"flex",gap:7}}>
+                  <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:4,padding:"2px 7px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
+                  <button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 9px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
+                </div>
+              </div>
+              <div style={{color:"#c4b5fd",lineHeight:1.9,fontSize:12.5,whiteSpace:"pre-wrap",fontFamily:"system-ui,sans-serif"}}>{iaText}</div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
