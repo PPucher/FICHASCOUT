@@ -580,7 +580,7 @@ function ModalJugador({j, ss, onClose, onToggle, enCompar}) {
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1200, messages:[{role:"user",content:buildPromptIndividual(j,ss)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1200, messages:[{role:"user",content:buildPromptIndividual(j,ss)}]})
       });
       if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
@@ -783,7 +783,7 @@ export default function BasePro() {
     try{
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
       if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
