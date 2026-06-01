@@ -624,11 +624,7 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-<<<<<<< HEAD
         body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1600, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
-=======
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1200, messages:[{role:"user",content:buildPromptIndividual(j,ss)}]})
->>>>>>> a96de04807f945c10c6c52bec73484b278a6840d
       });
       if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
