@@ -75,19 +75,19 @@ const LIGA_MERCADO = {
   98:2.0, 307:2.2, 106:1.6, 235:1.4, 197:1.5,          // J1, Saudi, Ekstraklasa, Rusia, Grecia
   // Sudamérica
   9:1.8, 13:1.8, 11:1.5,                                // Copa América, Libertadores, Sudamericana
-  71:1.3, 128:1.2,                                       // Brasil SerieA, Argentina
-  239:0.8, 268:0.7, 283:0.7, 240:0.7, 292:0.6,         // Colombia, Uruguay, Perú, Ecuador, Venezuela
-  265:0.45, 266:0.30, 267:0.25,                          // Chile 1ª, 1B, Copa Chile
-  209:0.50, 282:0.45,                                    // Bolivia, Paraguay
+  71:1.05, 128:0.95,                                      // Brasil SerieA (prom €3.5M), Argentina (prom €1.05M)
+  239:0.38, 268:0.33, 283:0.22, 240:0.30, 292:0.18,     // Colombia, Uruguay, Perú, Ecuador, Venezuela
+  265:0.19, 266:0.08, 267:0.07,                           // Chile 1ª (prom €377K), 1B (prom €165K), Copa Chile
+  209:0.16, 282:0.14,                                     // Bolivia, Paraguay
   // CONCACAF
   253:1.6, 262:1.3, 254:1.0,                            // MLS, LigaMX, USL
 };
-const MERCADO_DEFAULT = 0.5;
+const MERCADO_DEFAULT = 0.12;
 
 // Valor base en millones EUR por posición (jugador promedio nivel 1)
 const BASE_VALOR_POS = {
-  "Delantero": 8, "Volante": 6, "Defensor": 5, "Arquero": 4,
-  "Attacker": 8,  "Midfielder": 6, "Defender": 5, "Goalkeeper": 4,
+  "Delantero": 6.5, "Volante": 5.5, "Defensor": 4.5, "Arquero": 3.5,
+  "Attacker": 6.5,  "Midfielder": 5.5, "Defender": 4.5, "Goalkeeper": 3.5,
 };
 
 // Curva de edad para valor de mercado (pico a 24-26 años)
@@ -105,7 +105,7 @@ function calcValorMercado(j, ss) {
   const posBase = BASE_VALOR_POS[j.pos] || 5;
   const ligaMult = LIGA_MERCADO[j.l_id] || MERCADO_DEFAULT;
   const edadMult = edadValorMult(j.e);
-  const scoreMult = ss ? (ss.total / 50) : 1.0;
+  const scoreMult = ss ? Math.max(0.3, (ss.total / 50) * 0.85) : 0.85;
 
   // Contribución goles+asistencias
   const ga = j.s ? ((j.s.g || 0) + (j.s.a || 0)) : 0;
@@ -124,9 +124,9 @@ function calcValorMercado(j, ss) {
     mid >= 80 ? {l:"Estrella mundial",  c:"#a855f7"} :
     mid >= 40 ? {l:"Figura de liga top",c:"#ef4444"} :
     mid >= 20 ? {l:"Jugador de nivel alto",c:"#f97316"} :
-    mid >= 8  ? {l:"Fichaje de valor",  c:"#f59e0b"} :
-    mid >= 2  ? {l:"Jugador de desarrollo",c:"#3b82f6"} :
-                {l:"Promesa regional", c:"#64748b"};
+    mid >= 8   ? {l:"Fichaje de valor",      c:"#f59e0b"} :
+    mid >= 0.5 ? {l:"Jugador de liga local", c:"#3b82f6"} :
+                 {l:"Promesa regional",      c:"#64748b"};
 
   return { min, max, mid, fmt: `${fmt(min)} – ${fmt(max)}`, midFmt: fmt(mid), label, ligaMult };
 }
@@ -474,7 +474,7 @@ ${iaText?`
     <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS SCOUT CON INTELIGENCIA ARTIFICIAL</div>
     <span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">🤖 FichaScout PRO</span>
   </div>
-  <div style="font-size:11px;color:#166534;line-height:1.8;white-space:pre-wrap">${iaText.substring(0,2200)}</div>
+  <div style="font-size:11px;color:#166534;line-height:1.8;white-space:pre-wrap">${iaText}</div>
 </div>`:""}
 
 <div style="background:#040a0f;border-radius:8px;padding:10px 18px;display:flex;justify-content:space-between;align-items:center">
@@ -594,7 +594,7 @@ function exportPDFComparacion(jugadores, scores, iaText) {
 
 ${iaText?`<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:10px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><div style="font-size:10px;font-weight:700;color:#166534;letter-spacing:.5px">ANÁLISIS COMPARATIVO — FichaScout IA PROFESIONAL</div><span style="background:#00a85515;color:#00a855;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">🤖 Scout IA</span></div>
-  <div style="font-size:10px;color:#166534;line-height:1.75;white-space:pre-wrap">${iaText.substring(0,2800)}</div>
+  <div style="font-size:10px;color:#166534;line-height:1.75;white-space:pre-wrap">${iaText}</div>
 </div>`:""}
 
 <div style="background:#040a0f;border-radius:8px;padding:9px 16px;display:flex;justify-content:space-between;align-items:center">
@@ -624,7 +624,7 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1600, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:2400, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
       });
       if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
@@ -842,7 +842,7 @@ export default function BasePro() {
     try{
       const r = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1400, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:2000, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
       if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
