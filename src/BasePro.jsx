@@ -375,21 +375,22 @@ VEREDICTO CLARO — SI SOLO PUEDES FICHAR UNO:
 
 function mdToHtml(text) {
   if (!text) return '';
-  return text
-    .replace(/^### (.+)$/gm, '<h4 style="font-size:13px;font-weight:800;color:#0f172a;margin:14px 0 5px;padding-bottom:4px;border-bottom:1px solid #e2e8f0">$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3 style="font-size:15px;font-weight:800;color:#0f172a;margin:18px 0 7px;border-bottom:2px solid #00e87a55;padding-bottom:5px">$1</h3>')
-    .replace(/^# (.+)$/gm, '<h2 style="font-size:17px;font-weight:900;color:#0f172a;margin:20px 0 8px">$1</h2>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:700;color:#0f172a">$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em style="color:#374151">$1</em>')
-    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #e2e8f0;margin:12px 0"/>')
-    .replace(/^> (.+)$/gm, '<div style="border-left:3px solid #00e87a;padding:7px 12px;background:#f8fffe;margin:8px 0;color:#065f46;font-size:11.5px;font-style:italic">$1</div>')
-    .replace(/^[\-\*] (.+)$/gm, '<li style="margin:3px 0;padding-left:2px;text-align:left">$1</li>')
-    .replace(/^\|(.+)\|$/gm,(m,cells)=>{if(/^[\s|\-:]+$/.test(cells))return '';const tds=cells.split('|').map(t=>t.trim()).filter(Boolean);return '<tr>'+ tds.map((t,i)=>`<td style="padding:6px 9px;border:1px solid #e2e8f0;font-size:11px${i===0?';font-weight:600':''};${t.startsWith('**')?'font-weight:700':''}">'+t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')+'</td>').join('')+'</tr>';})
-    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g,m=>`<ul style="margin:6px 0 6px 18px;padding:0">${m}</ul>`)
-    .replace(/(<tr>[\s\S]*?<\/tr>\n?)+/g,m=>`<table style="width:100%;border-collapse:collapse;margin:10px 0;font-family:inherit">${m}</table>`)
-    .replace(/\n{2,}/g,'</p><p style="margin:0 0 10px;text-align:justify;line-height:1.8">')
-    .replace(/\n/g,'<br style="margin-bottom:2px">')
-    .replace(/^/,'<p style="margin:0 0 10px;text-align:justify;line-height:1.8">').replace(/$/,'</p>');
+  var t = text;
+  t = t.replace(/^### (.+)$/gm, '<h4 style="font-size:13px;font-weight:800;color:#0f172a;margin:14px 0 5px;padding-bottom:4px;border-bottom:1px solid #e2e8f0">$1</h4>');
+  t = t.replace(/^## (.+)$/gm, '<h3 style="font-size:15px;font-weight:800;color:#0f172a;margin:18px 0 7px;border-bottom:2px solid #00e87a55;padding-bottom:5px">$1</h3>');
+  t = t.replace(/^# (.+)$/gm, '<h2 style="font-size:17px;font-weight:900;color:#0f172a;margin:20px 0 8px">$1</h2>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:700;color:#0f172a">$1</strong>');
+  t = t.replace(/\*([^*]+)\*/g, '<em style="color:#374151">$1</em>');
+  t = t.replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #e2e8f0;margin:12px 0"/>');
+  t = t.replace(/^> (.+)$/gm, '<div style="border-left:3px solid #00e87a;padding:7px 12px;background:#f8fffe;margin:8px 0;color:#065f46;font-size:11.5px;font-style:italic">$1</div>');
+  t = t.replace(/^[\-\*] (.+)$/gm, '<li style="margin:4px 0;padding-left:2px">$1</li>');
+  t = t.replace(/(<li[^>]*>[\s\S]*?<\/li>)/g, function(m){ return '<ul style="margin:6px 0 6px 18px;padding:0">' + m + '</ul>'; });
+  t = t.replace(/^\|([\s\|\-:]+)\|$/gm, '');
+  t = t.replace(/^\|(.+)\|$/gm, function(match, cells) { var tds = cells.split('|').map(function(td){ return td.trim(); }).filter(Boolean); return '<tr>' + tds.map(function(td){ return '<td style="padding:6px 9px;border:1px solid #e2e8f0;font-size:11px">' + td.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>') + '</td>'; }).join('') + '</tr>'; });
+  t = t.replace(/(<tr>[\s\S]*?<\/tr>)/g, function(m){ return '<table style="width:100%;border-collapse:collapse;margin:10px 0">' + m + '</table>'; });
+  t = t.replace(/\n{2,}/g, '</p><p style="margin:0 0 10px;text-align:justify;line-height:1.8">');
+  t = t.replace(/\n/g, '<br>');
+  return '<p style="margin:0 0 10px;text-align:justify;line-height:1.8">' + t + '</p>';
 }
 
 // ─── PDF INDIVIDUAL ───────────────────────────────────────────────────────────
