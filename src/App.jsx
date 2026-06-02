@@ -37,17 +37,123 @@ const POS={
   "Delantero Centro":{icon:"🎯",color:"#ef4444",cat:"FWD",ev:[{id:"goles",label:"Gol",icon:"⚽"},{id:"disparos_arco",label:"Disparo al Arco",icon:"🎯"},{id:"disparos_fuera",label:"Disparo Fuera",icon:"💨"},{id:"asistencias",label:"Asistencia",icon:"🔑"},{id:"duelos_aereos_ganados",label:"Duelo Aéreo ✓",icon:"⬆️"},{id:"duelos_aereos_perdidos",label:"Duelo Aéreo ✗",icon:"⬇️"},{id:"offside",label:"Offside",icon:"🚩"}],bk:{1:{goles:0.7,disparos_arco:2.8,asistencias:0.22,duelos_aereos_ganados:3.5},2:{goles:0.55,disparos_arco:2.3,asistencias:0.18,duelos_aereos_ganados:2.9},3:{goles:0.42,disparos_arco:1.9,asistencias:0.15,duelos_aereos_ganados:2.3},4:{goles:0.28,disparos_arco:1.3,asistencias:0.10,duelos_aereos_ganados:1.7}}},
 };
 const SA={
-  "🇨🇱 Chile":{"Primera División":{nv:1,cl:["Colo Colo","U. de Chile","U. Católica","Palestino","Deportes Iquique","O'Higgins","Union Española","Union La Calera","Huachipato","Audax Italiano","Coquimbo Unido","Cobresal","Cobreloa","Ñublense","Deportes Copiapó","Everton de Viña"]},"Primera B":{nv:2,cl:["Magallanes","Deportes Valdivia","Iberia","San Antonio Unido","Rangers","Deportes Puerto Montt"]},"Copa Chile":{nv:3,cl:["Curicó Unido","Deportes Limache","Municipal Puente Alto","Central Norte","Provincial Ovalle"]}},
-  "🇦🇷 Argentina":{"Liga Profesional":{nv:1,cl:["River Plate","Boca Juniors","Racing Club","Independiente","San Lorenzo","Estudiantes LP","Vélez Sarsfield","Huracán","Talleres","Belgrano","Lanús","Banfield","Gimnasia LP","Defensa y Justicia"]},"Primera Nacional":{nv:2,cl:["Almirante Brown","Brown Adrogué","Quilmes","Ferro Carril Oeste","Agropecuario","Chacarita"]}},
-  "🇧🇷 Brasil":{"Série A":{nv:1,cl:["Flamengo","Palmeiras","Atlético Mineiro","Fluminense","São Paulo FC","Santos","Vasco da Gama","Botafogo","Cruzeiro","Internacional","Grêmio","Corinthians","Athletico PR","Fortaleza"]},"Série B":{nv:2,cl:["CRB","Mirassol","Novorizontino","Operário PR","Sport Recife","Avaí"]}},
-  "🇨🇴 Colombia":{"Primera A":{nv:1,cl:["Atlético Nacional","Millonarios","América de Cali","Deportivo Cali","Junior","Santa Fe","Dep. Medellín","Bucaramanga","Once Caldas","Deportivo Pasto"]}},
-  "🇺🇾 Uruguay":{"Primera División":{nv:1,cl:["Nacional","Peñarol","Defensor Sporting","Danubio","Liverpool FC","Plaza Colonia","Fénix","Racing Club UY","Boston River","City Torque"]}},
-  "🇵🇪 Perú":{"Liga 1":{nv:1,cl:["Alianza Lima","Universitario","Sporting Cristal","FBC Melgar","Sport Boys","César Vallejo","ADT","Mannucci"]}},
-  "🇪🇨 Ecuador":{"LigaPro Serie A":{nv:1,cl:["Barcelona SC","Emelec","Liga de Quito","Independiente del Valle","Aucas","El Nacional","Delfín","Orense"]}},
-  "🇧🇴 Bolivia":{"División Profesional":{nv:1,cl:["Bolívar","The Strongest","Oriente Petrolero","Nacional Potosí","Royal Pari","Blooming","Always Ready"]}},
-  "🇵🇾 Paraguay":{"División de Honor":{nv:1,cl:["Olimpia","Cerro Porteño","Guaraní","Libertad","Tacuary","Nacional PY","12 de Octubre","Sol de América"]}},
-  "🇻🇪 Venezuela":{"Liga FUTVE":{nv:1,cl:["Caracas FC","Zamora FC","Dep. Táchira","Carabobo FC","Monagas SC","Metropolitanos FC"]}},
+  "cl Chile":{
+    "Primera División":{"nv":1,"cl":["A. Italiano","Cobreloa","Cobresal","Colo Colo","Coquimbo Unido","Deportes Copiapo","Deportes Iquique","Everton de Vina","Huachipato","Nublense","O'Higgins","Palestino","U. Catolica","Union Espanola","Union La Calera","Universidad de Chile"]},
+    "Copa Chile":{"nv":3,"cl":["11 de Septiembre","A. Italiano","Antofagasta","Barnechea","Central Norte","Cobreloa","Cobresal","Colo Colo","Comunal Cabrero","Concepción","Concón National","Coquimbo Unido","Curico Unido","D. La Serena","D. Melipilla","D. Puerto Montt","Deportes Copiapo","Deportes Iquique","Deportes Limache","Deportes Quillón","Deportes Rengo","Deportes Santa Cruz","Deportes Temuco","Everton de Vina","Fernández Vial","General Velásquez","Glorias Navales","Huachipato","Imperial Unido","Lautaro de Buin","Linares Unido","Magallanes","Municipal Mejillones","Municipal Puente Alto","Municipal Salamanca","Nublense","O'Higgins","Palestino","Provincial Osorno","Provincial Ovalle","Rangers de Talca","Real San Joaquín","Recoleta","San Antonio Unido","San Luis","San Marcos de Arica","Santiago City","Santiago Morning","Santiago Wanderers","Trasandino","U. Catolica","Union Espanola","Union La Calera","Union San Felipe","Universidad de Chile","Universidad de Concepcion","Vicente Rosales"]},
+    "Primera B":{"nv":2,"cl":["Antofagasta","Barnechea","Curico Unido","D. La Serena","Deportes Limache","Deportes Santa Cruz","Deportes Temuco","Magallanes","Rangers de Talca","Recoleta","San Luis","San Marcos de Arica","Santiago Morning","Santiago Wanderers","Union San Felipe","Universidad de Concepcion"]}
+  },
+  "AR Argentina":{
+    "Liga Profesional":{"nv":1,"cl":["Argentinos JRS","Atletico Tucuman","Banfield","Barracas Central","Belgrano Cordoba","Boca Juniors","Central Cordoba de Santiago","Defensa Y Justicia","Deportivo Riestra","Estudiantes L.P.","Gimnasia L.P.","Godoy Cruz","Huracan","Independiente","Instituto Cordoba","Lanus","Newells Old Boys","Platense","Racing Club","River Plate","Rosario Central","San Lorenzo","Sarmiento Junin","Talleres Cordoba","Tigre","Union Santa Fe","Velez Sarsfield"]},
+    "Primera B Metro":{"nv":2,"cl":["Acassuso","Argentino Quilmes","Argentino de Merlo","Canuelas","Colegiales","Comunicaciones","Deportivo Armenio","Deportivo Laferrere","Deportivo Merlo","Dock Sud","Excursionistas","Flandria","Fénix","Liniers","Los Andes","Midland","Sacachispas","UAI Urquiza","Villa Dalmine","Villa San Carlos"]}
+  },
+  "BR Brasil":{
+    "Série A":{"nv":1,"cl":["Atletico Goianiense","Atletico Paranaense","Atletico-MG","Bahia","Botafogo","Corinthians","Criciuma","Cruzeiro","Cuiaba","Flamengo","Fluminense","Fortaleza EC","Gremio","Internacional","Juventude","Palmeiras","RB Bragantino","Sao Paulo","Vasco DA Gama","Vitoria"]},
+    "Série B":{"nv":2,"cl":["Amazonas","America Mineiro","Avai","Botafogo SP","Brusque","CRB","Ceara","Chapecoense-sc","Coritiba","Goias","Guarani Campinas","Ituano","Mirassol","Novorizontino","Operario-PR","Paysandu","Ponte Preta","Santos","Sport Recife","Vila Nova"]},
+    "Série C":{"nv":3,"cl":["ABC","Aparecidense","Athletic Club","Botafogo PB","CSA","Caxias","Ferroviario","Figueirense","Floresta","Londrina","Nautico Recife","Remo","Sampaio Correa","Sao Jose","Tombense","Volta Redonda","Ypiranga-RS"]},
+    "Copa Do Brasil":{"nv":3,"cl":["Atletico Paranaense","Atletico-MG","Bahia","Botafogo","Corinthians","Cruzeiro","Flamengo","Fluminense","Gremio","Internacional","Palmeiras","RB Bragantino","Sao Paulo","Sport Recife","Vasco DA Gama","Vitoria"]}
+  },
+  "CO Colombia":{
+    "Primera A":{"nv":1,"cl":["America de Cali","Atletico Nacional","Bucaramanga","Deportes Tolima","Deportivo Cali","Deportivo Pasto","Deportivo Pereira","Envigado","Fortaleza FC","Independiente Medellin","Jaguares","Junior","Millonarios","Once Caldas","Patriotas","Santa Fe","Águilas Doradas"]}
+  },
+  "UV Uruguay":{
+    "Primera División Apertura":{"nv":1,"cl":["Boston River","CA River Plate","Cerro","Cerro Largo","Club Nacional","Danubio","Defensor Sporting","Deportivo Maldonado","Fenix","Liverpool Montevideo","Miramar","Penarol","Progreso","Racing Montevideo","Rampla Juniors","Wanderers"]}
+  },
+  "PE Perú":{
+    "Liga 1":{"nv":1,"cl":["Alianza Lima","Cesar Vallejo","Cienciano","Deportivo Binacional","FBC Melgar","Sport Huancayo","Sporting Cristal","Universitario"]}
+  },
+  "EC Ecuador":{
+    "LigaPro Serie A":{"nv":1,"cl":["Aucas","Barcelona SC","Cumbayá","Delfin SC","Deportivo Cuenca","El Nacional","Emelec","Imbabura","Independiente del Valle","LDU de Quito","Libertad","Macara","Mushuc Runa SC","Orense SC","Tecnico Universitario","Universidad Catolica"]}
+  },
+  "BO Bolivia":{
+    "División Profesional":{"nv":1,"cl":["Always Ready","Aurora","Bolívar","Ciclón","Club Destroyers","Guabirá","Jorge Wilstermann","Nacional Potosí","Oriente Petrolero","Real Potosí","Real Tomayapo","The Strongest"]}
+  },
+  "PY Paraguay":{
+    "División de Honor":{"nv":1,"cl":["Cerro Porteno","Club Guarani","Club Nacional","Libertad Asuncion","Nacional Asuncion","Olimpia","Sportivo Ameliano","Sportivo Luqueno","Sportivo Trinidense"]}
+  },
+  "VE Venezuela":{
+    "Liga FUTVE":{"nv":1,"cl":["Caracas FC","Deportivo La Guaira","Deportivo Tachira FC","Metropolitanos FC","Puerto Cabello","Portuguesa FC","Rayo Zuliano","Yaracuyanos FC","Zamora FC"]}
+  },
+  "SA Copas":{
+    "Copa Libertadores":{"nv":1,"cl":["Alianza Lima","Always Ready","Atletico Nacional","Aucas","Aurora","Barcelona SC","Bolívar","Botafogo","Caracas FC","Cerro Porteno","Club Nacional","Cobresal","Colo Colo","Defensor Sporting","FBC Melgar","Flamengo","Fluminense","Godoy Cruz","Gremio","Huachipato","Independiente del Valle","Junior","LDU de Quito","Libertad Asuncion","Liverpool Montevideo","Millonarios","Nacional Asuncion","Palestino","Penarol","RB Bragantino","River Plate","Rosario Central","San Lorenzo","Sporting Cristal","Talleres Cordoba","The Strongest","Universitario"]},
+    "Copa Sudamericana":{"nv":1,"cl":["Atletico Paranaense","Boca Juniors","Cerro Porteno","Coquimbo Unido","Corinthians","Cruzeiro","Defensa Y Justicia","Deportes Tolima","Everton de Vina","Fortaleza EC","Huachipato","Independiente Medellin","Independiente del Valle","Internacional","LDU de Quito","Lanus","Libertad Asuncion","Nacional Asuncion","Olimpia","Palestino","RB Bragantino","Racing Club","Rosario Central","U. Catolica","Union La Calera"]},
+    "Copa América":{"nv":1,"cl":["Argentina","Bolivia","Canada","Chile","Colombia","Costa Rica","Jamaica","Mexico","Panama","Paraguay","Peru","USA","Venezuela"]}
+  },
+  "EN Inglaterra":{
+    "Premier League":{"nv":1,"cl":["Arsenal","Aston Villa","Bournemouth","Brentford","Brighton","Chelsea","Crystal Palace","Everton","Fulham","Ipswich","Leicester","Liverpool","Manchester City","Manchester United","Newcastle","Nottingham Forest","Southampton","Tottenham","West Ham","Wolves"]},
+    "Championship":{"nv":2,"cl":["Blackburn","Bristol City","Burnley","Cardiff","Coventry","Derby","Hull City","Leeds","Luton","Middlesbrough","Millwall","Norwich","Oxford United","Plymouth","Portsmouth","Preston","QPR","Sheffield Utd","Sheffield Wednesday","Stoke City","Sunderland","Swansea","Watford","West Brom"]},
+    "League One":{"nv":3,"cl":["Barnsley","Birmingham","Blackpool","Bolton","Bristol Rovers","Burton Albion","Cambridge United","Charlton","Crawley Town","Exeter City","Huddersfield","Leyton Orient","Lincoln","Mansfield Town","Northampton","Peterborough","Reading","Rotherham","Shrewsbury","Stevenage","Stockport County","Wigan","Wrexham","Wycombe"]}
+  },
+  "ES España":{
+    "La Liga":{"nv":1,"cl":["Alaves","Athletic Club","Atletico Madrid","Barcelona","Celta Vigo","Espanyol","Getafe","Girona","Las Palmas","Leganes","Mallorca","Osasuna","Rayo Vallecano","Real Betis","Real Madrid","Real Sociedad","Sevilla","Valencia","Valladolid","Villarreal"]},
+    "La Liga 2":{"nv":2,"cl":["Albacete","Almeria","Burgos","Cadiz","Córdoba","Deportivo La Coruna","Eibar","Elche","Granada CF","Huesca","Levante","Malaga","Mirandes","Oviedo","Racing Santander","Sporting Gijon","Tenerife","Zaragoza"]}
+  },
+  "DE Alemania":{
+    "Bundesliga":{"nv":1,"cl":["1. FC Heidenheim","1899 Hoffenheim","Bayer Leverkusen","Bayern München","Borussia Dortmund","Borussia Mönchengladbach","Eintracht Frankfurt","FC Augsburg","FC St. Pauli","FSV Mainz 05","Holstein Kiel","RB Leipzig","SC Freiburg","TSV Hartberg","Union Berlin","VfB Stuttgart","VfL Bochum","VfL Wolfsburg","Werder Bremen"]},
+    "2. Bundesliga":{"nv":2,"cl":["1. FC Kaiserslautern","1. FC Köln","1. FC Magdeburg","1. FC Nürnberg","Eintracht Braunschweig","FC Schalke 04","Fortuna Düsseldorf","Hamburger SV","Hannover 96","Hertha BSC","Karlsruher SC","Paderborn","Preußen Münster","SSV Jahn Regensburg","SSV Ulm 1846","SV Darmstadt 98","SpVgg Greuther Fürth"]}
+  },
+  "IT Italia":{
+    "Serie A":{"nv":1,"cl":["AC Milan","AS Roma","Atalanta","Bologna","Cagliari","Como","Empoli","Fiorentina","Genoa","Hellas Verona","Inter","Juventus","Lazio","Lecce","Monza","Napoli","Parma","Torino","Udinese","Venezia"]},
+    "Serie B":{"nv":2,"cl":["Bari","Brescia","Carrarese","Catanzaro","Cesena","Cittadella","Cosenza","Cremonese","Frosinone","Juve Stabia","Mantova","Modena","Palermo","Pisa","Reggiana","Salernitana","Sampdoria","Sassuolo","Spezia","Sudtirol"]}
+  },
+  "FR Francia":{
+    "Ligue 1":{"nv":1,"cl":["Angers","Auxerre","Le Havre","Lens","Lille","Lyon","Marseille","Monaco","Montpellier","Nantes","Nice","Paris Saint Germain","Reims","Rennes","Saint Etienne","Stade Brestois 29","Strasbourg","Toulouse"]},
+    "Ligue 2":{"nv":2,"cl":["Ajaccio","Amiens","Annecy","Bastia","Caen","Clermont Foot","Dunkerque","Grenoble","Guingamp","Laval","Lorient","Martigues","Metz","Paris FC","Rodez","Troyes"]}
+  },
+  "PT Portugal":{
+    "Primeira Liga":{"nv":1,"cl":["AVS","Arouca","Benfica","Boavista","Casa Pia","Estoril","Estrela","FC Porto","Famalicao","Farense","GIL Vicente","Guimaraes","Moreirense","Nacional","Rio Ave","SC Braga","Santa Clara","Sporting CP"]}
+  },
+  "NL Países Bajos":{
+    "Eredivisie":{"nv":1,"cl":["AZ Alkmaar","Ajax","Almere City FC","Feyenoord","Fortuna Sittard","GO Ahead Eagles","Groningen","Heerenveen","Heracles","NAC Breda","NEC Nijmegen","PEC Zwolle","PSV Eindhoven","Sparta Rotterdam","Twente","Utrecht","Waalwijk","Willem II"]},
+    "Eerste Divisie":{"nv":2,"cl":["ADO Den Haag","Cambuur","De Graafschap","Den Bosch","Dordrecht","Emmen","Excelsior","FC Eindhoven","Helmond Sport","Jong AZ","Jong Ajax","Jong PSV U21","Jong Utrecht","MVV","Roda","Telstar","VVV Venlo","Vitesse"]}
+  },
+  "TR Turquía":{
+    "Süper Lig":{"nv":1,"cl":["Adana Demirspor","Alanyaspor","Antalyaspor","Başakşehir","Beşiktaş","Bodrum FK","Eyüpspor","Fenerbahçe","Galatasaray","Gaziantep FK","Göztepe","Hatayspor","Kasımpaşa","Kayserispor","Konyaspor","Rizespor","Samsunspor","Sivasspor","Trabzonspor"]},
+    "1. Lig":{"nv":2,"cl":["Adanaspor","Amed","Boluspor","Erzurumspor FK","Fatih Karagümrük","Gençlerbirliği S.K.","Keçiörengücü","Kocaelispor","Manisa F.K.","Pendikspor","Sakaryaspor","Yeni Malatyaspor","Çorum FK","Ümraniyespor","İstanbulspor","Şanlıurfaspor"]}
+  },
+  "SC Escocia":{
+    "Premiership":{"nv":1,"cl":["Aberdeen","Celtic","Dundee","Dundee Utd","Heart Of Midlothian","Hibernian","Kilmarnock","Motherwell","Rangers","Ross County","ST Johnstone","ST Mirren"]}
+  },
+  "EU UEFA":{
+    "UEFA Champions League":{"nv":1,"cl":["AC Milan","Arsenal","Atalanta","Atletico Madrid","Barcelona","Bayer Leverkusen","Bayern München","Benfica","Borussia Dortmund","Celtic","Club Brugge KV","Dinamo Zagreb","Fenerbahçe","Feyenoord","Galatasaray","Girona","Inter","Juventus","Lille","Liverpool","Manchester City","Monaco","PSV Eindhoven","Paris Saint Germain","RB Leipzig","Real Madrid","Red Bull Salzburg","Shakhtar Donetsk","Slavia Praha","Sparta Praha","Sporting CP","Stade Brestois 29","Sturm Graz","VfB Stuttgart","Young Boys"]},
+    "UEFA Europa League":{"nv":1,"cl":["AZ Alkmaar","Ajax","Athletic Club","Dynamo Kyiv","Eintracht Frankfurt","FC Porto","Fenerbahçe","Galatasaray","Lazio","Lyon","Maccabi Tel Aviv","Manchester United","Nice","Olympiakos Piraeus","PAOK","Rangers","Rapid Vienna","Real Betis","Real Sociedad","SC Braga","Slavia Praha","Tottenham","Twente","Union St. Gilloise"]},
+    "UEFA Conference League":{"nv":1,"cl":["Anderlecht","Basaksehir","Borac Banja Luka","Brann","Chelsea","Club Brugge KV","FC Copenhagen","Fiorentina","Gent","Guimaraes","HJK Helsinki","HNK Hajduk Split","Heart Of Midlothian","Jagiellonia","Kilmarnock","Lask Linz","Legia Warszawa","Lens","Molde","NK Osijek","Olimpija Ljubljana","Panathinaikos","Rapid Vienna","Real Betis","Sheriff Tiraspol","Slask Wroclaw","TSC Backa Topola","Trabzonspor"]}
+  },
+  "PL Polonia":{
+    "Ekstraklasa":{"nv":1,"cl":["Cracovia Krakow","GKS Katowice","Gornik Zabrze","Jagiellonia","Korona Kielce","Lech Poznan","Lechia Gdansk","Legia Warszawa","Motor Lublin","Piast Gliwice","Pogon Szczecin","Radomiak Radom","Raków Częstochowa","Slask Wroclaw","Stal Mielec","Widzew Łódź","Zaglebie Lubin"]}
+  },
+  "SE Suecia":{
+    "Allsvenskan":{"nv":1,"cl":["AIK Stockholm","BK Hacken","Djurgardens IF","Gais","Hammarby FF","IF Brommapojkarna","IF Elfsborg","IFK Goteborg","IFK Norrkoping","IFK Varnamo","Kalmar FF","Malmo FF","Mjallby AIF","Sirius","Vasteras SK FK"]}
+  },
+  "NO Noruega":{
+    "Eliteserien":{"nv":1,"cl":["Bodo/Glimt","Brann","Fredrikstad","Ham-Kam","Haugesund","KFUM Oslo","Kristiansund BK","Lillestrom","Molde","ODD Ballklubb","Rosenborg","Sandefjord","Sarpsborg 08 FF","Stromsgodset","Tromso","Viking"]}
+  },
+  "DK Dinamarca":{
+    "Superliga":{"nv":1,"cl":["Aalborg","Aarhus","Brondby","FC Copenhagen","FC Midtjylland","FC Nordsjaelland","Lyngby","Randers FC","Silkeborg","Sonderjyske","Vejle","Viborg"]}
+  },
+  "CZ Rep. Checa":{
+    "First League":{"nv":1,"cl":["Baník Ostrava","Bohemians 1905","Dukla Praha","FK Jablonec","Hradec Králové","Karvina","Mlada Boleslav","Pardubice","Plzen","Sigma Olomouc","Slavia Praha","Slovan Liberec","Slovácko","Sparta Praha","Teplice"]}
+  },
+  "HR Croacia":{
+    "HNL":{"nv":1,"cl":["Dinamo Zagreb","HNK Gorica","HNK Hajduk Split","HNK Rijeka","Istra 1961","NK Lokomotiva Zagreb","NK Osijek","NK Slaven Belupo","NK Varazdin","Sibenik"]}
+  },
+  "MX México":{
+    "Liga MX":{"nv":1,"cl":["Atlas","Atletico San Luis","CF Pachuca","Club America","Club Queretaro","Club Tijuana","Cruz Azul","FC Juarez","Guadalajara Chivas","Leon","Mazatlán","Monterrey","Necaxa","Puebla","Santos Laguna","Tigres UANL","Toluca","U.N.A.M. - Pumas"]},
+    "Liga de Expansión":{"nv":2,"cl":["Alebrijes de Oaxaca","Atlante FC","CA La Paz","CDS Tampico Madero","Cancún","Celaya","Correcaminos Uat","Dorados","Leones Negros UDG","Mineros de Zacatecas","Monarcas","Tlaxcala","Venados FC"]}
+  },
+  "US MLS":{
+    "MLS":{"nv":1,"cl":["Atlanta United FC","Austin","CF Montreal","Charlotte","Chicago Fire","Colorado Rapids","Columbus Crew","DC United","FC Cincinnati","FC Dallas","Houston Dynamo","Inter Miami","Los Angeles FC","Los Angeles Galaxy","Minnesota United FC","Nashville SC","New England Revolution","New York City FC","New York Red Bulls","Orlando City SC","Philadelphia Union","Portland Timbers","Real Salt Lake","San Jose Earthquakes","Seattle Sounders","Sporting Kansas City","St. Louis City","Toronto FC","Vancouver Whitecaps"]},
+    "USL Championship":{"nv":2,"cl":["Birmingham Legion","Charleston Battery","Colorado Springs","Detroit City","El Paso Locomotive","FC Tulsa","Hartford Athletic","Indy Eleven","Las Vegas Lights","Louisville City","Memphis 901","Miami FC","Monterey Bay","New Mexico United","Oakland Roots","Orange County SC","Phoenix Rising","Pittsburgh Riverhounds","Sacramento Republic","San Antonio","Tampa Bay Rowdies"]},
+    "USL League One":{"nv":3,"cl":["Charlottesville","Charlotte Independence","Forward Madison","Greenville Triumph","Lexington SC","Northern Colorado","Richmond Kickers","South Georgia Tormenta"]}
+  },
+  "SA Saudi":{
+    "Pro League":{"nv":1,"cl":["Al Khaleej Saihat","Al Kholood","Al Okhdood","Al Orubah","Al Riyadh","Al Shabab","Al Taawon","Al Wehda Club","Al-Ahli Jeddah","Al-Ettifaq","Al-Fateh","Al-Fayha","Al-Hilal Saudi FC","Al-Ittihad FC","Al-Nassr","Al-Qadisiyah FC","Al-Raed","Damac"]}
+  },
+  "JP Japón":{
+    "J1 League":{"nv":1,"cl":["Albirex Niigata","Avispa Fukuoka","Cerezo Osaka","Consadole Sapporo","FC Tokyo","Gamba Osaka","Jubilo Iwata","Kashima","Kashiwa Reysol","Kawasaki Frontale","Kyoto Sanga","Machida Zelvia","Nagoya Grampus","Sagan Tosu","Sanfrecce Hiroshima","Shonan Bellmare","Tokyo Verdy","Urawa","Vissel Kobe","Yokohama F. Marinos"]},
+    "J2 League":{"nv":2,"cl":["Blaublitz Akita","Ehime FC","Fagiano Okayama","Fujieda MYFC","Iwaki","JEF United Chiba","Kagoshima United","Mito Hollyhock","Montedio Yamagata","Oita Trinita","Renofa Yamaguchi","Roasso Kumamoto","Shimizu S-pulse","Tochigi SC","Tokushima Vortis","Vegalta Sendai","Ventforet Kofu","Yokohama FC"]}
+  }
 };
+
 const EV_EQ=[
   {id:"goles_favor",label:"Gol a Favor",icon:"⚽",tipo:"of"},{id:"goles_contra",label:"Gol en Contra",icon:"😰",tipo:"def"},
   {id:"tiros_arco",label:"Tiro al Arco",icon:"🎯",tipo:"of"},{id:"corners",label:"Córner",icon:"🚩",tipo:"of"},
