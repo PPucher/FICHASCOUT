@@ -1,7 +1,7 @@
 import BasePro from "./BasePro.jsx";
 import ComparadorPro from "./ComparadorPro.jsx";
 import { generarPDF } from "./PDFExport.jsx";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
          RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 
