@@ -38,119 +38,121 @@ const POS={
 };
 const SA={
   "cl Chile":{
-    "Primera División":{"nv":1,"cl":["A. Italiano","Cobreloa","Cobresal","Colo Colo","Coquimbo Unido","Deportes Copiapo","Deportes Iquique","Everton de Vina","Huachipato","Nublense","O'Higgins","Palestino","U. Catolica","Union Espanola","Union La Calera","Universidad de Chile"]},
-    "Copa Chile":{"nv":3,"cl":["11 de Septiembre","A. Italiano","Antofagasta","Barnechea","Central Norte","Cobreloa","Cobresal","Colo Colo","Comunal Cabrero","Concepción","Concón National","Coquimbo Unido","Curico Unido","D. La Serena","D. Melipilla","D. Puerto Montt","Deportes Copiapo","Deportes Iquique","Deportes Limache","Deportes Quillón","Deportes Rengo","Deportes Santa Cruz","Deportes Temuco","Everton de Vina","Fernández Vial","General Velásquez","Glorias Navales","Huachipato","Imperial Unido","Lautaro de Buin","Linares Unido","Magallanes","Municipal Mejillones","Municipal Puente Alto","Municipal Salamanca","Nublense","O'Higgins","Palestino","Provincial Osorno","Provincial Ovalle","Rangers de Talca","Real San Joaquín","Recoleta","San Antonio Unido","San Luis","San Marcos de Arica","Santiago City","Santiago Morning","Santiago Wanderers","Trasandino","U. Catolica","Union Espanola","Union La Calera","Union San Felipe","Universidad de Chile","Universidad de Concepcion","Vicente Rosales"]},
-    "Primera B":{"nv":2,"cl":["Antofagasta","Barnechea","Curico Unido","D. La Serena","Deportes Limache","Deportes Santa Cruz","Deportes Temuco","Magallanes","Rangers de Talca","Recoleta","San Luis","San Marcos de Arica","Santiago Morning","Santiago Wanderers","Union San Felipe","Universidad de Concepcion"]}
+    "Primera División":{"nv":1,"id":265,"cl":["A. Italiano", "Cobreloa", "Cobresal", "Colo Colo", "Coquimbo Unido", "Deportes Copiapo", "Deportes Iquique", "Everton de Vina", "Huachipato", "Nublense", "O'Higgins", "Palestino", "U. Catolica", "Union Espanola", "Union La Calera", "Universidad de Chile"]},
+    "Copa Chile":{"nv":3,"id":267,"cl":["11 de Septiembre", "A. Italiano", "Antofagasta", "Barnechea", "Central Norte", "Cobreloa", "Cobresal", "Colo Colo", "Comunal Cabrero", "Concepción", "Concón National", "Coquimbo Unido", "Curico Unido", "D. La Serena", "D. Melipilla", "D. Puerto Montt", "Deportes Copiapo", "Deportes Iquique", "Deportes Limache", "Deportes Quillón", "Deportes Rengo", "Deportes Santa Cruz", "Deportes Temuco", "Everton de Vina", "Fernández Vial", "General Velásquez", "Glorias Navales", "Huachipato", "Imperial Unido", "Lautaro de Buin", "Linares Unido", "Magallanes", "Municipal Mejillones", "Municipal Puente Alto", "Municipal Salamanca", "Nublense", "O'Higgins", "Palestino", "Provincial Osorno", "Provincial Ovalle", "Rangers de Talca", "Real San Joaquín", "Recoleta", "San Antonio Unido", "San Luis", "San Marcos de Arica", "Santiago City", "Santiago Morning", "Santiago Wanderers", "Trasandino", "U. Catolica", "Union Espanola", "Union La Calera", "Union San Felipe", "Universidad de Chile", "Universidad de Concepcion", "Vicente Rosales"]},
+    "Primera B":{"nv":2,"id":266,"cl":["Antofagasta", "Barnechea", "Curico Unido", "D. La Serena", "Deportes Limache", "Deportes Santa Cruz", "Deportes Temuco", "Magallanes", "Rangers de Talca", "Recoleta", "San Luis", "San Marcos de Arica", "Santiago Morning", "Santiago Wanderers", "Union San Felipe", "Universidad de Concepcion"]}
   },
   "AR Argentina":{
-    "Liga Profesional":{"nv":1,"cl":["Argentinos JRS","Atletico Tucuman","Banfield","Barracas Central","Belgrano Cordoba","Boca Juniors","Central Cordoba de Santiago","Defensa Y Justicia","Deportivo Riestra","Estudiantes L.P.","Gimnasia L.P.","Godoy Cruz","Huracan","Independiente","Instituto Cordoba","Lanus","Newells Old Boys","Platense","Racing Club","River Plate","Rosario Central","San Lorenzo","Sarmiento Junin","Talleres Cordoba","Tigre","Union Santa Fe","Velez Sarsfield"]},
-    "Primera B Metro":{"nv":2,"cl":["Acassuso","Argentino Quilmes","Argentino de Merlo","Canuelas","Colegiales","Comunicaciones","Deportivo Armenio","Deportivo Laferrere","Deportivo Merlo","Dock Sud","Excursionistas","Flandria","Fénix","Liniers","Los Andes","Midland","Sacachispas","UAI Urquiza","Villa Dalmine","Villa San Carlos"]}
+    "Liga Profesional":{"nv":1,"id":128,"cl":["Argentinos JRS", "Atletico Tucuman", "Banfield", "Barracas Central", "Belgrano Cordoba", "Boca Juniors", "Central Cordoba de Santiago", "Defensa Y Justicia", "Deportivo Riestra", "Estudiantes L.P.", "Gimnasia L.P.", "Godoy Cruz", "Huracan", "Independ. Rivadavia", "Independiente", "Instituto Cordoba", "Lanus", "Newells Old Boys", "Platense", "Racing Club", "River Plate", "Rosario Central", "San Lorenzo", "Sarmiento Junin", "Talleres Cordoba", "Tigre", "Union Santa Fe", "Velez Sarsfield"]},
+    "Primera B Metro":{"nv":2,"id":131,"cl":["Acassuso", "Argentino Quilmes", "Argentino de Merlo", "Canuelas", "Colegiales", "Comunicaciones", "Deportivo Armenio", "Deportivo Laferrere", "Deportivo Merlo", "Dock Sud", "Excursionistas", "Flandria", "Fénix", "Liniers", "Los Andes", "Midland", "Sacachispas", "San Martín Burzaco", "Sarmiento de La Banda", "Sportivo Italiano", "UAI Urquiza", "Villa Dalmine", "Villa San Carlos"]}
   },
   "BR Brasil":{
-    "Série A":{"nv":1,"cl":["Atletico Goianiense","Atletico Paranaense","Atletico-MG","Bahia","Botafogo","Corinthians","Criciuma","Cruzeiro","Cuiaba","Flamengo","Fluminense","Fortaleza EC","Gremio","Internacional","Juventude","Palmeiras","RB Bragantino","Sao Paulo","Vasco DA Gama","Vitoria"]},
-    "Série B":{"nv":2,"cl":["Amazonas","America Mineiro","Avai","Botafogo SP","Brusque","CRB","Ceara","Chapecoense-sc","Coritiba","Goias","Guarani Campinas","Ituano","Mirassol","Novorizontino","Operario-PR","Paysandu","Ponte Preta","Santos","Sport Recife","Vila Nova"]},
-    "Série C":{"nv":3,"cl":["ABC","Aparecidense","Athletic Club","Botafogo PB","CSA","Caxias","Ferroviario","Figueirense","Floresta","Londrina","Nautico Recife","Remo","Sampaio Correa","Sao Jose","Tombense","Volta Redonda","Ypiranga-RS"]},
-    "Copa Do Brasil":{"nv":3,"cl":["Atletico Paranaense","Atletico-MG","Bahia","Botafogo","Corinthians","Cruzeiro","Flamengo","Fluminense","Gremio","Internacional","Palmeiras","RB Bragantino","Sao Paulo","Sport Recife","Vasco DA Gama","Vitoria"]}
+    "Série A":{"nv":1,"id":71,"cl":["Atletico Goianiense", "Atletico Paranaense", "Atletico-MG", "Bahia", "Botafogo", "Corinthians", "Criciuma", "Cruzeiro", "Cuiaba", "Flamengo", "Fluminense", "Fortaleza EC", "Gremio", "Internacional", "Juventude", "Palmeiras", "RB Bragantino", "Sao Paulo", "Vasco DA Gama", "Vitoria"]},
+    "Série B":{"nv":2,"id":72,"cl":["Amazonas", "America Mineiro", "Avai", "Botafogo SP", "Brusque", "CRB", "Ceara", "Chapecoense-sc", "Coritiba", "Goias", "Guarani Campinas", "Ituano", "Mirassol", "Novorizontino", "Operario-PR", "Paysandu", "Ponte Preta", "Santos", "Sport Recife", "Vila Nova"]},
+    "Série C":{"nv":3,"id":75,"cl":["ABC", "Aparecidense", "Athletic Club", "Botafogo PB", "CSA", "Caxias", "Confiança", "Ferroviario", "Ferroviária", "Figueirense", "Floresta", "Londrina", "Nautico Recife", "Remo", "Sampaio Correa", "Sao Jose", "São Bernardo", "Tombense", "Volta Redonda", "Ypiranga-RS"]},
+    "Copa Do Brasil":{"nv":3,"id":73,"cl":["ABC", "AO Itabaiana", "ASA", "Amazonas", "America Mineiro", "America-RN", "Anápolis", "Aparecidense", "Athletic Club", "Atletico Goianiense", "Atletico Paranaense", "Atletico-MG", "Audax Rio", "Bahia", "Botafogo", "Botafogo SP", "Brasiliense", "Brusque", "CEOV Operário", "CRB", "Capital", "Cascavel", "Caxias", "Cianorte", "Confiança", "Corinthians", "Coritiba", "Costa Rica ", "Criciuma", "Cruzeiro", "Cuiaba", "Ferroviario", "Flamengo", "Fluminense", "Fluminense PI", "GAS", "Goias", "Gremio", "Humaitá", "Iguatu", "Independente AP", "Internacional", "Itabuna", "Ituano", "Jacuipense", "Ji-Paraná", "Juventude", "Manauara", "Maranhão", "Marcílio Dias", "Maringá", "Moto Club", "Murici Fc", "Nova Iguaçu", "Nova Venécia", "Olaria", "Operario Ferroviario", "Palmeiras", "Petrolina", "Porto Velho", "Portuguesa RJ", "Portuguesa Santista", "RB Bragantino", "Real FC", "Real Noroeste", "Remo", "Retrô", "Rio Branco", "River AC", "Sampaio Correa", "Sao Paulo", "Sao Raimundo", "Sousa", "Sport Recife", "São Bernardo", "São Luiz", "Tocantinópolis", "Tombense", "Trem", "Treze", "União Rondonópolis", "Vasco DA Gama", "Villa Nova", "Vitoria", "Volta Redonda", "Ypiranga-RS", "Água Santa", "Águia de Marabá"]}
   },
   "CO Colombia":{
-    "Primera A":{"nv":1,"cl":["America de Cali","Atletico Nacional","Bucaramanga","Deportes Tolima","Deportivo Cali","Deportivo Pasto","Deportivo Pereira","Envigado","Fortaleza FC","Independiente Medellin","Jaguares","Junior","Millonarios","Once Caldas","Patriotas","Santa Fe","Águilas Doradas"]}
+    "Primera A":{"nv":1,"id":239,"cl":["Alianza Valledupar", "America de Cali", "Atletico Nacional", "Bucaramanga", "Chico", "Deportes Tolima", "Deportivo Cali", "Deportivo Pasto", "Deportivo Pereira", "Envigado", "Fortaleza FC", "Independiente Medellin", "Internacional de Bogota", "Jaguares", "Junior", "Millonarios", "Once Caldas", "Patriotas", "Santa Fe", "Águilas Doradas"]},
+    "Liga Nacional":{"nv":2,"id":241,"cl":["Alianza Valledupar", "America de Cali", "Atletico Nacional", "Bogota FC", "Bucaramanga", "Chico", "Cucuta", "Depor FC", "Deportes Tolima", "Deportivo Cali", "Deportivo Pasto", "Deportivo Pereira", "Envigado", "Fortaleza FC", "Huila", "Internacional Palmira", "Internacional de Bogota", "Jaguares", "Llaneros", "Millonarios", "Once Caldas", "Orsomarso", "Patriotas", "Popayan", "Quindio", "Real Cartagena", "Real Soacha", "Santa Fe", "Tigres FC", "Union Magdalena"]}
   },
   "UV Uruguay":{
-    "Primera División Apertura":{"nv":1,"cl":["Boston River","CA River Plate","Cerro","Cerro Largo","Club Nacional","Danubio","Defensor Sporting","Deportivo Maldonado","Fenix","Liverpool Montevideo","Miramar","Penarol","Progreso","Racing Montevideo","Rampla Juniors","Wanderers"]}
+    "Primera División Apertura":{"nv":1,"id":268,"cl":["Boston River", "CA River Plate", "Cerro", "Cerro Largo", "Club Nacional", "Danubio", "Defensor Sporting", "Deportivo Maldonado", "Fenix", "Liverpool Montevideo", "Livingston", "Miramar", "Penarol", "Progreso", "Racing Montevideo", "Rampla Juniors", "Wanderers"]}
   },
   "PE Perú":{
-    "Liga 1":{"nv":1,"cl":["Alianza Lima","Cesar Vallejo","Cienciano","Deportivo Binacional","FBC Melgar","Sport Huancayo","Sporting Cristal","Universitario"]}
+    "Liga 1":{"nv":1,"id":283,"cl":["AFC Hermannstadt", "CFR 1907 Cluj", "Dinamo Bucuresti", "FC Botosani", "FCSB", "Farul Constanta", "Oţelul", "Petrolul Ploiesti", "Politehnica Iasi", "Rapid", "SCM Gloria Buzău", "Sepsi OSK Sfantu Gheorghe", "Unirea Slobozia", "Universitatea Cluj", "Universitatea Craiova", "Uta Arad"]}
   },
   "EC Ecuador":{
-    "LigaPro Serie A":{"nv":1,"cl":["Aucas","Barcelona SC","Cumbayá","Delfin SC","Deportivo Cuenca","El Nacional","Emelec","Imbabura","Independiente del Valle","LDU de Quito","Libertad","Macara","Mushuc Runa SC","Orense SC","Tecnico Universitario","Universidad Catolica"]}
+    "LigaPro Serie A":{"nv":1,"id":240,"cl":["Barranquilla", "Bogota FC", "Cucuta", "Depor FC", "Huila", "Internacional Palmira", "Leones FC", "Llaneros", "Orsomarso", "Popayan", "Quindio", "Real Cartagena", "Real Santander", "Real Soacha", "Tigres FC", "Union Magdalena"]},
+    "LigaPro Serie B":{"nv":2,"id":514,"cl":["ASO Chlef", "CR Belouizdad", "ES Setif", "El Bayadh", "JS Saoura", "Khenchela", "MC Alger", "MC Oran", "Mostaganem", "NC Magra", "Olympique Akbou", "Paradou AC", "Témouchent", "USM Alger", "Usm El Harrach"]}
   },
   "BO Bolivia":{
-    "División Profesional":{"nv":1,"cl":["Always Ready","Aurora","Bolívar","Ciclón","Club Destroyers","Guabirá","Jorge Wilstermann","Nacional Potosí","Oriente Petrolero","Real Potosí","Real Tomayapo","The Strongest"]}
+    "División Profesional":{"nv":1,"id":209,"cl":["Altstätten", "BSC Young Boys", "Bellinzona", "Besa St. Gallen", "Biel-Bienne", "Brühl", "Dardania St. Gallen", "Echallens", "Emmen", "FC Aarau", "FC Basel 1893", "FC Lugano", "FC Luzern", "FC ST. Gallen", "FC Schaffhausen", "FC Sion", "FC Thun", "FC WIL 1900", "FC Winterthur", "FC Zurich", "Gambarogno - Contone", "Genolier-Begnins", "Grasshoppers", "Lancy", "Langenthal", "Lausanne", "Le Locle Sports", "Mendrisio", "Monthey", "Neuchatel Xamax FC", "Paradiso", "Prishtina Bern", "Rapperswil", "SC Kriens", "Servette FC", "Signal", "Solothurn", "Stade Lausanne-Ouchy", "Stade Nyonnais", "Taverne", "Vevey Sports", "Wettswil-Bonstetten", "YF Juventus", "Yverdon Sport", "Étoile Carouge"]}
   },
   "PY Paraguay":{
-    "División de Honor":{"nv":1,"cl":["Cerro Porteno","Club Guarani","Club Nacional","Libertad Asuncion","Nacional Asuncion","Olimpia","Sportivo Ameliano","Sportivo Luqueno","Sportivo Trinidense"]}
+    "División de Honor":{"nv":1,"id":282,"cl":["Academia Cantolao", "Alianza Universidad", "Ayacucho FC", "Carlos Stein", "Comerciantes", "Deportiva Agropecuaria", "Deportivo Binacional", "Deportivo Coopsol", "Deportivo Llacuabamba", "Deportivo Municipal", "Juan Pablo II College", "Molinos El Pirata", "San Marcos", "Santos", "U. San Martin", "UCV Moquegua"]}
   },
   "VE Venezuela":{
-    "Liga FUTVE":{"nv":1,"cl":["Caracas FC","Deportivo La Guaira","Deportivo Tachira FC","Metropolitanos FC","Puerto Cabello","Portuguesa FC","Rayo Zuliano","Yaracuyanos FC","Zamora FC"]}
+    "Liga FUTVE":{"nv":1,"id":292,"cl":["Daegu FC", "Daejeon Citizen", "FC Seoul", "Gangwon FC", "Gimcheon Sangmu FC", "Gwangju FC", "Incheon United", "Jeju United FC", "Jeonbuk Motors", "Pohang Steelers", "Suwon City FC", "Ulsan Hyundai FC"]}
   },
   "SA Copas":{
-    "Copa Libertadores":{"nv":1,"cl":["Alianza Lima","Always Ready","Atletico Nacional","Aucas","Aurora","Barcelona SC","Bolívar","Botafogo","Caracas FC","Cerro Porteno","Club Nacional","Cobresal","Colo Colo","Defensor Sporting","FBC Melgar","Flamengo","Fluminense","Godoy Cruz","Gremio","Huachipato","Independiente del Valle","Junior","LDU de Quito","Libertad Asuncion","Liverpool Montevideo","Millonarios","Nacional Asuncion","Palestino","Penarol","RB Bragantino","River Plate","Rosario Central","San Lorenzo","Sporting Cristal","Talleres Cordoba","The Strongest","Universitario"]},
-    "Copa Sudamericana":{"nv":1,"cl":["Atletico Paranaense","Boca Juniors","Cerro Porteno","Coquimbo Unido","Corinthians","Cruzeiro","Defensa Y Justicia","Deportes Tolima","Everton de Vina","Fortaleza EC","Huachipato","Independiente Medellin","Independiente del Valle","Internacional","LDU de Quito","Lanus","Libertad Asuncion","Nacional Asuncion","Olimpia","Palestino","RB Bragantino","Racing Club","Rosario Central","U. Catolica","Union La Calera"]},
-    "Copa América":{"nv":1,"cl":["Argentina","Bolivia","Canada","Chile","Colombia","Costa Rica","Jamaica","Mexico","Panama","Paraguay","Peru","USA","Venezuela"]}
+    "Copa Libertadores":{"nv":1,"id":13,"cl":["Alianza Lima", "Always Ready", "Atletico Nacional", "Aucas", "Aurora", "Barcelona SC", "Bolívar", "Botafogo", "Caracas FC", "Cerro Porteno", "Club Nacional", "Cobresal", "Colo Colo", "Defensor Sporting", "Deportivo Tachira FC", "El Nacional", "Estudiantes L.P.", "FBC Melgar", "Flamengo", "Fluminense", "Godoy Cruz", "Gremio", "Huachipato", "Independiente del Valle", "Junior", "LDU de Quito", "Libertad Asuncion", "Liverpool Montevideo", "Millonarios", "Nacional Asuncion", "Palestino", "Penarol", "Portuguesa FC", "Puerto Cabello", "RB Bragantino", "River Plate", "Rosario Central", "San Lorenzo", "Sporting Cristal", "Sportivo Trinidense", "Talleres Cordoba", "The Strongest", "Universitario", "Águilas Doradas"]},
+    "Copa Sudamericana":{"nv":1,"id":11,"cl":["ADT", "Alianza Valledupar", "Always Ready", "America de Cali", "Argentinos JRS", "Atletico Paranaense", "Barcelona SC", "Belgrano Cordoba", "Boca Juniors", "Carabobo FC", "Cerro Largo", "Cerro Porteno", "Cesar Vallejo", "Club Guarani", "Coquimbo Unido", "Corinthians", "Cruzeiro", "Danubio", "Defensa Y Justicia", "Delfin SC", "Deportes Tolima", "Deportivo Cuenca", "Deportivo Garcilaso", "Deportivo La Guaira", "Everton de Vina", "Fortaleza EC", "Huachipato", "Independiente Medellin", "Independiente del Valle", "Internacional", "Jorge Wilstermann", "LDU de Quito", "Lanus", "Libertad Asuncion", "Metropolitanos FC", "Nacional Asuncion", "Nacional Potosí", "Olimpia", "Palestino", "RB Bragantino", "Racing Club", "Racing Montevideo", "Rayo Zuliano", "Real Tomayapo", "Rosario Central", "Sport Huancayo", "Sportivo Ameliano", "Sportivo Luqueno", "Sportivo Trinidense", "Tecnico Universitario", "U. Catolica", "Union La Calera", "Universidad Catolica", "Universitario de Vinto", "Wanderers"]},
+    "Copa América":{"nv":1,"id":9,"cl":["Argentina", "Bolivia", "Canada", "Chile", "Colombia", "Costa Rica", "Jamaica", "Mexico", "Panama", "Paraguay", "Peru", "USA", "Venezuela"]}
   },
   "EN Inglaterra":{
-    "Premier League":{"nv":1,"cl":["Arsenal","Aston Villa","Bournemouth","Brentford","Brighton","Chelsea","Crystal Palace","Everton","Fulham","Ipswich","Leicester","Liverpool","Manchester City","Manchester United","Newcastle","Nottingham Forest","Southampton","Tottenham","West Ham","Wolves"]},
-    "Championship":{"nv":2,"cl":["Blackburn","Bristol City","Burnley","Cardiff","Coventry","Derby","Hull City","Leeds","Luton","Middlesbrough","Millwall","Norwich","Oxford United","Plymouth","Portsmouth","Preston","QPR","Sheffield Utd","Sheffield Wednesday","Stoke City","Sunderland","Swansea","Watford","West Brom"]},
-    "League One":{"nv":3,"cl":["Barnsley","Birmingham","Blackpool","Bolton","Bristol Rovers","Burton Albion","Cambridge United","Charlton","Crawley Town","Exeter City","Huddersfield","Leyton Orient","Lincoln","Mansfield Town","Northampton","Peterborough","Reading","Rotherham","Shrewsbury","Stevenage","Stockport County","Wigan","Wrexham","Wycombe"]}
+    "Premier League":{"nv":1,"id":39,"cl":["Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Chelsea", "Crystal Palace", "Everton", "Fulham", "Ipswich", "Leicester", "Liverpool", "Manchester City", "Manchester United", "Newcastle", "Nottingham Forest", "Southampton", "Tottenham", "West Ham", "Wolves"]},
+    "Championship":{"nv":2,"id":40,"cl":["Blackburn", "Blackburn Rovers U21", "Bristol City", "Burnley", "Cardiff", "Coventry", "Derby", "Hull City", "Leeds", "Luton", "Middlesbrough", "Millwall", "Norwich", "Oxford United", "Plymouth", "Portsmouth", "Preston", "QPR", "Sheffield Utd", "Sheffield Wednesday", "Stoke City", "Sunderland", "Swansea", "Watford", "West Brom"]},
+    "League One":{"nv":3,"id":41,"cl":["Barnsley", "Birmingham", "Birmingham City U21", "Blackpool", "Bolton", "Bristol Rovers", "Burton Albion", "Cambridge United", "Charlton", "Crawley Town", "Exeter City", "Huddersfield", "Leyton Orient", "Lincoln", "Mansfield Town", "Northampton", "Peterborough", "Reading", "Rotherham", "Shrewsbury", "Stevenage", "Stockport County", "Wigan", "Wrexham", "Wycombe"]}
   },
   "ES España":{
-    "La Liga":{"nv":1,"cl":["Alaves","Athletic Club","Atletico Madrid","Barcelona","Celta Vigo","Espanyol","Getafe","Girona","Las Palmas","Leganes","Mallorca","Osasuna","Rayo Vallecano","Real Betis","Real Madrid","Real Sociedad","Sevilla","Valencia","Valladolid","Villarreal"]},
-    "La Liga 2":{"nv":2,"cl":["Albacete","Almeria","Burgos","Cadiz","Córdoba","Deportivo La Coruna","Eibar","Elche","Granada CF","Huesca","Levante","Malaga","Mirandes","Oviedo","Racing Santander","Sporting Gijon","Tenerife","Zaragoza"]}
+    "La Liga":{"nv":1,"id":140,"cl":["Alaves", "Athletic Club", "Atletico Madrid", "Barcelona", "Celta Vigo", "Espanyol", "Getafe", "Girona", "Las Palmas", "Leganes", "Mallorca", "Osasuna", "Rayo Vallecano", "Real Betis", "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Valladolid", "Villarreal"]},
+    "La Liga 2":{"nv":2,"id":141,"cl":["Albacete", "Almeria", "Burgos", "Cadiz", "Castellón", "Cordoba", "Deportivo La Coruna", "Eibar", "Elche", "Eldense", "FC Cartagena", "Granada CF", "Huesca", "Levante", "Malaga", "Mirandes", "Oviedo", "Racing Ferrol", "Racing Santander", "Sporting Gijon", "Tenerife", "Zaragoza"]}
   },
   "DE Alemania":{
-    "Bundesliga":{"nv":1,"cl":["1. FC Heidenheim","1899 Hoffenheim","Bayer Leverkusen","Bayern München","Borussia Dortmund","Borussia Mönchengladbach","Eintracht Frankfurt","FC Augsburg","FC St. Pauli","FSV Mainz 05","Holstein Kiel","RB Leipzig","SC Freiburg","TSV Hartberg","Union Berlin","VfB Stuttgart","VfL Bochum","VfL Wolfsburg","Werder Bremen"]},
-    "2. Bundesliga":{"nv":2,"cl":["1. FC Kaiserslautern","1. FC Köln","1. FC Magdeburg","1. FC Nürnberg","Eintracht Braunschweig","FC Schalke 04","Fortuna Düsseldorf","Hamburger SV","Hannover 96","Hertha BSC","Karlsruher SC","Paderborn","Preußen Münster","SSV Jahn Regensburg","SSV Ulm 1846","SV Darmstadt 98","SpVgg Greuther Fürth"]}
+    "Bundesliga":{"nv":1,"id":78,"cl":["1. FC Heidenheim", "1899 Hoffenheim", "Bayer Leverkusen", "Bayern München", "Borussia Dortmund", "Borussia Mönchengladbach", "Eintracht Frankfurt", "FC Augsburg", "FC St. Pauli", "FSV Mainz 05", "Holstein Kiel", "RB Leipzig", "SC Freiburg", "Union Berlin", "VfB Stuttgart", "VfL Bochum", "VfL Wolfsburg", "Werder Bremen"]},
+    "2. Bundesliga":{"nv":2,"id":79,"cl":["1. FC Kaiserslautern", "1. FC Köln", "1. FC Magdeburg", "1. FC Nürnberg", "Eintracht Braunschweig", "FC Schalke 04", "Fortuna Düsseldorf", "Hamburger SV", "Hannover 96", "Hertha BSC", "Karlsruher SC", "Preußen Münster", "SC Paderborn 07", "SSV Jahn Regensburg", "SSV Ulm 1846", "SV Darmstadt 98", "SV Elversberg", "SpVgg Greuther Fürth"]}
   },
   "IT Italia":{
-    "Serie A":{"nv":1,"cl":["AC Milan","AS Roma","Atalanta","Bologna","Cagliari","Como","Empoli","Fiorentina","Genoa","Hellas Verona","Inter","Juventus","Lazio","Lecce","Monza","Napoli","Parma","Torino","Udinese","Venezia"]},
-    "Serie B":{"nv":2,"cl":["Bari","Brescia","Carrarese","Catanzaro","Cesena","Cittadella","Cosenza","Cremonese","Frosinone","Juve Stabia","Mantova","Modena","Palermo","Pisa","Reggiana","Salernitana","Sampdoria","Sassuolo","Spezia","Sudtirol"]}
+    "Serie A":{"nv":1,"id":135,"cl":["AC Milan", "AS Roma", "Atalanta", "Bologna", "Cagliari", "Como", "Empoli", "Fiorentina", "Genoa", "Hellas Verona", "Inter", "Juventus", "Lazio", "Lecce", "Monza", "Napoli", "Parma", "Torino", "Udinese", "Venezia"]},
+    "Serie B":{"nv":2,"id":136,"cl":["Bari", "Brescia", "Carrarese", "Catanzaro", "Cesena", "Cittadella", "Cosenza", "Cremonese", "Frosinone", "Juve Stabia", "Mantova", "Modena", "Palermo", "Pisa", "Reggiana", "Salernitana", "Sampdoria", "Sassuolo", "Spezia", "Sudtirol"]}
   },
   "FR Francia":{
-    "Ligue 1":{"nv":1,"cl":["Angers","Auxerre","Le Havre","Lens","Lille","Lyon","Marseille","Monaco","Montpellier","Nantes","Nice","Paris Saint Germain","Reims","Rennes","Saint Etienne","Stade Brestois 29","Strasbourg","Toulouse"]},
-    "Ligue 2":{"nv":2,"cl":["Ajaccio","Amiens","Annecy","Bastia","Caen","Clermont Foot","Dunkerque","Grenoble","Guingamp","Laval","Lorient","Martigues","Metz","Paris FC","Rodez","Troyes"]}
+    "Ligue 1":{"nv":1,"id":61,"cl":["Angers", "Auxerre", "Le Havre", "Lens", "Lille", "Lyon", "Marseille", "Monaco", "Montpellier", "Nantes", "Nice", "Paris Saint Germain", "Reims", "Rennes", "Saint Etienne", "Stade Brestois 29", "Strasbourg", "Toulouse"]},
+    "Ligue 2":{"nv":2,"id":62,"cl":["Ajaccio", "Amiens", "Annecy", "Bastia", "Caen", "Clermont Foot", "Dunkerque", "Estac Troyes", "Grenoble", "Guingamp", "Laval", "Lorient", "Martigues", "Metz", "PAU", "Paris FC", "RED Star FC 93", "Rodez"]}
   },
   "PT Portugal":{
-    "Primeira Liga":{"nv":1,"cl":["AVS","Arouca","Benfica","Boavista","Casa Pia","Estoril","Estrela","FC Porto","Famalicao","Farense","GIL Vicente","Guimaraes","Moreirense","Nacional","Rio Ave","SC Braga","Santa Clara","Sporting CP"]}
+    "Primeira Liga":{"nv":1,"id":94,"cl":["AVS", "Arouca", "Benfica", "Boavista", "Casa Pia", "Estoril", "Estrela", "FC Porto", "Famalicao", "Farense", "GIL Vicente", "Guimaraes", "Moreirense", "Nacional", "Rio Ave", "SC Braga", "Santa Clara", "Sporting CP"]}
   },
   "NL Países Bajos":{
-    "Eredivisie":{"nv":1,"cl":["AZ Alkmaar","Ajax","Almere City FC","Feyenoord","Fortuna Sittard","GO Ahead Eagles","Groningen","Heerenveen","Heracles","NAC Breda","NEC Nijmegen","PEC Zwolle","PSV Eindhoven","Sparta Rotterdam","Twente","Utrecht","Waalwijk","Willem II"]},
-    "Eerste Divisie":{"nv":2,"cl":["ADO Den Haag","Cambuur","De Graafschap","Den Bosch","Dordrecht","Emmen","Excelsior","FC Eindhoven","Helmond Sport","Jong AZ","Jong Ajax","Jong PSV U21","Jong Utrecht","MVV","Roda","Telstar","VVV Venlo","Vitesse"]}
+    "Eredivisie":{"nv":1,"id":88,"cl":["AZ Alkmaar", "Ajax", "Almere City FC", "Feyenoord", "Fortuna Sittard", "GO Ahead Eagles", "Groningen", "Heerenveen", "Heracles", "NAC Breda", "NEC Nijmegen", "PEC Zwolle", "PSV Eindhoven", "Sparta Rotterdam", "Tacoma Defiance", "Twente", "Utrecht", "Waalwijk", "Willem II"]},
+    "Eerste Divisie":{"nv":2,"id":89,"cl":["ADO Den Haag", "Cambuur", "De Graafschap", "Den Bosch", "Dordrecht", "Emmen", "Excelsior", "FC Eindhoven", "FC OSS", "FC Volendam", "Helmond Sport", "Jong AZ", "Jong Ajax", "Jong PSV U21", "Jong Utrecht", "MVV", "Roda", "Telstar", "VVV Venlo", "Vitesse"]}
   },
   "TR Turquía":{
-    "Süper Lig":{"nv":1,"cl":["Adana Demirspor","Alanyaspor","Antalyaspor","Başakşehir","Beşiktaş","Bodrum FK","Eyüpspor","Fenerbahçe","Galatasaray","Gaziantep FK","Göztepe","Hatayspor","Kasımpaşa","Kayserispor","Konyaspor","Rizespor","Samsunspor","Sivasspor","Trabzonspor"]},
-    "1. Lig":{"nv":2,"cl":["Adanaspor","Amed","Boluspor","Erzurumspor FK","Fatih Karagümrük","Gençlerbirliği S.K.","Keçiörengücü","Kocaelispor","Manisa F.K.","Pendikspor","Sakaryaspor","Yeni Malatyaspor","Çorum FK","Ümraniyespor","İstanbulspor","Şanlıurfaspor"]}
+    "Süper Lig":{"nv":1,"id":203,"cl":["Adana Demirspor", "Alanyaspor", "Antalyaspor", "Başakşehir", "Beşiktaş", "Bodrum FK", "Eyüpspor", "Fenerbahçe", "Galatasaray", "Gaziantep FK", "Göztepe", "Hatayspor", "Kasımpaşa", "Kayserispor", "Konyaspor", "Rizespor", "Samsunspor", "Sivasspor", "Trabzonspor"]},
+    "1. Lig":{"nv":2,"id":204,"cl":["Adanaspor", "Amed", "Ankaragücü", "Bandırmaspor", "Boluspor", "Erzurumspor FK", "Esenler Erokspor", "Fatih Karagümrük", "Gençlerbirliği S.K.", "Iğdır FK", "Keçiörengücü", "Kocaelispor", "Manisa F.K.", "Pendikspor", "Sakaryaspor", "Yeni Malatyaspor", "Çorum FK", "Ümraniyespor", "İstanbulspor", "Şanlıurfaspor"]}
   },
   "SC Escocia":{
-    "Premiership":{"nv":1,"cl":["Aberdeen","Celtic","Dundee","Dundee Utd","Heart Of Midlothian","Hibernian","Kilmarnock","Motherwell","Rangers","Ross County","ST Johnstone","ST Mirren"]}
+    "Premiership":{"nv":1,"id":179,"cl":["Aberdeen", "Celtic", "Dundee", "Dundee Utd", "Heart Of Midlothian", "Hibernian", "Kilmarnock", "Motherwell", "Rangers", "Ross County", "ST Johnstone", "ST Mirren"]}
   },
   "EU UEFA":{
-    "UEFA Champions League":{"nv":1,"cl":["AC Milan","Arsenal","Atalanta","Atletico Madrid","Barcelona","Bayer Leverkusen","Bayern München","Benfica","Borussia Dortmund","Celtic","Club Brugge KV","Dinamo Zagreb","Fenerbahçe","Feyenoord","Galatasaray","Girona","Inter","Juventus","Lille","Liverpool","Manchester City","Monaco","PSV Eindhoven","Paris Saint Germain","RB Leipzig","Real Madrid","Red Bull Salzburg","Shakhtar Donetsk","Slavia Praha","Sparta Praha","Sporting CP","Stade Brestois 29","Sturm Graz","VfB Stuttgart","Young Boys"]},
-    "UEFA Europa League":{"nv":1,"cl":["AZ Alkmaar","Ajax","Athletic Club","Dynamo Kyiv","Eintracht Frankfurt","FC Porto","Fenerbahçe","Galatasaray","Lazio","Lyon","Maccabi Tel Aviv","Manchester United","Nice","Olympiakos Piraeus","PAOK","Rangers","Rapid Vienna","Real Betis","Real Sociedad","SC Braga","Slavia Praha","Tottenham","Twente","Union St. Gilloise"]},
-    "UEFA Conference League":{"nv":1,"cl":["Anderlecht","Basaksehir","Borac Banja Luka","Brann","Chelsea","Club Brugge KV","FC Copenhagen","Fiorentina","Gent","Guimaraes","HJK Helsinki","HNK Hajduk Split","Heart Of Midlothian","Jagiellonia","Kilmarnock","Lask Linz","Legia Warszawa","Lens","Molde","NK Osijek","Olimpija Ljubljana","Panathinaikos","Rapid Vienna","Real Betis","Sheriff Tiraspol","Slask Wroclaw","TSC Backa Topola","Trabzonspor"]}
+    "UEFA Champions League":{"nv":1,"id":2,"cl":["AC Milan", "Apoel Nicosia", "Arsenal", "Aston Villa", "Atalanta", "Atletico Madrid", "BSC Young Boys", "Ballkani", "Barcelona", "Bayer Leverkusen", "Bayern München", "Benfica", "Bodo/Glimt", "Bologna", "Borac Banja Luka", "Borussia Dortmund", "Celje", "Celtic", "Club Brugge KV", "Dečić", "Dinamo Batumi", "Dinamo Minsk", "Dinamo Minsk II", "Dinamo Zagreb", "Dynamo Kyiv", "Egnatia Rrogozhinë", "FC Differdange 03", "FC Lugano", "FC Midtjylland", "FCSB", "FK Crvena Zvezda", "FK Partizan", "Fenerbahçe", "Ferencvarosi TC", "Feyenoord", "Flora Tallinn", "Galatasaray", "Girona", "Grotta", "HJK Helsinki", "Hamrun Spartans", "Inter", "Jagiellonia", "Juventus", "KI Klaksvik", "Larne", "Lille", "Lincoln Red Imps FC", "Liverpool", "Ludogorets", "Maccabi Tel Aviv", "Malmo FF", "Manchester City", "Monaco", "Ordabasy", "PAOK", "PSV Eindhoven", "Panevėžys", "Paris Saint Germain", "Petrocub", "Pyunik Yerevan", "Qarabag", "RB Leipzig", "Rangers", "Real Madrid", "Red Bull Salzburg", "Rīgas FS", "Shakhtar Donetsk", "Shamrock Rovers", "Slavia Praha", "Slovan Bratislava", "Sparta Praha", "Sporting CP", "Stade Brestois 29", "Struga", "Sturm Graz", "The New Saints", "Twente", "UE Santa Coloma", "Union St. Gilloise", "VfB Stuttgart", "Vikingur Reykjavik", "Virtus"]},
+    "UEFA Europa League":{"nv":1,"id":3,"cl":["1899 Hoffenheim", "AS Roma", "AZ Alkmaar", "Ajax", "Anderlecht", "Apoel Nicosia", "Athletic Club", "Beşiktaş", "Bodo/Glimt", "Botev Plovdiv", "Celje", "Cercle Brugge", "Corvinul Hunedoara", "Dynamo Kyiv", "Eintracht Frankfurt", "FC Midtjylland", "FC Porto", "FCSB", "FK Partizan", "FK Tobol Kostanay", "Fenerbahçe", "Ferencvarosi TC", "Galatasaray", "HNK Rijeka", "Heart Of Midlothian", "IF Elfsborg", "Jagiellonia", "KI Klaksvik", "Kilmarnock", "Kryvbas KR", "Lask Linz", "Lazio", "Lincoln Red Imps FC", "Llapi", "Ludogorets", "Lyon", "Maccabi Petah Tikva", "Maccabi Tel Aviv", "Malmo FF", "Manchester United", "Maribor", "Molde", "Nice", "Olympiakos Piraeus", "PAOK", "Pafos", "Paks", "Panathinaikos", "Panevėžys", "Petrocub", "Plzen", "Qarabag", "Rangers", "Rapid Vienna", "Real Sociedad", "Ružomberok", "Rīgas FS", "SC Braga", "Servette FC", "Shamrock Rovers", "Sheriff Tiraspol", "Silkeborg", "Slavia Praha", "TSC Backa Topola", "The New Saints", "Tottenham", "Trabzonspor", "Twente", "Union St. Gilloise", "Vojvodina", "Wisla Krakow", "Zira"]},
+    "UEFA Conference League":{"nv":1,"id":848,"cl":["1. FC Heidenheim", "AEK Athens FC", "AEK Larnaca", "Aktobe", "Apoel Nicosia", "Ararat-Armenia", "Atlètic Club d'Escaldes", "Auda", "Austria Vienna", "B36 Torshavn", "BK Hacken", "Bala Town", "Ballkani", "Baník Ostrava", "Başakşehir", "Borac Banja Luka", "Botev Plovdiv", "Brann", "Bravo", "Breidablik", "Brondby", "Buducnost Podgorica", "CFR 1907 Cluj", "CSKA 1948", "Caernarfon Town", "Celje", "Cercle Brugge", "Chelsea", "Cherno More Varna", "Cliftonville FC", "Crusaders FC", "Derry City", "Dečić", "Dinamo Batumi", "Dinamo Minsk", "Dinamo Tbilisi", "Djurgardens IF", "Drita", "Dunajska Streda", "Egnatia Rrogozhinë", "F91 Dudelange", "FC Astana", "FC Copenhagen", "FC Differdange 03", "FC Isloch Minsk R.", "FC Levadia Tallinn", "FC Noah", "FC ST. Gallen", "FC Urartu", "FC Vaduz", "FC Zurich", "FK Liepaja", "FK Partizan", "FK Sarajevo", "FK Tobol Kostanay", "FK Zalgiris Vilnius", "Fehérvár FC", "Fiorentina", "Flora Tallinn", "Floriana", "GAP Connah S Quay FC", "GO Ahead Eagles", "Gent", "Guimaraes", "HB Torshavn", "HJK Helsinki", "HNK Hajduk Split", "Hamrun Spartans", "Hapoel Beer Sheva", "Heart Of Midlothian", "Ilves", "Inter Club d'Escaldes", "Jagiellonia", "KI Klaksvik", "Kilmarnock", "Kryvbas KR", "KuPS", "La Fiorita", "Larne", "Lask Linz", "Legia Warszawa", "Lens", "Lincoln Red Imps FC", "Linfield", "Llapi", "Maccabi Haifa", "Maccabi Petah Tikva", "Magpies", "Malisheva", "Maribor", "Marsaxlokk", "Milsami Orhei", "Mlada Boleslav", "Molde", "Mornar", "NK Osijek", "Neman", "Olimpija Ljubljana", "Omonia Nicosia", "Ordabasy", "Pafos", "Paide", "Paks", "Panathinaikos", "Panevėžys", "Partizani", "Patro Eisden", "Petrocub", "Polessya", "Progres Niederkorn", "Puskas Academy", "Pyunik Yerevan", "Radnicki 1923", "Rapid Vienna", "Real Betis", "Riga", "Ružomberok", "ST Mirren", "Sabah FA", "Saburtalo", "Shamrock Rovers", "Shelbourne", "Sheriff Tiraspol", "Shkendija", "Silkeborg", "Slask Wroclaw", "Sliema Wanderers", "Spartak Trnava", "St Joseph S Fc", "St Patrick's Athl.", "Stjarnan", "Struga", "Sumqayıt", "TSC Backa Topola", "Tallinna Kalev", "The New Saints", "Tikveš", "Tirana", "Torpedo Kutaisi", "Torpedo Zhodino", "Trabzonspor", "TransINVEST Vilnius", "Tre Penne", "Tromso", "UE Santa Coloma", "UNA Strassen", "VPS", "Valur Reykjavik", "Velež", "Vikingur Gota", "Vikingur Reykjavik", "Virtus", "Vllaznia Shkodër", "Vojvodina", "Wisla Krakow", "Zimbru", "Zira", "Zrinjski", "Šiauliai"]}
   },
   "PL Polonia":{
-    "Ekstraklasa":{"nv":1,"cl":["Cracovia Krakow","GKS Katowice","Gornik Zabrze","Jagiellonia","Korona Kielce","Lech Poznan","Lechia Gdansk","Legia Warszawa","Motor Lublin","Piast Gliwice","Pogon Szczecin","Radomiak Radom","Raków Częstochowa","Slask Wroclaw","Stal Mielec","Widzew Łódź","Zaglebie Lubin"]}
+    "Ekstraklasa":{"nv":1,"id":106,"cl":["Cracovia Krakow", "GKS Katowice", "Gornik Zabrze", "Jagiellonia", "Korona Kielce", "Lech Poznan", "Lechia Gdansk", "Legia Warszawa", "Motor Lublin", "Piast Gliwice", "Pogon Szczecin", "Puszcza Niepołomice", "Radomiak Radom", "Raków Częstochowa", "Slask Wroclaw", "Stal Mielec", "Widzew Łódź", "Zaglebie Lubin"]}
   },
   "SE Suecia":{
-    "Allsvenskan":{"nv":1,"cl":["AIK Stockholm","BK Hacken","Djurgardens IF","Gais","Hammarby FF","IF Brommapojkarna","IF Elfsborg","IFK Goteborg","IFK Norrkoping","IFK Varnamo","Kalmar FF","Malmo FF","Mjallby AIF","Sirius","Vasteras SK FK"]}
+    "Allsvenskan":{"nv":1,"id":113,"cl":["AIK Stockholm", "BK Hacken", "Djurgardens IF", "Gais", "Halmstad", "Hammarby FF", "IF Brommapojkarna", "IF Elfsborg", "IFK Goteborg", "IFK Norrkoping", "IFK Varnamo", "Kalmar FF", "Malmo FF", "Mjallby AIF", "Sirius", "Vasteras SK FK"]}
   },
   "NO Noruega":{
-    "Eliteserien":{"nv":1,"cl":["Bodo/Glimt","Brann","Fredrikstad","Ham-Kam","Haugesund","KFUM Oslo","Kristiansund BK","Lillestrom","Molde","ODD Ballklubb","Rosenborg","Sandefjord","Sarpsborg 08 FF","Stromsgodset","Tromso","Viking"]}
+    "Eliteserien":{"nv":1,"id":103,"cl":["Bodo/Glimt", "Brann", "Fredrikstad", "Ham-Kam", "Haugesund", "KFUM Oslo", "Kristiansund BK", "Lillestrom", "Molde", "ODD Ballklubb", "Rosenborg", "Sandefjord", "Sarpsborg 08 FF", "Stromsgodset", "Tromso", "Viking"]}
   },
   "DK Dinamarca":{
-    "Superliga":{"nv":1,"cl":["Aalborg","Aarhus","Brondby","FC Copenhagen","FC Midtjylland","FC Nordsjaelland","Lyngby","Randers FC","Silkeborg","Sonderjyske","Vejle","Viborg"]}
+    "Superliga":{"nv":1,"id":119,"cl":["Aalborg", "Aarhus", "Brondby", "FC Copenhagen", "FC Midtjylland", "FC Nordsjaelland", "Lyngby", "Randers FC", "Silkeborg", "Sonderjyske", "Vejle", "Viborg"]}
   },
   "CZ Rep. Checa":{
-    "First League":{"nv":1,"cl":["Baník Ostrava","Bohemians 1905","Dukla Praha","FK Jablonec","Hradec Králové","Karvina","Mlada Boleslav","Pardubice","Plzen","Sigma Olomouc","Slavia Praha","Slovan Liberec","Slovácko","Sparta Praha","Teplice"]}
+    "First League":{"nv":1,"id":345,"cl":["Baník Ostrava", "Bohemians 1905", "Dukla Praha", "FK Jablonec", "Hradec Králové", "Karviná", "Mlada Boleslav", "Pardubice", "Plzen", "Sigma Olomouc", "Slavia Praha", "Slovan Liberec", "Slovácko", "Sparta Praha", "Teplice", "České Budějovice"]}
   },
   "HR Croacia":{
-    "HNL":{"nv":1,"cl":["Dinamo Zagreb","HNK Gorica","HNK Hajduk Split","HNK Rijeka","Istra 1961","NK Lokomotiva Zagreb","NK Osijek","NK Slaven Belupo","NK Varazdin","Sibenik"]}
+    "HNL":{"nv":1,"id":210,"cl":["Dinamo Zagreb", "HNK Gorica", "HNK Hajduk Split", "HNK Rijeka", "Istra 1961", "NK Lokomotiva Zagreb", "NK Osijek", "NK Slaven Belupo", "NK Varazdin", "Sibenik"]}
   },
   "MX México":{
-    "Liga MX":{"nv":1,"cl":["Atlas","Atletico San Luis","CF Pachuca","Club America","Club Queretaro","Club Tijuana","Cruz Azul","FC Juarez","Guadalajara Chivas","Leon","Mazatlán","Monterrey","Necaxa","Puebla","Santos Laguna","Tigres UANL","Toluca","U.N.A.M. - Pumas"]},
-    "Liga de Expansión":{"nv":2,"cl":["Alebrijes de Oaxaca","Atlante FC","CA La Paz","CDS Tampico Madero","Cancún","Celaya","Correcaminos Uat","Dorados","Leones Negros UDG","Mineros de Zacatecas","Monarcas","Tlaxcala","Venados FC"]}
+    "Liga MX":{"nv":1,"id":262,"cl":["Atlas", "Atletico San Luis", "CF Pachuca", "Club America", "Club Queretaro", "Club Tijuana", "Cruz Azul", "FC Juarez", "Guadalajara Chivas", "Leon", "Mazatlán", "Monterrey", "Necaxa", "Puebla", "Santos Laguna", "Tapatío", "Tigres UANL", "Toluca", "U.N.A.M. - Pumas"]},
+    "Liga de Expansión":{"nv":2,"id":263,"cl":["Alebrijes de Oaxaca", "Atlante FC", "CA La Paz", "CDS Tampico Madero", "Cancún", "Celaya", "Correcaminos Uat", "Dorados", "Leones Negros UDG", "Mineros de Zacatecas", "Monarcas", "Tapatío", "Tepatitlán", "Tlaxcala", "Venados FC"]}
   },
   "US MLS":{
-    "MLS":{"nv":1,"cl":["Atlanta United FC","Austin","CF Montreal","Charlotte","Chicago Fire","Colorado Rapids","Columbus Crew","DC United","FC Cincinnati","FC Dallas","Houston Dynamo","Inter Miami","Los Angeles FC","Los Angeles Galaxy","Minnesota United FC","Nashville SC","New England Revolution","New York City FC","New York Red Bulls","Orlando City SC","Philadelphia Union","Portland Timbers","Real Salt Lake","San Jose Earthquakes","Seattle Sounders","Sporting Kansas City","St. Louis City","Toronto FC","Vancouver Whitecaps"]},
-    "USL Championship":{"nv":2,"cl":["Birmingham Legion","Charleston Battery","Colorado Springs","Detroit City","El Paso Locomotive","FC Tulsa","Hartford Athletic","Indy Eleven","Las Vegas Lights","Louisville City","Memphis 901","Miami FC","Monterey Bay","New Mexico United","Oakland Roots","Orange County SC","Phoenix Rising","Pittsburgh Riverhounds","Sacramento Republic","San Antonio","Tampa Bay Rowdies"]},
-    "USL League One":{"nv":3,"cl":["Charlottesville","Charlotte Independence","Forward Madison","Greenville Triumph","Lexington SC","Northern Colorado","Richmond Kickers","South Georgia Tormenta"]}
+    "MLS":{"nv":1,"id":253,"cl":["Atlanta United FC", "Austin", "CF Montreal", "Charlotte", "Chicago Fire", "Colorado Rapids", "Columbus Crew", "DC United", "FC Cincinnati", "FC Dallas", "Houston Dynamo", "Inter Miami", "Los Angeles FC", "Los Angeles Galaxy", "Minnesota United FC", "Nashville SC", "New England Revolution", "New York City FC", "New York Red Bulls", "Orlando City SC", "Philadelphia Union", "Portland Timbers", "Real Salt Lake", "San Jose Earthquakes", "Seattle Sounders", "Sporting Kansas City", "St. Louis City", "Toronto FC", "Vancouver Whitecaps"]},
+    "USL Championship":{"nv":2,"id":254,"cl":["Al Taawon", "Angel City W", "Bay FC W", "Chicago Red Stars W", "Houston Dash W", "Kansas City W", "NJ/NY Gotham FC W", "North Carolina Courage W", "Orlando Pride W", "Portland Thorns W", "Racing Louisville W", "San Diego Wave W", "Seattle Reign FC W", "Utah Royals W", "Washington Spirit W"]},
+    "USL League One":{"nv":3,"id":255,"cl":["Birmingham Legion", "Charleston Battery", "Colorado Springs", "Detroit City", "El Paso Locomotive", "FC Tulsa", "Hartford Athletic", "Indy Eleven", "Las Vegas Lights", "Loudoun United", "Louisville City", "Memphis 901", "Miami FC", "Monterey Bay", "New Mexico United", "North Carolina", "Oakland Roots", "Orange County SC", "Phoenix Rising", "Pittsburgh Riverhounds", "Rhode Island", "Sacramento Republic", "San Antonio", "Tampa Bay Rowdies"]}
   },
   "SA Saudi":{
-    "Pro League":{"nv":1,"cl":["Al Khaleej Saihat","Al Kholood","Al Okhdood","Al Orubah","Al Riyadh","Al Shabab","Al Taawon","Al Wehda Club","Al-Ahli Jeddah","Al-Ettifaq","Al-Fateh","Al-Fayha","Al-Hilal Saudi FC","Al-Ittihad FC","Al-Nassr","Al-Qadisiyah FC","Al-Raed","Damac"]}
+    "Pro League":{"nv":1,"id":307,"cl":["Al Khaleej Saihat", "Al Kholood", "Al Okhdood", "Al Orubah", "Al Riyadh", "Al Shabab", "Al Taawon", "Al Wehda Club", "Al-Ahli Jeddah", "Al-Ettifaq", "Al-Fateh", "Al-Fayha", "Al-Hilal Saudi FC", "Al-Ittihad FC", "Al-Nassr", "Al-Qadisiyah FC", "Al-Raed", "Damac"]}
   },
   "JP Japón":{
-    "J1 League":{"nv":1,"cl":["Albirex Niigata","Avispa Fukuoka","Cerezo Osaka","Consadole Sapporo","FC Tokyo","Gamba Osaka","Jubilo Iwata","Kashima","Kashiwa Reysol","Kawasaki Frontale","Kyoto Sanga","Machida Zelvia","Nagoya Grampus","Sagan Tosu","Sanfrecce Hiroshima","Shonan Bellmare","Tokyo Verdy","Urawa","Vissel Kobe","Yokohama F. Marinos"]},
-    "J2 League":{"nv":2,"cl":["Blaublitz Akita","Ehime FC","Fagiano Okayama","Fujieda MYFC","Iwaki","JEF United Chiba","Kagoshima United","Mito Hollyhock","Montedio Yamagata","Oita Trinita","Renofa Yamaguchi","Roasso Kumamoto","Shimizu S-pulse","Tochigi SC","Tokushima Vortis","Vegalta Sendai","Ventforet Kofu","Yokohama FC"]}
+    "J1 League":{"nv":1,"id":98,"cl":["Albirex Niigata", "Avispa Fukuoka", "Cerezo Osaka", "Consadole Sapporo", "FC Tokyo", "Gamba Osaka", "Jubilo Iwata", "Kashima", "Kashiwa Reysol", "Kawasaki Frontale", "Kyoto Sanga", "Machida Zelvia", "Nagoya Grampus", "Sagan Tosu", "Sanfrecce Hiroshima", "Shonan Bellmare", "Tokyo Verdy", "Urawa", "Vissel Kobe", "Yokohama F. Marinos"]},
+    "J2 League":{"nv":2,"id":99,"cl":["Blaublitz Akita", "Ehime FC", "Fagiano Okayama", "Fujieda MYFC", "Iwaki", "JEF United Chiba", "Kagoshima United", "Mito Hollyhock", "Montedio Yamagata", "Oita Trinita", "Renofa Yamaguchi", "Roasso Kumamoto", "Shimizu S-pulse", "Thespakusatsu Gunma", "Tochigi SC", "Tokushima Vortis", "V-varen Nagasaki", "Vegalta Sendai", "Ventforet Kofu", "Yokohama FC"]}
   }
 };
 
@@ -220,7 +222,7 @@ function calcDims(hist, pos) {
 }
 async function askClaude(prompt, maxT=1300) {
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxT,messages:[{role:"user",content:prompt}]}) });
+    const r = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:API_HEADERS, body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:maxT,messages:[{role:"user",content:prompt}]}) });
     const d = await r.json();
     return d.content?.[0]?.text || "Error al generar respuesta.";
   } catch { return "Error de conexión con IA."; }
@@ -1280,7 +1282,7 @@ function ModTactico({data}) {
   );
 }
 
-// ─── BENCHMARKS AVANZADO v2 ──────────────────────────────────────────────
+// ─── BENCHMARKS AVANZADO v3 ──────────────────────────────────────────────────
 function ModBenchmarks() {
   const paises = Object.keys(SA);
   const [pais,setPais]=useState(paises[0]);
@@ -1295,129 +1297,486 @@ function ModBenchmarks() {
   const [loadIA,setLoadIA]=useState(false);
   const [tab2,setTab2]=useState("comparacion");
   const [panelOpen,setPanelOpen]=useState(false);
-  useEffect(()=>{if(!dbPro&&!loadDB){setLoadDB(true);fetch("/fichascout_pro_data.json").then(r=>r.json()).then(d=>{setDbPro(d);setLoadDB(false);}).catch(()=>setLoadDB(false));}},[]);
-  const divData=SA[pais]?.[div]; const nv=divData?.nv||2; const clubes=divData?.cl||[];
+
+  useEffect(()=>{
+    if(!dbPro&&!loadDB){
+      setLoadDB(true);
+      fetch("/fichascout_pro_data.json").then(r=>r.json()).then(d=>{setDbPro(d);setLoadDB(false);}).catch(()=>setLoadDB(false));
+    }
+  },[]);
+
+  const divData=SA[pais]?.[div];
+  const ligaId=divData?.id;
+  const nv=divData?.nv||2;
+  const clubes=divData?.cl||[];
   const nC={1:"#00e87a",2:"#3b82f6",3:"#f59e0b",4:"#64748b"};
   const nvLbl={1:"1ª División",2:"2ª División",3:"Copa / Regional",4:"Amateur"};
-  // Liga name matches JSON exactly - no mapping needed
-  const ligaNombre = div;
-  function posAC(p){if(!p)return"Delantero";if(p.includes("Arquero")||p.includes("Goalkeeper"))return"Arquero";if(p.includes("Defensor")||p.includes("Lateral")||p.includes("Defender"))return"Defensor";if(p.includes("Volante")||p.includes("Midfielder")||p.includes("Mediocampista"))return"Volante";return"Delantero";}
-  const clubesSet=useMemo(()=>new Set(clubes),[clubes]);
-  const jugadoresLiga=useMemo(()=>{if(!dbPro)return[];return dbPro.jugadores.filter(j=>{const ml=j.l&&j.l===ligaNombre;const mc=equipo==="__todos__"?(clubes.length===0||clubesSet.has(j.eq)):j.eq===equipo;return ml&&mc&&posAC(j.pos)===posAC(pos)&&j.s?.rat;});},[dbPro,pais,div,equipo,pos,ligaNombre,clubesSet,clubes]);
-  const todosLiga=useMemo(()=>{if(!dbPro)return[];return dbPro.jugadores.filter(j=>{const ml=j.l&&j.l===ligaNombre;return ml&&(equipo==="__todos__"||j.eq===equipo)&&j.s?.rat;}).sort((a,b)=>(b.s?.rat||0)-(a.s?.rat||0));},[dbPro,pais,div,equipo,ligaNombre]);
-  const sugerencias=useMemo(()=>{if(!busq||busq.length<1||!dbPro)return[];const q=busq.toLowerCase();const enLiga=todosLiga.filter(j=>j.n?.toLowerCase().includes(q));return enLiga.length>0?enLiga.slice(0,10):dbPro.jugadores.filter(j=>j.n?.toLowerCase().includes(q)&&j.s?.rat).slice(0,10);},[busq,todosLiga,dbPro]);
-  const benchmarkReal=useMemo(()=>{if(jugadoresLiga.length<3)return null;const keys=["g","a","dis","reg","due","min","rat","pas","pc","tac","int","ata","pts"];const sums={};const counts={};keys.forEach(k=>{sums[k]=0;counts[k]=0;});jugadoresLiga.forEach(j=>keys.forEach(k=>{const v=j.s?.[k];if(v!=null&&!isNaN(v)&&+v>0){sums[k]+=parseFloat(v);counts[k]++;}}));const res={};keys.forEach(k=>{if(counts[k]>2)res[k]=sums[k]/counts[k];});return res;},[jugadoresLiga]);
-  const BK_FB={"Arquero":{1:{ata:4.2,pas:580,min:2500,pts:28,rat:6.9},2:{ata:3.5,pas:480,min:2200,pts:25,rat:6.7},3:{ata:3.0,pas:380,min:1900,pts:22,rat:6.5}},"Defensor":{1:{tac:3.1,int:2.8,due:4.5,pas:680,g:0.8,rat:6.85},2:{tac:2.6,int:2.2,due:3.7,pas:560,g:0.5,rat:6.7},3:{tac:2.1,int:1.7,due:2.9,pas:440,g:0.3,rat:6.5}},"Volante":{1:{pas:920,pc:2.1,g:2.5,a:2.8,tac:2.4,int:1.9,rat:6.9},2:{pas:760,pc:1.7,g:1.8,a:2.1,tac:2.0,int:1.5,rat:6.75},3:{pas:600,pc:1.3,g:1.2,a:1.5,tac:1.6,int:1.1,rat:6.55}},"Delantero":{1:{g:8.5,a:3.2,dis:22.0,reg:28.0,due:95.0,min:2100,rat:7.0},2:{g:6.5,a:2.4,dis:17.0,reg:22.0,due:76.0,min:1850,rat:6.8},3:{g:4.5,a:1.7,dis:13.0,reg:16.0,due:58.0,min:1600,rat:6.6}}};
-  const MET={"Arquero":[{k:"ata",l:"Atajadas",icon:"🛑"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"min",l:"Minutos",icon:"⏱"},{k:"pts",l:"Partidos",icon:"📅"},{k:"rat",l:"Rating",icon:"⭐"}],"Defensor":[{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"g",l:"Goles",icon:"⚽"},{k:"rat",l:"Rating",icon:"⭐"}],"Volante":[{k:"pas",l:"Pases totales",icon:"📤"},{k:"pc",l:"Pases clave",icon:"🔑"},{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"rat",l:"Rating",icon:"⭐"}],"Delantero":[{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"dis",l:"Disparos arco",icon:"💥"},{k:"reg",l:"Regates",icon:"🕺"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"min",l:"Minutos",icon:"⏱"},{k:"rat",l:"Rating",icon:"⭐"}]};
+
+  function posAC(p){
+    if(!p)return"Delantero";
+    if(p.includes("Arquero")||p.includes("Goalkeeper"))return"Arquero";
+    if(p.includes("Defensor")||p.includes("Lateral")||p.includes("Defender"))return"Defensor";
+    if(p.includes("Volante")||p.includes("Midfielder")||p.includes("Mediocampista"))return"Volante";
+    return"Delantero";
+  }
+
+  // ── Filtrar por l_id (ID numérico único) — soluciona mezcla de ligas ────────
+  const jugadoresLiga=useMemo(()=>{
+    if(!dbPro||!ligaId)return[];
+    return dbPro.jugadores.filter(j=>{
+      const matchLiga = j.l_id===ligaId;
+      const matchEquipo = equipo==="__todos__"||(j.eq===equipo);
+      const matchPos = posAC(j.pos)===posAC(pos);
+      return matchLiga&&matchEquipo&&matchPos&&j.s?.rat;
+    });
+  },[dbPro,ligaId,equipo,pos]);
+
+  const todosLiga=useMemo(()=>{
+    if(!dbPro||!ligaId)return[];
+    return dbPro.jugadores.filter(j=>{
+      const matchLiga = j.l_id===ligaId;
+      const matchEquipo = equipo==="__todos__"||(j.eq===equipo);
+      return matchLiga&&matchEquipo&&j.s?.rat;
+    }).sort((a,b)=>(b.s?.rat||0)-(a.s?.rat||0));
+  },[dbPro,ligaId,equipo]);
+
+  const sugerencias=useMemo(()=>{
+    if(!busq||busq.length<1||!dbPro)return[];
+    const q=busq.toLowerCase();
+    // Primero buscar en la liga actual
+    const enLiga=todosLiga.filter(j=>j.n?.toLowerCase().includes(q));
+    if(enLiga.length>0)return enLiga.slice(0,10);
+    // Si no, buscar en toda la base
+    return dbPro.jugadores.filter(j=>j.n?.toLowerCase().includes(q)&&j.s?.rat).slice(0,10);
+  },[busq,todosLiga,dbPro]);
+
+  const benchmarkReal=useMemo(()=>{
+    if(jugadoresLiga.length<3)return null;
+    const keys=["g","a","dis","reg","due","min","rat","pas","pc","tac","int","ata","pts"];
+    const sums={};const counts={};
+    keys.forEach(k=>{sums[k]=0;counts[k]=0;});
+    jugadoresLiga.forEach(j=>keys.forEach(k=>{
+      const v=j.s?.[k];
+      if(v!=null&&!isNaN(v)&&+v>0){sums[k]+=parseFloat(v);counts[k]++;}
+    }));
+    const res={};keys.forEach(k=>{if(counts[k]>2)res[k]=sums[k]/counts[k];});
+    return res;
+  },[jugadoresLiga]);
+
+  const BK_FB={
+    "Arquero":{1:{ata:4.2,pas:580,min:2500,pts:28,rat:6.9},2:{ata:3.5,pas:480,min:2200,pts:25,rat:6.7},3:{ata:3.0,pas:380,min:1900,pts:22,rat:6.5}},
+    "Defensor":{1:{tac:3.1,int:2.8,due:4.5,pas:680,g:0.8,rat:6.85},2:{tac:2.6,int:2.2,due:3.7,pas:560,g:0.5,rat:6.7},3:{tac:2.1,int:1.7,due:2.9,pas:440,g:0.3,rat:6.5}},
+    "Volante":{1:{pas:920,pc:2.1,g:2.5,a:2.8,tac:2.4,int:1.9,rat:6.9},2:{pas:760,pc:1.7,g:1.8,a:2.1,tac:2.0,int:1.5,rat:6.75},3:{pas:600,pc:1.3,g:1.2,a:1.5,tac:1.6,int:1.1,rat:6.55}},
+    "Delantero":{1:{g:8.5,a:3.2,dis:22.0,reg:28.0,due:95.0,min:2100,rat:7.0},2:{g:6.5,a:2.4,dis:17.0,reg:22.0,due:76.0,min:1850,rat:6.8},3:{g:4.5,a:1.7,dis:13.0,reg:16.0,due:58.0,min:1600,rat:6.6}},
+  };
+  const MET={
+    "Arquero":[{k:"ata",l:"Atajadas",icon:"🛑"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"min",l:"Minutos",icon:"⏱️"},{k:"pts",l:"Partidos",icon:"📅"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Defensor":[{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"pas",l:"Pases totales",icon:"📤"},{k:"g",l:"Goles",icon:"⚽"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Volante":[{k:"pas",l:"Pases totales",icon:"📤"},{k:"pc",l:"Pases clave",icon:"🔑"},{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"tac",l:"Tackles",icon:"⚡"},{k:"int",l:"Intercepciones",icon:"🚫"},{k:"rat",l:"Rating",icon:"⭐"}],
+    "Delantero":[{k:"g",l:"Goles",icon:"⚽"},{k:"a",l:"Asistencias",icon:"🎯"},{k:"dis",l:"Disparos arco",icon:"💥"},{k:"reg",l:"Regates",icon:"🕺"},{k:"due",l:"Duelos ganados",icon:"💪"},{k:"min",l:"Minutos",icon:"⏱️"},{k:"rat",l:"Rating",icon:"⭐"}],
+  };
+
   const catJug=jugSel?posAC(jugSel.pos):posAC(pos);
   const metricas=MET[catJug]||MET["Delantero"];
   const bkUsado=(benchmarkReal&&Object.keys(benchmarkReal).length>2)?benchmarkReal:(BK_FB[catJug]?.[Math.min(nv,3)]||{});
   const fuenteBK=(benchmarkReal&&Object.keys(benchmarkReal).length>2)?jugadoresLiga.length:0;
+
   const calcDiff=(jv,lv)=>{if(jv==null||lv==null||lv===0)return null;const pct=((jv-lv)/lv)*100;return{pct:pct.toFixed(1),mejor:pct>5,peor:pct<-5};};
   const calcPct=(jv,lv)=>{if(!jv||!lv)return null;const r=jv/lv;if(r>=2.0)return 97;if(r>=1.6)return 92;if(r>=1.3)return 82;if(r>=1.1)return 70;if(r>=0.9)return 50;if(r>=0.7)return 30;if(r>=0.5)return 18;return 8;};
-  const metricasFilled=metricas.map(m=>{const jv=jugSel?(jugSel.s?.[m.k]??null):null;const lv=bkUsado[m.k]??null;return{...m,jugVal:jv,ligaVal:lv,diff:calcDiff(jv,lv),percentil:calcPct(jv,lv)};}).filter(m=>m.ligaVal!=null);
+
+  const metricasFilled=metricas.map(m=>{
+    const jv=jugSel?(jugSel.s?.[m.k]??null):null;
+    const lv=bkUsado[m.k]??null;
+    return{...m,jugVal:jv,ligaVal:lv,diff:calcDiff(jv,lv),percentil:calcPct(jv,lv)};
+  }).filter(m=>m.ligaVal!=null);
+
   const sobrePromedio=jugSel?metricasFilled.filter(m=>m.diff?.mejor).length:null;
   const percentilGlobal=jugSel?Math.round(metricasFilled.filter(m=>m.percentil).reduce((s,m)=>s+m.percentil,0)/Math.max(metricasFilled.filter(m=>m.percentil).length,1)):null;
-  async function generarIA(){if(!jugSel||!ANTHROPIC_KEY){setIaText("Configura VITE_ANTHROPIC_KEY.");return;}setLoadIA(true);setIaText("");const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"N/D";const metStr=metricasFilled.map(m=>m.l+": jug="+fv(m.jugVal)+" vs liga="+fv(m.ligaVal)+(m.diff?(" ("+(+m.diff.pct>0?"+":"")+m.diff.pct+"%)"):""  )).join(" | ");const fb=fuenteBK>0?("Benchmark calculado sobre "+fuenteBK+" jugadores reales."):"Benchmark referencial.";const prompt="Eres Chief Scout. Analiza este benchmark.\n\nJUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e||"s/d")+"a | "+jugSel.eq+"\nLIGA: "+pais+" - "+div+" (Nivel "+nv+") | "+fb+"\nPERCENTIL: "+(percentilGlobal||"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio||"N/D")+"/"+metricasFilled.length+"\nMETRICAS: "+metStr+"\n\n1. POSICIONAMIENTO\nEn que percentil real esta? Que lo distingue del promedio?\n\n2. METRICAS DESTACADAS\nLas 2-3 stats donde mas supera y su impacto tactico.\n\n3. BRECHAS CRITICAS\nDonde esta bajo promedio y que riesgo implica.\n\n4. VEREDICTO\nSupera, iguala o esta bajo el promedio de "+div+"? Vale el fichaje?";try{const rr=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});const d=await rr.json();setIaText(d.content?.[0]?.text||"Error.");}catch(err){setIaText("Error: "+err.message);}setLoadIA(false);}
-  function selJug(j){setJugSel(j);setBusq(j.n);setPanelOpen(false);setIaText("");const pm=Object.keys(POS).find(p=>posAC(p)===posAC(j.pos));if(pm)setPos(pm);}
-  function BenchRow({m}){const{l,icon,jugVal,ligaVal,diff,percentil}=m;const hj=jugVal!=null;const bMax=hj?Math.max(+jugVal,+ligaVal,0.01):+ligaVal||1;const lPct=Math.round((+ligaVal/bMax)*100);const jPct=hj?Math.round((+jugVal/bMax)*100):0;const sc=!hj?"#64748b":diff?.mejor?"#00a855":diff?.peor?"#ef4444":"#f59e0b";const sb=!hj?"transparent":diff?.mejor?"rgba(0,168,85,0.1)":diff?.peor?"rgba(239,68,68,0.1)":"rgba(245,158,11,0.1)";const sl=!hj?"—":diff?.mejor?"▲ Sobre":diff?.peor?"▼ Bajo":"● Promedio";const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"—";return(<div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"9px 14px",borderBottom:"1px solid rgba(255,255,255,0.05)",alignItems:"center"}}><span style={{fontSize:12,color:"#94a3b8",display:"flex",alignItems:"center",gap:5}}><span style={{fontSize:14}}>{icon}</span>{l}</span><div><span style={{fontSize:13,color:"#64748b",display:"block",textAlign:"right",marginBottom:3}}>{fv(ligaVal)}</span><div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:lPct+"%",height:"100%",background:"#475569",borderRadius:2}}/></div></div><div>{hj?<><span style={{fontSize:13,fontWeight:700,color:sc,display:"block",textAlign:"right",marginBottom:3}}>{fv(jugVal)}</span><div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:jPct+"%",height:"100%",background:sc,borderRadius:2}}/></div></>:<span style={{fontSize:12,color:"#334155",textAlign:"right",display:"block"}}>—</span>}</div><div style={{textAlign:"right"}}>{hj&&diff?<span style={{fontSize:12,fontWeight:700,color:sc}}>{+diff.pct>0?"+":""}{diff.pct}%</span>:<span style={{fontSize:12,color:"#334155"}}>—</span>}{hj&&percentil&&<div style={{fontSize:10,color:"#475569",marginTop:1}}>P{percentil}</div>}</div><div style={{background:sb,border:"1px solid "+sc+"33",borderRadius:6,padding:"3px 7px",textAlign:"center",fontSize:11,fontWeight:700,color:sc}}>{sl}</div></div>);}
-  function RadarViz(){const mts=metricasFilled.slice(0,6);if(mts.length<3)return null;const n=mts.length,cx=175,cy=165,R=125;const ang=i=>(i*2*Math.PI/n)-Math.PI/2;const pt=(val,max,i)=>{const r=R*Math.min(val/(max*1.2),1);return[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];};const pts=mts.map((m,i)=>({liga:pt(m.ligaVal||0,Math.max(m.ligaVal||0,m.jugVal||0,0.01),i),jug:m.jugVal!=null?pt(m.jugVal,Math.max(m.ligaVal||0,m.jugVal||0,0.01),i):null,lbl:m.l.split(" ")[0],lPt:[cx+(R+22)*Math.cos(ang(i)),cy+(R+22)*Math.sin(ang(i))]}));const polyL=pts.map(p=>p.liga.join(",")).join(" ");const polyJ=pts.filter(p=>p.jug).map(p=>p.jug.join(",")).join(" ");return(<svg viewBox="0 0 350 330" style={{width:"100%",maxWidth:340}}>{[.25,.5,.75,1].map(sc2=><polygon key={sc2} points={pts.map((_,i)=>{const rr=R*sc2;return[cx+rr*Math.cos(ang(i)),cy+rr*Math.sin(ang(i))].join(",");}).join(" ")} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1"/>)}{pts.map((_,i)=><line key={i} x1={cx} y1={cy} x2={cx+R*Math.cos(ang(i))} y2={cy+R*Math.sin(ang(i))} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>)}<polygon points={polyL} fill="rgba(71,85,105,0.18)" stroke="#475569" strokeWidth="1.5" strokeDasharray="4 3"/>{polyJ&&<polygon points={polyJ} fill="rgba(0,168,85,0.15)" stroke="#00a855" strokeWidth="2"/>}{pts.map(p=>p.jug&&<circle key={p.lbl+"j"} cx={p.jug[0]} cy={p.jug[1]} r="3.5" fill="#00a855"/>)}{pts.map(p=><circle key={p.lbl+"l"} cx={p.liga[0]} cy={p.liga[1]} r="2.5" fill="#475569"/>)}{pts.map(p=><text key={p.lbl+"t"} x={p.lPt[0]} y={p.lPt[1]} textAnchor="middle" dominantBaseline="middle" fontSize="10" fill="#64748b">{p.lbl}</text>)}</svg>);}
 
-  return(<div>
-    <div style={{marginBottom:16}}>
-      <div style={{fontWeight:800,color:"#eef2f6",fontSize:19,marginBottom:3}}>📊 Benchmarks SA — Análisis Comparativo Avanzado</div>
-      <div style={{color:"#4a6070",fontSize:12}}>Selecciona liga y equipo · Elige o busca un jugador · Compara contra el promedio estadístico real</div>
-    </div>
-    <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"12px 14px",marginBottom:12}}>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:10}}>
-        <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>PAÍS / LIGA</div><select style={I} value={pais} onChange={e=>{setPais(e.target.value);setDiv(Object.keys(SA[e.target.value])[0]);setEquipo("__todos__");setJugSel(null);setBusq("");}}>{paises.map(p=><option key={p} value={p}>{p}</option>)}</select></div>
-        <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>DIVISIÓN</div><select style={I} value={div} onChange={e=>{setDiv(e.target.value);setEquipo("__todos__");setJugSel(null);setBusq("");}}>{Object.keys(SA[pais]||{}).map(d=><option key={d} value={d}>{d}</option>)}</select></div>
-        <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>EQUIPO</div><select style={I} value={equipo} onChange={e=>{setEquipo(e.target.value);setJugSel(null);setBusq("");}}><option value="__todos__">— Todos —</option>{clubes.map(cc=><option key={cc} value={cc}>{cc}</option>)}</select></div>
-        <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>POSICIÓN</div><select style={I} value={pos} onChange={e=>{setPos(e.target.value);setJugSel(null);}}>{Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select></div>
+  async function generarIA(){
+    if(!jugSel||!ANTHROPIC_KEY){setIaText("Configura VITE_ANTHROPIC_KEY.");return;}
+    setLoadIA(true);setIaText("");
+    const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"N/D";
+    const metStr=metricasFilled.map(m=>m.l+": jug="+fv(m.jugVal)+" vs liga="+fv(m.ligaVal)+(m.diff?(" ("+(+m.diff.pct>0?"+":"")+m.diff.pct+"%)"):""  )).join(" | ");
+    const fb=fuenteBK>0?("Benchmark calculado sobre "+fuenteBK+" jugadores reales."):"Benchmark referencial.";
+    const prompt="Eres Chief Scout. Analiza este benchmark.\n\nJUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e||"s/d")+"a | "+jugSel.eq+"\nLIGA: "+pais+" - "+div+" (Nivel "+nv+") | "+fb+"\nPERCENTIL: "+(percentilGlobal||"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio||"N/D")+"/"+metricasFilled.length+"\nMETRICAS: "+metStr+"\n\n1. POSICIONAMIENTO\nEn que percentil real esta? Que lo distingue del promedio?\n\n2. METRICAS DESTACADAS\nLas 2-3 stats donde mas supera y su impacto tactico.\n\n3. BRECHAS CRITICAS\nDonde esta bajo promedio y que riesgo implica.\n\n4. VEREDICTO\nSupera, iguala o esta bajo el promedio de "+div+"? Vale el fichaje?";
+    try{
+      const rr=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+      const d=await rr.json();setIaText(d.content?.[0]?.text||"Error.");
+    }catch(err){setIaText("Error: "+err.message);}
+    setLoadIA(false);
+  }
+
+  function selJug(j){
+    setJugSel(j);setBusq("");setPanelOpen(false);setIaText("");
+    const pm=Object.keys(POS).find(p=>posAC(p)===posAC(j.pos));
+    if(pm)setPos(pm);
+  }
+
+  function BenchRow({m}){
+    const{l,icon,jugVal,ligaVal,diff,percentil}=m;
+    const hj=jugVal!=null;
+    const bMax=hj?Math.max(+jugVal,+ligaVal,0.01):+ligaVal||1;
+    const lPct=Math.round((+ligaVal/bMax)*100);
+    const jPct=hj?Math.round((+jugVal/bMax)*100):0;
+    const sc=!hj?"#64748b":diff?.mejor?"#00a855":diff?.peor?"#ef4444":"#f59e0b";
+    const sb=!hj?"transparent":diff?.mejor?"rgba(0,168,85,0.1)":diff?.peor?"rgba(239,68,68,0.1)":"rgba(245,158,11,0.1)";
+    const sl=!hj?"—":diff?.mejor?"▲ Sobre":diff?.peor?"▼ Bajo":"● Promedio";
+    const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"—";
+    return(
+      <div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"9px 14px",borderBottom:"1px solid rgba(255,255,255,0.05)",alignItems:"center"}}>
+        <span style={{fontSize:12,color:"#94a3b8",display:"flex",alignItems:"center",gap:5}}><span style={{fontSize:14}}>{icon}</span>{l}</span>
+        <div><span style={{fontSize:13,color:"#64748b",display:"block",textAlign:"right",marginBottom:3}}>{fv(ligaVal)}</span><div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:lPct+"%",height:"100%",background:"#475569",borderRadius:2}}/></div></div>
+        <div>{hj?<><span style={{fontSize:13,fontWeight:700,color:sc,display:"block",textAlign:"right",marginBottom:3}}>{fv(jugVal)}</span><div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2}}><div style={{width:jPct+"%",height:"100%",background:sc,borderRadius:2}}/></div></>:<span style={{fontSize:12,color:"#334155",textAlign:"right",display:"block"}}>—</span>}</div>
+        <div style={{textAlign:"right"}}>{hj&&diff?<span style={{fontSize:12,fontWeight:700,color:sc}}>{+diff.pct>0?"+":""}{diff.pct}%</span>:<span style={{fontSize:12,color:"#334155"}}>—</span>}{hj&&percentil&&<div style={{fontSize:10,color:"#475569",marginTop:1}}>P{percentil}</div>}</div>
+        <div style={{background:sb,border:"1px solid "+sc+"33",borderRadius:6,padding:"3px 7px",textAlign:"center",fontSize:11,fontWeight:700,color:sc}}>{sl}</div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:8}}>
-        <div style={{position:"relative"}}>
-          <div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>BUSCAR JUGADOR {fuenteBK>0&&<span style={{color:"#00a855",marginLeft:6}}>⌀ {fuenteBK} jugadores reales</span>}</div>
-          <div style={{position:"relative"}}><span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#4a6070",fontSize:14,pointerEvents:"none"}}>🔍</span><input style={{...I,paddingLeft:32}} placeholder={"Buscar en "+(equipo==="__todos__"?div:equipo)+"..."} value={busq} onChange={e=>{setBusq(e.target.value);if(!e.target.value){setJugSel(null);setIaText("");}}}/></div>
-          {busq.length>0&&sugerencias.length>0&&(<div style={{position:"absolute",top:"100%",left:0,right:0,background:"#0d1f2d",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,zIndex:200,maxHeight:240,overflowY:"auto",marginTop:2,boxShadow:"0 8px 32px rgba(0,0,0,0.5)"}}>
-            {sugerencias.map(j=>(<div key={j.id||j.n} onClick={()=>selJug(j)} style={{padding:"9px 12px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.05)",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,232,122,0.07)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-              <div><span style={{color:"#eef2f6",fontSize:13,fontWeight:700}}>{j.n}</span><span style={{color:"#4a6070",fontSize:11,marginLeft:8}}>{j.pos} · {j.eq}</span></div>
-              <div style={{display:"flex",gap:6}}><span style={{color:"#f59e0b",fontSize:12,fontWeight:700}}>★{j.s?.rat}</span><span style={{background:"rgba(100,116,139,0.2)",color:"#94a3b8",borderRadius:4,padding:"2px 6px",fontSize:10}}>{(j.l||"").substring(0,16)}</span></div>
-            </div>))}
-          </div>)}
+    );
+  }
+
+  function RadarViz(){
+    const mts=metricasFilled.slice(0,6);if(mts.length<3)return null;
+    const n=mts.length,cx=175,cy=165,R=125;
+    const ang=i=>(i*2*Math.PI/n)-Math.PI/2;
+    const pt=(val,max,i)=>{const r=R*Math.min(val/(max*1.2),1);return[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];};
+    const pts=mts.map((m,i)=>({liga:pt(m.ligaVal||0,Math.max(m.ligaVal||0,m.jugVal||0,0.01),i),jug:m.jugVal!=null?pt(m.jugVal,Math.max(m.ligaVal||0,m.jugVal||0,0.01),i):null,lbl:m.l.split(" ")[0],lPt:[cx+(R+22)*Math.cos(ang(i)),cy+(R+22)*Math.sin(ang(i))]}));
+    const polyL=pts.map(p=>p.liga.join(",")).join(" ");
+    const polyJ=pts.filter(p=>p.jug).map(p=>p.jug.join(",")).join(" ");
+    return(
+      <svg viewBox="0 0 350 330" style={{width:"100%",maxWidth:340}}>
+        {[.25,.5,.75,1].map(s=><polygon key={s} points={pts.map((_,i)=>{const rr=R*s;return[cx+rr*Math.cos(ang(i)),cy+rr*Math.sin(ang(i))].join(",");}).join(" ")} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1"/>)}
+        {pts.map((_,i)=><line key={i} x1={cx} y1={cy} x2={cx+R*Math.cos(ang(i))} y2={cy+R*Math.sin(ang(i))} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>)}
+        <polygon points={polyL} fill="rgba(71,85,105,0.18)" stroke="#475569" strokeWidth="1.5" strokeDasharray="4 3"/>
+        {polyJ&&<polygon points={polyJ} fill="rgba(0,168,85,0.15)" stroke="#00a855" strokeWidth="2"/>}
+        {pts.map(p=>p.jug&&<circle key={p.lbl+"j"} cx={p.jug[0]} cy={p.jug[1]} r="3.5" fill="#00a855"/>)}
+        {pts.map(p=><circle key={p.lbl+"l"} cx={p.liga[0]} cy={p.liga[1]} r="2.5" fill="#475569"/>)}
+        {pts.map(p=><text key={p.lbl+"t"} x={p.lPt[0]} y={p.lPt[1]} textAnchor="middle" dominantBaseline="middle" fontSize="10" fill="#64748b">{p.lbl}</text>)}
+      </svg>
+    );
+  }
+
+  const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"—";
+
+  return(
+    <div>
+      {/* HEADER */}
+      <div style={{marginBottom:16}}>
+        <div style={{fontWeight:800,color:"#eef2f6",fontSize:19,marginBottom:3}}>📊 Benchmarks SA — Análisis Comparativo Avanzado</div>
+        <div style={{color:"#4a6070",fontSize:12}}>Selecciona liga y equipo · Elige o busca un jugador · Compara contra el promedio estadístico real</div>
+      </div>
+
+      {/* FILTROS */}
+      <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"12px 14px",marginBottom:12}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:10}}>
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4,letterSpacing:.5}}>PAÍS / LIGA</div>
+            <select style={I} value={pais} onChange={e=>{setPais(e.target.value);setDiv(Object.keys(SA[e.target.value])[0]);setEquipo("__todos__");setJugSel(null);setBusq("");}}>
+              {Object.keys(SA).map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4,letterSpacing:.5}}>DIVISIÓN</div>
+            <select style={I} value={div} onChange={e=>{setDiv(e.target.value);setEquipo("__todos__");setJugSel(null);setBusq("");}}>
+              {Object.keys(SA[pais]||{}).map(d=><option key={d} value={d}>{d}</option>)}</select></div>
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4,letterSpacing:.5}}>EQUIPO</div>
+            <select style={I} value={equipo} onChange={e=>{setEquipo(e.target.value);setJugSel(null);setBusq("");}}>
+              <option value="__todos__">— Todos —</option>
+              {clubes.map(cc=><option key={cc} value={cc}>{cc}</option>)}</select></div>
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4,letterSpacing:.5}}>POSICIÓN</div>
+            <select style={I} value={pos} onChange={e=>{setPos(e.target.value);setJugSel(null);}}>
+              {Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select></div>
         </div>
-        <div><div style={{fontSize:10,color:"transparent",marginBottom:4}}>.</div>
-          <button onClick={()=>setPanelOpen(!panelOpen)} style={{border:"1px solid rgba(0,232,122,0.3)",borderRadius:8,padding:"7px 14px",color:panelOpen?"#0d1f2d":"#00e87a",background:panelOpen?"#00e87a":"rgba(0,232,122,0.08)",cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,whiteSpace:"nowrap"}}>
-            {panelOpen?"✕ Cerrar":"👥 Ver jugadores"}{!loadDB&&todosLiga.length>0&&<span style={{background:"rgba(0,0,0,0.2)",borderRadius:10,padding:"1px 6px",fontSize:10}}>{todosLiga.length}</span>}{loadDB&&<span>⏳</span>}
-          </button></div>
-      </div>
-      {jugSel&&(<div style={{marginTop:10,padding:"9px 12px",background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.25)",borderRadius:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div style={{display:"flex",gap:10,alignItems:"center"}}><img src={jugSel.foto} style={{width:34,height:34,borderRadius:"50%",objectFit:"cover",border:"2px solid rgba(0,232,122,0.4)"}} onError={e=>e.target.style.display="none"}/>
-          <div><span style={{color:"#00e87a",fontWeight:800,fontSize:14}}>{jugSel.n}</span><span style={{color:"#4a6070",fontSize:11,marginLeft:8}}>{jugSel.pos} · {jugSel.e}a · {jugSel.eq}</span>
-            <div style={{display:"flex",gap:6,marginTop:2}}><span style={{background:"rgba(245,158,11,0.15)",color:"#f59e0b",borderRadius:4,padding:"1px 6px",fontSize:10,fontWeight:700}}>★{jugSel.s?.rat}</span>{jugSel.s?.g!=null&&<span style={{background:"rgba(0,168,85,0.1)",color:"#00a855",borderRadius:4,padding:"1px 6px",fontSize:10,fontWeight:700}}>⚽{jugSel.s.g}</span>}{jugSel.s?.a!=null&&<span style={{background:"rgba(59,130,246,0.1)",color:"#3b82f6",borderRadius:4,padding:"1px 6px",fontSize:10,fontWeight:700}}>🎯{jugSel.s.a}</span>}</div></div></div>
-        <button onClick={()=>{setJugSel(null);setBusq("");setIaText("");}} style={{background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:18}}>✕</button>
-      </div>)}
-    </div>
-    {panelOpen&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(0,232,122,0.15)",borderRadius:13,padding:14,marginBottom:12}}>
-      <div style={{marginBottom:10}}><span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>👥 {equipo==="__todos__"?div:equipo} <span style={{color:"#4a6070",fontSize:11,fontWeight:400,marginLeft:6}}>{loadDB?"Cargando...":(todosLiga.length+" jugadores")}</span></span></div>
-      {loadDB&&<div style={{textAlign:"center",padding:20,color:"#4a6070"}}>⏳ Cargando...</div>}
-      {!loadDB&&todosLiga.length===0&&<div style={{textAlign:"center",padding:20,color:"#334155",fontSize:13}}>Sin jugadores de <strong>{div}</strong> en la base. Usa el buscador.</div>}
-      {todosLiga.length>0&&(<div style={{maxHeight:320,overflowY:"auto"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr",gap:6,padding:"5px 8px",fontSize:10,fontWeight:700,color:"#334155",borderBottom:"1px solid rgba(255,255,255,0.06)",position:"sticky",top:0,background:"#0d1f2d"}}><span>JUGADOR</span><span>EQUIPO</span><span>POSICIÓN</span><span style={{textAlign:"right"}}>★</span><span style={{textAlign:"right"}}>⚽</span><span style={{textAlign:"right"}}>🎯</span><span style={{textAlign:"right"}}>EDAD</span></div>
-        {todosLiga.map(j=>(<div key={j.id||j.n} onClick={()=>selJug(j)} style={{display:"grid",gridTemplateColumns:"1.5fr 1fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr",gap:6,padding:"7px 8px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.03)",alignItems:"center",background:jugSel?.n===j.n?"rgba(0,232,122,0.06)":"transparent"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,232,122,0.07)"} onMouseLeave={e=>e.currentTarget.style.background=jugSel?.n===j.n?"rgba(0,232,122,0.06)":"transparent"}>
-          <div style={{display:"flex",alignItems:"center",gap:7}}><img src={j.foto} style={{width:24,height:24,borderRadius:"50%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/><span style={{color:"#eef2f6",fontSize:12,fontWeight:600}}>{j.n}</span>{jugSel?.n===j.n&&<span style={{color:"#00e87a",fontSize:10}}>✓</span>}</div>
-          <span style={{color:"#64748b",fontSize:11}}>{(j.eq||"").substring(0,16)}</span><span style={{color:"#64748b",fontSize:11}}>{(j.pos||"").substring(0,14)}</span>
-          <span style={{textAlign:"right",color:"#f59e0b",fontSize:12,fontWeight:700}}>{j.s?.rat||"—"}</span><span style={{textAlign:"right",color:"#00a855",fontSize:12}}>{j.s?.g??"—"}</span><span style={{textAlign:"right",color:"#3b82f6",fontSize:12}}>{j.s?.a??"—"}</span><span style={{textAlign:"right",color:"#94a3b8",fontSize:11}}>{j.e?j.e+"a":"—"}</span>
-        </div>))}
-      </div>)}
-    </div>)}
-    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
-      {[{l:"Nivel liga",v:nvLbl[nv],c:nC[nv],s:pais+" · "+div},{l:"Benchmark",v:fuenteBK>0?fuenteBK+" jugadores":"Referencial",c:fuenteBK>0?"#00a855":"#f59e0b",s:fuenteBK>0?"datos reales":"referencia"},{l:"Sobre promedio",v:jugSel?(sobrePromedio+"/"+metricasFilled.length):"—",c:"#00a855",s:jugSel?"métricas":"Selecciona jugador"},{l:"Percentil",v:jugSel?("P"+percentilGlobal):"—",c:"#3b82f6",s:jugSel?"estimado":"Selecciona jugador"}].map(({l,v,c,s})=>(<div key={l} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:11,padding:"11px 13px"}}><div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4}}>{l}</div><div style={{fontSize:18,fontWeight:800,color:c,lineHeight:1.2}}>{v}</div><div style={{fontSize:10,color:"#3a5060",marginTop:3}}>{s}</div></div>))}
-    </div>
-    <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
-      {[["comparacion","📊 Comparativa"],["radar","🕸️ Radar"],["historia","📈 Percentiles"],["clubes","🏟️ Equipos"]].map(([id,lbl])=>(<button key={id} onClick={()=>setTab2(id)} style={{border:"1px solid "+(tab2===id?"rgba(0,232,122,0.4)":"rgba(255,255,255,0.07)"),borderRadius:7,padding:"6px 13px",color:tab2===id?"#00e87a":"#64748b",background:tab2===id?"rgba(0,232,122,0.08)":"transparent",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit"}}>{lbl}</button>))}
-    </div>
-    {tab2==="comparacion"&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,overflow:"hidden",marginBottom:12}}>
-      <div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.07)",fontSize:10,fontWeight:700,color:"#4a6070",letterSpacing:.5}}><span>MÉTRICA</span><span style={{textAlign:"right"}}>⌀ {fuenteBK>0?"BASE REAL":"REFERENCIA"}</span><span style={{textAlign:"right"}}>{jugSel?jugSel.n.split(" ")[0].toUpperCase():"JUGADOR"}</span><span style={{textAlign:"right"}}>DIFERENCIA</span><span style={{textAlign:"center"}}>ESTADO</span></div>
-      {metricasFilled.map(m=><BenchRow key={m.k} m={m}/>)}
-      {metricasFilled.length===0&&<div style={{padding:24,textAlign:"center",color:"#334155",fontSize:13}}>Sin métricas</div>}
-      <div style={{padding:"8px 14px",background:fuenteBK>0?"rgba(0,168,85,0.04)":"rgba(245,158,11,0.04)",borderTop:"1px solid "+(fuenteBK>0?"rgba(0,168,85,0.1)":"rgba(245,158,11,0.1)"),fontSize:10,color:fuenteBK>0?"#166534":"#92400e"}}>{fuenteBK>0?"⌀ Calculado sobre "+fuenteBK+" jugadores reales de "+pos+" en "+div:"⌀ Datos referenciales · Busca un jugador para activar la comparativa."}</div>
-    </div>)}
-    {tab2==="radar"&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
-        <div><div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600}}>RADAR — {pos.toUpperCase()}</div><RadarViz/><div style={{display:"flex",gap:14,justifyContent:"center",marginTop:6}}><span style={{fontSize:11,color:"#64748b",display:"flex",alignItems:"center",gap:5}}><span style={{width:20,height:2,background:"#475569",display:"inline-block"}}/>⌀ Liga</span>{jugSel&&<span style={{fontSize:11,color:"#00a855",display:"flex",alignItems:"center",gap:5}}><span style={{width:12,height:12,background:"rgba(0,168,85,0.15)",border:"2px solid #00a855",display:"inline-block",borderRadius:2}}/>{jugSel.n.split(" ")[0]}</span>}</div></div>
-        <div><div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600}}>DETALLE</div>{metricasFilled.slice(0,7).map(m=>{const sc2=m.diff?.mejor?"#00a855":m.diff?.peor?"#ef4444":"#f59e0b";const bar=m.jugVal&&m.ligaVal?Math.min((+m.jugVal/(Math.max(+m.jugVal,+m.ligaVal)*1.1))*100,100):50;const fv2=v=>v!=null?(+v<10?(+v).toFixed(1):(+v).toFixed(0)):"—";return(<div key={m.k} style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:11,color:"#64748b"}}>{m.icon} {m.l}</span><div style={{display:"flex",gap:8}}><span style={{fontSize:10,color:"#475569"}}>⌀{fv2(m.ligaVal)}</span>{m.jugVal&&<span style={{fontSize:11,fontWeight:700,color:sc2}}>{fv2(m.jugVal)}</span>}</div></div><div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:2}}><div style={{width:bar+"%",height:"100%",background:m.jugVal?sc2:"#475569",borderRadius:2}}/></div></div>);})}</div>
-      </div>
-    </div>)}
-    {tab2==="historia"&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-        <div><div style={{fontSize:11,color:"#4a6070",marginBottom:10,fontWeight:600}}>RATING EN {div.toUpperCase()}</div>
-          {[{l:"⌀ Promedio",v:bkUsado.rat??6.8,c:"#475569"},{l:"Top 25%",v:(bkUsado.rat??6.8)*1.07,c:"#3b82f6"},{l:"Top 10%",v:(bkUsado.rat??6.8)*1.14,c:"#00e87a"},...(jugSel?.s?.rat?[{l:jugSel.n.split(" ")[0],v:parseFloat(jugSel.s.rat),c:"#f59e0b",hi:true}]:[])].map(n=>(<div key={n.l} style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,color:n.hi?n.c:"#64748b",fontWeight:n.hi?700:400}}>{n.l}</span><span style={{fontSize:11,fontWeight:700,color:n.c}}>{(+n.v).toFixed(2)}</span></div><div style={{height:n.hi?7:5,background:"rgba(255,255,255,0.06)",borderRadius:3}}><div style={{width:Math.round((n.v/10)*100)+"%",height:"100%",background:n.c,borderRadius:3,opacity:n.hi?1:0.7}}/></div></div>))}
-          <div style={{marginTop:10,fontSize:10,color:"#334155"}}>{fuenteBK>0?("Basado en "+fuenteBK+" jugadores reales"):"Datos referenciales"}</div></div>
-        <div><div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600}}>ESCALA PERCENTILES</div>
-          {[{r:"P90–100",l:"Élite absoluta",c:"#00a855",min:90},{r:"P75–90",l:"Muy sobre promedio",c:"#3b82f6",min:75},{r:"P50–75",l:"Sobre el promedio",c:"#00e87a",min:50},{r:"P25–50",l:"En el promedio",c:"#f59e0b",min:25},{r:"P10–25",l:"Bajo el promedio",c:"#f97316",min:10},{r:"P0–10",l:"Bajo nivel estándar",c:"#ef4444",min:0}].map(({r,l,c,min},idx,arr)=>{const max=(arr[idx-1]?.min??100);const enRango=jugSel&&percentilGlobal!=null&&percentilGlobal>=min&&percentilGlobal<max;return(<div key={r} style={{display:"flex",gap:8,alignItems:"center",padding:"7px 10px",marginBottom:4,background:enRango?"rgba(0,232,122,0.06)":"rgba(255,255,255,0.02)",borderRadius:7,border:"1px solid "+(enRango?"rgba(0,232,122,0.25)":"rgba(255,255,255,0.04)")}}><span style={{fontWeight:700,fontSize:11,color:c,minWidth:65}}>{r}</span><span style={{fontSize:11,color:"#64748b",flex:1}}>{l}</span>{enRango&&<span style={{fontSize:10,fontWeight:700,background:c+"20",color:c,borderRadius:4,padding:"2px 6px"}}>P{percentilGlobal} ←</span>}</div>);})}
-          {jugSel&&<div style={{marginTop:12,padding:"10px 12px",background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.2)",borderRadius:8}}><div style={{fontSize:10,color:"#4a6070",marginBottom:4}}>ESTIMACIÓN GLOBAL</div><div style={{fontSize:17,fontWeight:800,color:"#00e87a"}}>{jugSel.n.split(" ")[0]} → P{percentilGlobal}/100</div><div style={{fontSize:11,color:"#4a6070",marginTop:2}}>vs {pos} en {div}</div></div>}
+
+        {/* BUSCADOR */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:8}}>
+          <div style={{position:"relative"}}>
+            <div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4,letterSpacing:.5}}>
+              BUSCAR JUGADOR
+              {fuenteBK>0&&<span style={{marginLeft:8,color:"#00a855",fontWeight:600}}>⌀ calculado sobre {fuenteBK} jugadores reales</span>}
+            </div>
+            <div style={{position:"relative"}}>
+              <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#4a6070",fontSize:14,pointerEvents:"none"}}>🔍</span>
+              <input style={{...I,paddingLeft:32}} placeholder={"Buscar en "+(equipo==="__todos__"?div:equipo)+"..."} value={busq} onChange={e=>setBusq(e.target.value)}/>
+              {busq&&<button onClick={()=>{setBusq("");}} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:16,padding:"0 4px"}}>✕</button>}
+            </div>
+            {busq.length>0&&sugerencias.length>0&&(
+              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#0a1929",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,zIndex:300,maxHeight:280,overflowY:"auto",marginTop:3,boxShadow:"0 12px 40px rgba(0,0,0,0.6)"}}>
+                <div style={{padding:"6px 12px 4px",fontSize:10,color:"#475569",fontWeight:700,letterSpacing:.5,borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+                  {sugerencias.some(j=>j.l_id===ligaId)?"JUGADORES EN "+div.toUpperCase():"RESULTADOS EN TODA LA BASE"}
+                </div>
+                {sugerencias.map(j=>(
+                  <div key={j.id||j.n} onClick={()=>selJug(j)}
+                    style={{padding:"10px 12px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"background .15s"}}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(0,232,122,0.07)"}
+                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <img src={j.foto} style={{width:34,height:34,borderRadius:"50%",objectFit:"cover",border:"1.5px solid rgba(255,255,255,0.1)"}} onError={e=>e.target.style.display="none"}/>
+                      <div>
+                        <div style={{color:"#eef2f6",fontSize:13,fontWeight:700}}>{j.n}</div>
+                        <div style={{color:"#4a6070",fontSize:11,marginTop:1}}>{j.pos} · {j.eq} · {j.e}a</div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <span style={{color:"#f59e0b",fontSize:13,fontWeight:800}}>★{j.s?.rat}</span>
+                      <span style={{background:"rgba(100,116,139,0.15)",color:"#64748b",borderRadius:5,padding:"2px 7px",fontSize:10}}>{(j.l||"").substring(0,18)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {busq.length>0&&sugerencias.length===0&&!loadDB&&(
+              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#0a1929",border:"1px solid rgba(255,255,255,0.08)",borderRadius:10,zIndex:300,padding:"14px",marginTop:3,textAlign:"center",color:"#475569",fontSize:12}}>
+                Sin resultados para "{busq}"
+              </div>
+            )}
+          </div>
+          <div>
+            <div style={{fontSize:10,color:"transparent",marginBottom:4}}>.</div>
+            <button onClick={()=>setPanelOpen(!panelOpen)} style={{border:"1px solid rgba(0,232,122,0.3)",borderRadius:8,padding:"7px 14px",color:panelOpen?"#0d1f2d":"#00e87a",background:panelOpen?"#00e87a":"rgba(0,232,122,0.08)",cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,whiteSpace:"nowrap",transition:"all .2s"}}>
+              {panelOpen?"✕ Cerrar":"👥 Ver jugadores"}{!loadDB&&todosLiga.length>0&&<span style={{background:"rgba(0,0,0,0.2)",borderRadius:10,padding:"1px 7px",fontSize:10}}>{todosLiga.length}</span>}{loadDB&&<span style={{fontSize:10}}>⏳</span>}
+            </button>
+          </div>
         </div>
       </div>
-    </div>)}
-    {tab2==="clubes"&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:14,marginBottom:12}}>
-      <div style={{fontWeight:700,color:"#eef2f6",fontSize:13,marginBottom:10}}>🏟️ {div} — {pais}</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(155px,1fr))",gap:7}}>
-        {clubes.map(cc=>(<div key={cc} onClick={()=>{setEquipo(equipo===cc?"__todos__":cc);setJugSel(null);setBusq("");}} style={{display:"flex",alignItems:"center",gap:7,background:equipo===cc?"rgba(0,232,122,0.1)":"rgba(255,255,255,0.03)",borderRadius:7,padding:"8px 10px",border:"1px solid "+(equipo===cc?"rgba(0,232,122,0.3)":"rgba(255,255,255,0.05)"),cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(0,232,122,0.07)"} onMouseLeave={e=>e.currentTarget.style.background=equipo===cc?"rgba(0,232,122,0.1)":"rgba(255,255,255,0.03)"}><span style={{color:nC[nv],fontSize:10,fontWeight:800}}>●</span><span style={{color:"#94a3b8",fontSize:12,flex:1}}>{cc}</span>{equipo===cc&&<span style={{color:"#00e87a",fontSize:12}}>✓</span>}</div>))}
+
+      {/* JUGADOR SELECCIONADO — barra separada */}
+      {jugSel&&(
+        <div style={{background:"linear-gradient(135deg,rgba(0,232,122,0.06),rgba(0,168,85,0.03))",border:"1px solid rgba(0,232,122,0.25)",borderRadius:13,padding:"14px 16px",marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div style={{display:"flex",gap:14,alignItems:"center"}}>
+              <img src={jugSel.foto} style={{width:56,height:56,borderRadius:"50%",objectFit:"cover",border:"2.5px solid rgba(0,232,122,0.5)",flexShrink:0}} onError={e=>e.target.style.display="none"}/>
+              <div>
+                <div style={{color:"#00e87a",fontWeight:800,fontSize:17,marginBottom:2}}>{jugSel.n}</div>
+                <div style={{color:"#64748b",fontSize:12,marginBottom:6}}>{jugSel.pos} · {jugSel.eq} · {jugSel.l}</div>
+                <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                  <span style={{background:"rgba(245,158,11,0.15)",color:"#f59e0b",borderRadius:5,padding:"2px 8px",fontSize:11,fontWeight:700}}>★ {jugSel.s?.rat}</span>
+                  <span style={{background:"rgba(100,116,139,0.15)",color:"#94a3b8",borderRadius:5,padding:"2px 8px",fontSize:11}}>🎂 {jugSel.e}a</span>
+                  {jugSel.pais&&<span style={{background:"rgba(100,116,139,0.15)",color:"#94a3b8",borderRadius:5,padding:"2px 8px",fontSize:11}}>🌎 {jugSel.pais}</span>}
+                  {jugSel.alt&&<span style={{background:"rgba(100,116,139,0.15)",color:"#94a3b8",borderRadius:5,padding:"2px 8px",fontSize:11}}>📏 {jugSel.alt}</span>}
+                  {jugSel.pes&&<span style={{background:"rgba(100,116,139,0.15)",color:"#94a3b8",borderRadius:5,padding:"2px 8px",fontSize:11}}>⚖️ {jugSel.pes}</span>}
+                </div>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,auto)",gap:"6px 14px",fontSize:11,textAlign:"center"}}>
+                {[["⚽","Goles",jugSel.s?.g],["🎯","Asist",jugSel.s?.a],["💥","Disp",jugSel.s?.dis],["📅","PJ",jugSel.s?.pts],["⏱️","Min",jugSel.s?.min],["⭐","Rating",jugSel.s?.rat]].map(([icon,lbl,val])=>val!=null&&(
+                  <div key={lbl} style={{background:"rgba(255,255,255,0.04)",borderRadius:7,padding:"5px 8px",minWidth:48}}>
+                    <div style={{fontSize:13,marginBottom:1}}>{icon}</div>
+                    <div style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>{val}</div>
+                    <div style={{color:"#475569",fontSize:9}}>{lbl}</div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={()=>{setJugSel(null);setIaText("");}} style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:7,padding:"5px 9px",color:"#ef4444",cursor:"pointer",fontSize:13,fontFamily:"inherit",marginTop:2}}>✕</button>
+            </div>
+          </div>
+          {percentilGlobal!=null&&(
+            <div style={{marginTop:12,padding:"8px 12px",background:"rgba(0,0,0,0.2)",borderRadius:8,display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{fontSize:11,color:"#4a6070"}}>vs promedio {div}:</span>
+              <span style={{color:"#3b82f6",fontWeight:700,fontSize:13}}>Percentil P{percentilGlobal}/100</span>
+              <span style={{color:sobrePromedio>=metricasFilled.length*0.6?"#00a855":"#f59e0b",fontWeight:700,fontSize:13}}>{sobrePromedio}/{metricasFilled.length} métricas sobre promedio</span>
+              {fuenteBK>0&&<span style={{color:"#4a6070",fontSize:11}}>⌀ basado en {fuenteBK} jugadores reales</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* PANEL JUGADORES */}
+      {panelOpen&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(0,232,122,0.12)",borderRadius:13,padding:14,marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>
+              👥 {equipo==="__todos__"?div:equipo}
+              <span style={{color:"#4a6070",fontSize:11,fontWeight:400,marginLeft:8}}>{loadDB?"Cargando...":(todosLiga.length+" jugadores")}</span>
+            </span>
+            <span style={{color:"#475569",fontSize:11}}>Click en cualquier fila para seleccionar</span>
+          </div>
+          {loadDB&&<div style={{textAlign:"center",padding:24,color:"#4a6070"}}>⏳ Cargando base de datos...</div>}
+          {!loadDB&&todosLiga.length===0&&(
+            <div style={{textAlign:"center",padding:24,color:"#334155",fontSize:13}}>
+              <div style={{fontSize:28,marginBottom:8}}>🔍</div>
+              Sin jugadores de <strong style={{color:"#4a6070"}}>{equipo==="__todos__"?div:equipo}</strong> en la base.
+              {equipo!=="__todos__"&&<div style={{fontSize:11,color:"#334155",marginTop:4}}>Prueba con "Todos los equipos" o usa el buscador.</div>}
+            </div>
+          )}
+          {todosLiga.length>0&&(
+            <div style={{maxHeight:360,overflowY:"auto",borderRadius:8,overflow:"hidden"}}>
+              <div style={{display:"grid",gridTemplateColumns:"2fr 1.2fr 1.2fr 0.5fr 0.5fr 0.5fr 0.5fr",gap:6,padding:"6px 10px",fontSize:10,fontWeight:700,color:"#334155",letterSpacing:.5,borderBottom:"1px solid rgba(255,255,255,0.07)",position:"sticky",top:0,background:"#07111a"}}>
+                <span>JUGADOR</span><span>EQUIPO</span><span>POSICIÓN</span><span style={{textAlign:"right"}}>★</span><span style={{textAlign:"right"}}>⚽</span><span style={{textAlign:"right"}}>🎯</span><span style={{textAlign:"right"}}>EDAD</span>
+              </div>
+              {todosLiga.map(j=>(
+                <div key={j.id||j.n} onClick={()=>selJug(j)}
+                  style={{display:"grid",gridTemplateColumns:"2fr 1.2fr 1.2fr 0.5fr 0.5fr 0.5fr 0.5fr",gap:6,padding:"8px 10px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.03)",alignItems:"center",background:jugSel?.id===j.id?"rgba(0,232,122,0.08)":"transparent",transition:"background .1s"}}
+                  onMouseEnter={e=>e.currentTarget.style.background=jugSel?.id===j.id?"rgba(0,232,122,0.1)":"rgba(0,232,122,0.05)"}
+                  onMouseLeave={e=>e.currentTarget.style.background=jugSel?.id===j.id?"rgba(0,232,122,0.08)":"transparent"}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <img src={j.foto} style={{width:26,height:26,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={e=>e.target.style.display="none"}/>
+                    <span style={{color:"#eef2f6",fontSize:12,fontWeight:600}}>{j.n}</span>
+                    {jugSel?.id===j.id&&<span style={{color:"#00e87a",fontSize:11,fontWeight:700}}>✓</span>}
+                  </div>
+                  <span style={{color:"#64748b",fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.eq}</span>
+                  <span style={{color:"#64748b",fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.pos}</span>
+                  <span style={{textAlign:"right",color:"#f59e0b",fontSize:12,fontWeight:700}}>{j.s?.rat||"—"}</span>
+                  <span style={{textAlign:"right",color:"#00a855",fontSize:12,fontWeight:600}}>{j.s?.g??"—"}</span>
+                  <span style={{textAlign:"right",color:"#3b82f6",fontSize:12,fontWeight:600}}>{j.s?.a??"—"}</span>
+                  <span style={{textAlign:"right",color:"#94a3b8",fontSize:11}}>{j.e?j.e+"a":"—"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
+        {[
+          {l:"Nivel liga",v:nvLbl[nv],c:nC[nv],s:pais+" · "+div},
+          {l:"Benchmark",v:fuenteBK>0?fuenteBK+" jugadores":"Referencial",c:fuenteBK>0?"#00a855":"#f59e0b",s:fuenteBK>0?"datos reales de la base":"datos de referencia"},
+          {l:"Sobre promedio",v:jugSel?(sobrePromedio+"/"+metricasFilled.length):"—",c:"#00a855",s:jugSel?"métricas destacadas":"Selecciona jugador"},
+          {l:"Percentil",v:jugSel?("P"+percentilGlobal):"—",c:"#3b82f6",s:jugSel?"estimado en posición":"Selecciona jugador"},
+        ].map(({l,v,c,s})=>(
+          <div key={l} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:11,padding:"11px 13px"}}>
+            <div style={{fontSize:10,color:"#4a6070",fontWeight:600,marginBottom:4,letterSpacing:.4}}>{l}</div>
+            <div style={{fontSize:18,fontWeight:800,color:c,lineHeight:1.2}}>{v}</div>
+            <div style={{fontSize:10,color:"#3a5060",marginTop:3}}>{s}</div>
+          </div>
+        ))}
       </div>
-      <div style={{marginTop:10,padding:"7px 10px",background:"rgba(255,255,255,0.02)",borderRadius:7,fontSize:10,color:"#475569"}}>{clubes.length} equipos · Clic para filtrar</div>
-    </div>)}
-    {jugSel&&(<div style={{marginTop:4}}>
-      {!iaText?(<button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:10,padding:"11px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:loadIA?0.7:1}}>
-        {loadIA?<><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando...</>:"🤖 Análisis IA — "+jugSel.n}
-        <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
-      </button>):(<div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:11,padding:14}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>🤖 Benchmark IA — {jugSel.n}</span><div style={{display:"flex",gap:7}}><span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:4,padding:"2px 7px",fontSize:10,fontWeight:700}}>FichaScout PRO</span><button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 9px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button></div></div>
-        <div style={{color:"#c4b5fd",lineHeight:1.9,fontSize:12.5,whiteSpace:"pre-wrap"}}>{iaText}</div>
-      </div>)}
-    </div>)}
-  </div>);
+
+      {/* TABS */}
+      <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+        {[["comparacion","📊 Comparativa"],["radar","🕸️ Radar"],["historia","📈 Percentiles"],["clubes","🏟️ Equipos"]].map(([id,lbl])=>(
+          <button key={id} onClick={()=>setTab2(id)} style={{border:"1px solid "+(tab2===id?"rgba(0,232,122,0.4)":"rgba(255,255,255,0.07)"),borderRadius:7,padding:"6px 13px",color:tab2===id?"#00e87a":"#64748b",background:tab2===id?"rgba(0,232,122,0.08)":"transparent",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit",transition:"all .15s"}}>{lbl}</button>
+        ))}
+      </div>
+
+      {/* TAB: COMPARATIVA */}
+      {tab2==="comparacion"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,overflow:"hidden",marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.7fr 1fr 1fr 1fr 100px",gap:8,padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.07)",fontSize:10,fontWeight:700,color:"#4a6070",letterSpacing:.5}}>
+            <span>MÉTRICA</span><span style={{textAlign:"right"}}>⌀ {fuenteBK>0?"BASE REAL":"REFERENCIA"}</span>
+            <span style={{textAlign:"right"}}>{jugSel?jugSel.n.split(" ").slice(-1)[0].toUpperCase():"JUGADOR"}</span>
+            <span style={{textAlign:"right"}}>DIFERENCIA</span><span style={{textAlign:"center"}}>ESTADO</span>
+          </div>
+          {metricasFilled.map(m=><BenchRow key={m.k} m={m}/>)}
+          {metricasFilled.length===0&&<div style={{padding:24,textAlign:"center",color:"#334155",fontSize:13}}>Sin métricas disponibles para esta posición</div>}
+          <div style={{padding:"8px 14px",background:fuenteBK>0?"rgba(0,168,85,0.04)":"rgba(245,158,11,0.04)",borderTop:"1px solid "+(fuenteBK>0?"rgba(0,168,85,0.1)":"rgba(245,158,11,0.1)"),fontSize:10,color:fuenteBK>0?"#166534":"#92400e"}}>
+            {fuenteBK>0?"⌀ Calculado sobre "+fuenteBK+" jugadores reales de "+posAC(pos)+" en "+div+" · Base Pro Mundial":"⌀ Datos referenciales · Selecciona un jugador para activar la comparativa."}
+          </div>
+        </div>
+      )}
+
+      {/* TAB: RADAR */}
+      {tab2==="radar"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>RADAR — {pos.toUpperCase()}</div>
+              <RadarViz/>
+              <div style={{display:"flex",gap:14,justifyContent:"center",marginTop:6}}>
+                <span style={{fontSize:11,color:"#64748b",display:"flex",alignItems:"center",gap:5}}><span style={{width:20,height:2,background:"#475569",display:"inline-block",borderRadius:1}}/>⌀ Liga</span>
+                {jugSel&&<span style={{fontSize:11,color:"#00a855",display:"flex",alignItems:"center",gap:5}}><span style={{width:12,height:12,background:"rgba(0,168,85,0.15)",border:"2px solid #00a855",display:"inline-block",borderRadius:2}}/>{jugSel.n.split(" ")[0]}</span>}
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>DETALLE MÉTRICAS</div>
+              {metricasFilled.slice(0,7).map(m=>{
+                const sc2=m.diff?.mejor?"#00a855":m.diff?.peor?"#ef4444":"#f59e0b";
+                const bar=m.jugVal&&m.ligaVal?Math.min((+m.jugVal/(Math.max(+m.jugVal,+m.ligaVal)*1.1))*100,100):(m.ligaVal?50:0);
+                return(<div key={m.k} style={{marginBottom:8}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                    <span style={{fontSize:11,color:"#64748b"}}>{m.icon} {m.l}</span>
+                    <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                      <span style={{fontSize:10,color:"#475569"}}>⌀{m.ligaVal!=null?(+m.ligaVal<10?(+m.ligaVal).toFixed(1):(+m.ligaVal).toFixed(0)):"—"}</span>
+                      {m.jugVal!=null&&<span style={{fontSize:11,fontWeight:700,color:sc2}}>{fv(m.jugVal)}</span>}
+                    </div>
+                  </div>
+                  <div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:2}}><div style={{width:bar+"%",height:"100%",background:m.jugVal!=null?sc2:"#475569",borderRadius:2}}/></div>
+                </div>);
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: PERCENTILES */}
+      {tab2==="historia"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:16,marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:10,fontWeight:600,letterSpacing:.5}}>DISTRIBUCIÓN RATING — {div.toUpperCase()}</div>
+              {[{l:"⌀ Promedio liga",v:bkUsado.rat??6.8,c:"#475569"},{l:"Top 25%",v:(bkUsado.rat??6.8)*1.07,c:"#3b82f6"},{l:"Top 10%",v:(bkUsado.rat??6.8)*1.14,c:"#00e87a"},...(jugSel?.s?.rat?[{l:jugSel.n.split(" ")[0],v:parseFloat(jugSel.s.rat),c:"#f59e0b",hi:true}]:[])].map(n=>(
+                <div key={n.l} style={{marginBottom:9}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,color:n.hi?n.c:"#64748b",fontWeight:n.hi?700:400}}>{n.l}</span><span style={{fontSize:11,fontWeight:700,color:n.c}}>{(+n.v).toFixed(2)}</span></div>
+                  <div style={{height:n.hi?7:5,background:"rgba(255,255,255,0.06)",borderRadius:3}}><div style={{width:Math.round((n.v/10)*100)+"%",height:"100%",background:n.c,borderRadius:3,opacity:n.hi?1:0.7}}/></div>
+                </div>
+              ))}
+              <div style={{marginTop:10,fontSize:10,color:"#334155"}}>{fuenteBK>0?("Basado en "+fuenteBK+" jugadores reales de "+div):"Datos referenciales Nivel "+nv}</div>
+            </div>
+            <div>
+              <div style={{fontSize:11,color:"#4a6070",marginBottom:8,fontWeight:600,letterSpacing:.5}}>ESCALA PERCENTILES</div>
+              {[{r:"P90–100",l:"Élite absoluta",c:"#00a855",min:90},{r:"P75–90",l:"Muy sobre promedio",c:"#3b82f6",min:75},{r:"P50–75",l:"Sobre el promedio",c:"#00e87a",min:50},{r:"P25–50",l:"En el promedio",c:"#f59e0b",min:25},{r:"P10–25",l:"Bajo el promedio",c:"#f97316",min:10},{r:"P0–10",l:"Bajo nivel estándar",c:"#ef4444",min:0}].map(({r,l,c,min},idx,arr)=>{
+                const max=(arr[idx-1]?.min??100);
+                const enRango=jugSel&&percentilGlobal!=null&&percentilGlobal>=min&&percentilGlobal<max;
+                return(<div key={r} style={{display:"flex",gap:8,alignItems:"center",padding:"7px 10px",marginBottom:4,background:enRango?"rgba(0,232,122,0.06)":"rgba(255,255,255,0.02)",borderRadius:7,border:"1px solid "+(enRango?"rgba(0,232,122,0.25)":"rgba(255,255,255,0.04)")}}>
+                  <span style={{fontWeight:700,fontSize:11,color:c,minWidth:65}}>{r}</span>
+                  <span style={{fontSize:11,color:"#64748b",flex:1}}>{l}</span>
+                  {enRango&&<span style={{fontSize:10,fontWeight:700,background:c+"20",color:c,borderRadius:4,padding:"2px 6px"}}>P{percentilGlobal} ←</span>}
+                </div>);
+              })}
+              {jugSel&&<div style={{marginTop:12,padding:"10px 12px",background:"rgba(0,232,122,0.06)",border:"1px solid rgba(0,232,122,0.2)",borderRadius:8}}>
+                <div style={{fontSize:10,color:"#4a6070",marginBottom:4}}>ESTIMACIÓN GLOBAL</div>
+                <div style={{fontSize:17,fontWeight:800,color:"#00e87a"}}>{jugSel.n.split(" ")[0]} → P{percentilGlobal}/100</div>
+                <div style={{fontSize:11,color:"#4a6070",marginTop:2}}>vs {posAC(pos)} en {div}</div>
+              </div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: EQUIPOS */}
+      {tab2==="clubes"&&(
+        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:14,marginBottom:12}}>
+          <div style={{fontWeight:700,color:"#eef2f6",fontSize:13,marginBottom:10}}>🏟️ {div} — {pais} <span style={{color:"#4a6070",fontWeight:400,fontSize:11,marginLeft:6}}>{clubes.length} equipos</span></div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:7}}>
+            {clubes.map(cc=>(
+              <div key={cc} onClick={()=>{setEquipo(equipo===cc?"__todos__":cc);setJugSel(null);setBusq("");}}
+                style={{display:"flex",alignItems:"center",gap:8,background:equipo===cc?"rgba(0,232,122,0.1)":"rgba(255,255,255,0.03)",borderRadius:8,padding:"8px 11px",border:"1px solid "+(equipo===cc?"rgba(0,232,122,0.3)":"rgba(255,255,255,0.05)"),cursor:"pointer",transition:"all .15s"}}
+                onMouseEnter={e=>{if(equipo!==cc)e.currentTarget.style.background="rgba(0,232,122,0.05)";}}
+                onMouseLeave={e=>{e.currentTarget.style.background=equipo===cc?"rgba(0,232,122,0.1)":"rgba(255,255,255,0.03)";}}>
+                <span style={{color:nC[nv],fontSize:9,fontWeight:800}}>●</span>
+                <span style={{color:equipo===cc?"#00e87a":"#94a3b8",fontSize:12,flex:1}}>{cc}</span>
+                {equipo===cc&&<span style={{color:"#00e87a",fontSize:11,fontWeight:700}}>✓</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:10,padding:"7px 10px",background:"rgba(255,255,255,0.02)",borderRadius:7,fontSize:10,color:"#475569"}}>Clic en un equipo para filtrar · Clic de nuevo para quitar el filtro</div>
+        </div>
+      )}
+
+      {/* ANÁLISIS IA */}
+      {jugSel&&(
+        <div style={{marginTop:4}}>
+          {!iaText?(
+            <button onClick={generarIA} disabled={loadIA} style={{width:"100%",border:"none",borderRadius:10,padding:"12px",color:"#fff",fontWeight:700,cursor:loadIA?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:loadIA?0.7:1,transition:"opacity .2s"}}>
+              {loadIA?<><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando benchmark...</>:"🤖 Análisis IA del Benchmark — "+jugSel.n}
+              <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+            </button>
+          ):(
+            <div style={{background:"rgba(139,92,246,0.07)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:11,padding:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <span style={{color:"#eef2f6",fontWeight:700,fontSize:13}}>🤖 Análisis IA — Benchmark {jugSel.n}</span>
+                <div style={{display:"flex",gap:7}}>
+                  <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:4,padding:"2px 8px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
+                  <button onClick={()=>setIaText("")} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"3px 10px",color:"#64748b",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻ Regenerar</button>
+                </div>
+              </div>
+              <div style={{color:"#c4b5fd",lineHeight:1.9,fontSize:12.5,whiteSpace:"pre-wrap",fontFamily:"system-ui,sans-serif"}}>{iaText}</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
+
+
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 const NAV = [
