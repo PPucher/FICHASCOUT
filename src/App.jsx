@@ -1313,7 +1313,7 @@ function exportBenchmarkPDF(jugSel,metricasFilled,sobrePromedio,percentilGlobal,
     "<div style='font-size:22px;font-weight:900;color:#0f172a'>"+jugSel.n+"</div>"+
     "<div style='font-size:12px;color:#64748b;margin-top:3px'>"+jugSel.pos+" · "+jugSel.eq+" · "+jugSel.l+"</div>"+
     "<div style='font-size:11px;color:#94a3b8;margin-top:2px'>"+pais+" · "+div+" ("+nvL[nv]+") · "+fecha+"</div></div>"+
-    (jugSel.foto?"<img src='"+jugSel.foto+"' style='width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #00e87a' onerror="this.style.display='none'"/>":"")+"</div>"+
+    (jugSel.foto?"<img src='"+jugSel.foto+"' style='width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #00e87a'/>":"")+"</div>"+
     "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px'>"+
     "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;text-align:center'><div style='font-size:10px;color:#16a34a;font-weight:700'>SOBRE PROMEDIO</div><div style='font-size:24px;font-weight:900;color:#15803d'>"+sobrePromedio+"/"+metricasFilled.length+"</div><div style='font-size:9px;color:#4ade80'>métricas</div></div>"+
     "<div style='background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;text-align:center'><div style='font-size:10px;color:#2563eb;font-weight:700'>PERCENTIL</div><div style='font-size:24px;font-weight:900;color:#1d4ed8'>P"+percentilGlobal+"</div><div style='font-size:9px;color:#60a5fa'>en su posición</div></div>"+
