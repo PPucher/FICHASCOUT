@@ -1306,7 +1306,7 @@ function ModBenchmarks() {
   },[]);
 
   const divData=SA[pais]?.[div];
-  const ligaId=divData?.id;
+  const ligaId=Number(divData?.id)||0;
   const nv=divData?.nv||2;
   const clubes=divData?.cl||[];
   const nC={1:"#00e87a",2:"#3b82f6",3:"#f59e0b",4:"#64748b"};
@@ -1324,7 +1324,7 @@ function ModBenchmarks() {
   const jugadoresLiga=useMemo(()=>{
     if(!dbPro||!ligaId)return[];
     return dbPro.jugadores.filter(j=>{
-      const matchLiga = j.l_id===ligaId;
+      const matchLiga = Number(j.l_id)===ligaId;
       const matchEquipo = equipo==="__todos__"||(j.eq===equipo);
       const matchPos = posAC(j.pos)===posAC(pos);
       return matchLiga&&matchEquipo&&matchPos&&j.s?.rat;
@@ -1334,7 +1334,7 @@ function ModBenchmarks() {
   const todosLiga=useMemo(()=>{
     if(!dbPro||!ligaId)return[];
     return dbPro.jugadores.filter(j=>{
-      const matchLiga = j.l_id===ligaId;
+      const matchLiga = Number(j.l_id)===ligaId;
       const matchEquipo = equipo==="__todos__"||(j.eq===equipo);
       return matchLiga&&matchEquipo&&j.s?.rat;
     }).sort((a,b)=>(b.s?.rat||0)-(a.s?.rat||0));
@@ -1498,7 +1498,7 @@ function ModBenchmarks() {
             {busq.length>0&&sugerencias.length>0&&(
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#0a1929",border:"1px solid rgba(255,255,255,0.12)",borderRadius:10,zIndex:300,maxHeight:280,overflowY:"auto",marginTop:3,boxShadow:"0 12px 40px rgba(0,0,0,0.6)"}}>
                 <div style={{padding:"6px 12px 4px",fontSize:10,color:"#475569",fontWeight:700,letterSpacing:.5,borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
-                  {sugerencias.some(j=>j.l_id===ligaId)?"JUGADORES EN "+div.toUpperCase():"RESULTADOS EN TODA LA BASE"}
+                  {sugerencias.some(j=>Number(j.l_id)===ligaId)?"JUGADORES EN "+div.toUpperCase():"RESULTADOS EN TODA LA BASE"}
                 </div>
                 {sugerencias.map(j=>(
                   <div key={j.id||j.n} onClick={()=>selJug(j)}
