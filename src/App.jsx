@@ -1443,7 +1443,7 @@ function ModBenchmarks() {
   const percentilGlobal=jugSel?Math.round(metricasFilled.filter(m=>m.percentil).reduce((s,m)=>s+m.percentil,0)/Math.max(metricasFilled.filter(m=>m.percentil).length,1)):null;
 
   async function generarIA(){
-    if(!jugSel||!ANTHROPIC_KEY){setIaText("Configura VITE_ANTHROPIC_KEY.");return;}
+    if(!jugSel){return;} if(!ANTHROPIC_KEY){setIaText("⚠️ Sin créditos API. Recarga en console.anthropic.com");return;}
     setLoadIA(true);setIaText("");
     const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"N/D";
     const metStr=metricasFilled.map(m=>m.l+": jug="+fv(m.jugVal)+" vs liga="+fv(m.ligaVal)+(m.diff?(" ("+(+m.diff.pct>0?"+":"")+m.diff.pct+"%)"):""  )).join(" | ");
@@ -1821,6 +1821,8 @@ function ModBenchmarks() {
           )}
         </div>
       )}
+
+      {jugSel&&(<div style={{marginTop:8}}><button onClick={()=>exportBenchmarkPDF(jugSel,metricasFilled,sobrePromedio,percentilGlobal,fuenteBK,pais,div,nv,iaText)} style={{width:"100%",border:"1px solid rgba(99,102,241,0.35)",borderRadius:10,padding:"11px",color:"#818cf8",fontWeight:700,cursor:"pointer",fontSize:13,background:"rgba(99,102,241,0.07)",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>📄 Descargar PDF del Benchmark</button></div>)}
     </div>
   );
 }
