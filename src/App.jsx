@@ -1282,6 +1282,55 @@ function ModTactico({data}) {
   );
 }
 
+
+function exportBenchmarkPDF(jugSel,metricasFilled,sobrePromedio,percentilGlobal,fuenteBK,pais,div,nv,iaText){
+  if(!jugSel)return;
+  const nvL={1:"1ª Div.",2:"2ª Div.",3:"Copa",4:"Amateur"};
+  const sC=d=>d?.mejor?"#00a855":d?.peor?"#ef4444":"#f59e0b";
+  const sL=d=>!d?"—":d?.mejor?"▲ Sobre promedio":d?.peor?"▼ Bajo promedio":"● En promedio";
+  const fv=v=>v!=null?(+v<10?(+v).toFixed(2):(+v).toFixed(0)):"—";
+  const fecha=new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
+  const rows=metricasFilled.map(m=>{
+    const col=sC(m.diff);const lbl=sL(m.diff);
+    const pct=m.diff?((+m.diff.pct>0?"+":"")+m.diff.pct+"%"):"—";
+    return "<tr><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#374151'>"+m.icon+" "+m.l+"</td>"+
+      "<td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;color:#64748b'>"+fv(m.ligaVal)+"</td>"+
+      "<td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:right;font-weight:700;color:"+col+"'>"+fv(m.jugVal)+"</td>"+
+      "<td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;font-weight:700;color:"+col+"'>"+pct+"</td>"+
+      "<td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:center'><span style='background:"+col+"18;color:"+col+";border:1px solid "+col+"44;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700'>"+lbl+"</span></td></tr>";
+  }).join("");
+  const stats=[["⚽","Goles",jugSel.s?.g],["🎯","Asist",jugSel.s?.a],["💥","Disp",jugSel.s?.dis],["📅","PJ",jugSel.s?.pts],["⏱️","Min",jugSel.s?.min],["⭐","Rating",jugSel.s?.rat]]
+    .filter(([,,v])=>v!=null)
+    .map(([ic,lb,v])=>"<div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center'><div style='font-size:16px'>"+ic+"</div><div style='font-size:15px;font-weight:800;color:#0f172a'>"+v+"</div><div style='font-size:10px;color:#94a3b8'>"+lb+"</div></div>").join("");
+  const iaHtml=iaText?"<div style='margin-top:20px;padding:14px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px'><div style='font-size:13px;font-weight:800;color:#7c3aed;margin-bottom:8px'>🤖 Análisis IA — FichaScout PRO</div><div style='font-size:12px;line-height:1.9;color:#374151;text-align:justify;white-space:pre-wrap'>"+iaText+"</div></div>":"";
+  const html="<!DOCTYPE html><html><head><meta charset='UTF-8'/><title>Benchmark "+jugSel.n+"</title>"+
+    "<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;color:#0f172a;padding:28px;max-width:800px;margin:0 auto}"+
+    "h2{font-size:13px;font-weight:700;color:#0f172a;margin:18px 0 8px;padding-bottom:5px;border-bottom:2px solid #e2e8f0}"+
+    "table{width:100%;border-collapse:collapse}th{padding:7px 10px;font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.4px;background:#f8fafc;border-bottom:2px solid #e2e8f0;text-align:left}"+
+    "tr:last-child td{border-bottom:none}@media print{body{padding:14px}}</style></head><body>"+
+    "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #00e87a'>"+
+    "<div><div style='font-size:10px;color:#94a3b8;font-weight:700;letter-spacing:.5px;margin-bottom:3px'>📊 INFORME DE BENCHMARK · FICHASCOUT PRO</div>"+
+    "<div style='font-size:22px;font-weight:900;color:#0f172a'>"+jugSel.n+"</div>"+
+    "<div style='font-size:12px;color:#64748b;margin-top:3px'>"+jugSel.pos+" · "+jugSel.eq+" · "+jugSel.l+"</div>"+
+    "<div style='font-size:11px;color:#94a3b8;margin-top:2px'>"+pais+" · "+div+" ("+nvL[nv]+") · "+fecha+"</div></div>"+
+    (jugSel.foto?"<img src='"+jugSel.foto+"' style='width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #00e87a' onerror="this.style.display='none'"/>":"")+"</div>"+
+    "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px'>"+
+    "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;text-align:center'><div style='font-size:10px;color:#16a34a;font-weight:700'>SOBRE PROMEDIO</div><div style='font-size:24px;font-weight:900;color:#15803d'>"+sobrePromedio+"/"+metricasFilled.length+"</div><div style='font-size:9px;color:#4ade80'>métricas</div></div>"+
+    "<div style='background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;text-align:center'><div style='font-size:10px;color:#2563eb;font-weight:700'>PERCENTIL</div><div style='font-size:24px;font-weight:900;color:#1d4ed8'>P"+percentilGlobal+"</div><div style='font-size:9px;color:#60a5fa'>en su posición</div></div>"+
+    "<div style='background:#fefce8;border:1px solid #fde047;border-radius:10px;padding:12px;text-align:center'><div style='font-size:10px;color:#ca8a04;font-weight:700'>BENCHMARK</div><div style='font-size:24px;font-weight:900;color:#a16207'>"+(fuenteBK>0?fuenteBK:"Ref.")+"</div><div style='font-size:9px;color:#fbbf24'>"+(fuenteBK>0?"jugadores reales":"referencial")+"</div></div>"+
+    "</div>"+
+    "<h2>Estadísticas del jugador</h2>"+
+    "<div style='display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:18px'>"+stats+"</div>"+
+    "<h2>Comparativa vs promedio de liga</h2>"+
+    "<table><thead><tr><th>MÉTRICA</th><th style='text-align:right'>⌀ LIGA</th><th style='text-align:right'>JUGADOR</th><th style='text-align:right'>DIFERENCIA</th><th style='text-align:center'>ESTADO</th></tr></thead><tbody>"+rows+"</tbody></table>"+
+    (fuenteBK>0?"<div style='font-size:9px;color:#94a3b8;margin-top:5px'>⌀ Calculado sobre "+fuenteBK+" jugadores reales · "+div+"</div>":"")+
+    iaHtml+
+    "<div style='margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:9px;color:#94a3b8'>"+
+    "<span>FichaScout PRO — Plataforma de Scouting Profesional</span><span>fichascout.com · "+fecha+"</span></div>"+
+    "</body></html>";
+  const w=window.open("","_blank");w.document.write(html);w.document.close();setTimeout(()=>w.print(),700);
+}
+
 // ─── BENCHMARKS AVANZADO v3 ──────────────────────────────────────────────────
 function ModBenchmarks() {
   const paises = Object.keys(SA);
