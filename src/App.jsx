@@ -926,152 +926,267 @@ function ModPlantilla({data}) {
   );
 }
 
-// ─── TALENTOS ─────────────────────────────────────────────────────────────────
-function ModTalentos({data, setData}) {
-  const [busq, setBusq] = useState(""); const [fPos, setFPos] = useState(""); const [fSt, setFSt] = useState(""); const [modal, setModal] = useState(false); const [form, setForm] = useState({});
-  const talentos = data.talentos||[];
-  const filtrados = talentos.filter(t=>{
-    if (busq && !t.nombre.toLowerCase().includes(busq.toLowerCase()) && !(t.equipo||"").toLowerCase().includes(busq.toLowerCase())) return false;
-    if (fPos && t.posicion!==fPos) return false;
-    if (fSt && (t.pipeline||"radar")!==fSt) return false;
+// ─── TALENTOS v2 ──────────────────────────────────────────────────
+const ETIQUETAS=[{id:"proyeccion",label:"Proyección Alta",icon:"🌟",color:"#f59e0b"},{id:"seguimiento",label:"Seguimiento",icon:"👁",color:"#3b82f6"},{id:"prioridad",label:"Prioridad",icon:"🔴",color:"#ef4444"},{id:"recomendado",label:"Recomendado",icon:"✅",color:"#00a855"}];
+const PIPE_ST=[{id:"radar",label:"En Radar",icon:"🔭",color:"#64748b"},{id:"contactado",label:"Contactado",icon:"📞",color:"#3b82f6"},{id:"negociando",label:"Negociando",icon:"🤝",color:"#f59e0b"},{id:"preacuerdo",label:"Pre-Acuerdo",icon:"📄",color:"#a855f7"},{id:"fichado",label:"Fichado",icon:"✅",color:"#00a855"}];
+function uid(){return Math.random().toString(36).slice(2,9);}
+function hoy(){const d=new Date();return d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0")+"/"+d.getFullYear();}
+function getYTId(url){if(!url)return null;const m=url.match(/(?:youtu\.be\/|v=|\/embed\/)([^?&\n]{11})/);return m?m[1]:null;}
+
+function ModTalentos({data,setData}){
+  const [busq,setBusq]=useState("");
+  const [fPos,setFPos]=useState("");
+  const [fSt,setFSt]=useState("");
+  const [fEtq,setFEtq]=useState("");
+  const [modal,setModal]=useState(false);
+  const [perfil,setPerfil]=useState(null);
+  const [form,setForm]=useState({});
+  const [obsText,setObsText]=useState("");
+  const [videoUrl,setVideoUrl]=useState("");
+  const talentos=data.talentos||[];
+  const filtrados=talentos.filter(t=>{
+    if(busq&&!t.nombre.toLowerCase().includes(busq.toLowerCase())&&!(t.equipo||"").toLowerCase().includes(busq.toLowerCase()))return false;
+    if(fPos&&t.posicion!==fPos)return false;
+    if(fSt&&(t.pipeline||"radar")!==fSt)return false;
+    if(fEtq&&!(t.etiquetas||[]).includes(fEtq))return false;
     return true;
   });
-  const add = () => {
-    if (!form.nombre||!form.posicion) return;
-    setData(d=>({...d,talentos:[...(d.talentos||[]),{id:uid(),nombre:form.nombre,posicion:form.posicion,equipo:form.equipo||"",edad:form.edad||"",liga:form.liga||"",notas:form.notas||"",pipeline:"radar",fecha:hoy(),historial:[]}]}));
-    setModal(false); setForm({});
+  const add=()=>{
+    if(!form.nombre||!form.posicion)return;
+    const nuevo={id:uid(),nombre:form.nombre,posicion:form.posicion,equipo:form.equipo||"",edad:form.edad||"",liga:form.liga||"",nacionalidad:form.nacionalidad||"",altura:form.altura||"",peso:form.peso||"",pieHabil:form.pieHabil||"",valorMercado:form.valorMercado||"",notas:form.notas||"",pipeline:"radar",fecha:hoy(),ultimaObservacion:hoy(),historial:[{id:uid(),fecha:hoy(),texto:"Jugador agregado al sistema.",tipo:"sistema"}],etiquetas:[],videos:[]};
+    setData(d=>({...d,talentos:[...(d.talentos||[]),nuevo]}));
+    setModal(false);setForm({});
   };
-  const updPipe = (id, st) => setData(d=>({...d,talentos:(d.talentos||[]).map(t=>t.id===id?{...t,pipeline:st}:t)}));
-  const del = id => setData(d=>({...d,talentos:(d.talentos||[]).filter(t=>t.id!==id)}));
-  return (
+  const updPipe=(id,st)=>{setData(d=>({...d,talentos:(d.talentos||[]).map(t=>t.id===id?{...t,pipeline:st,historial:[...(t.historial||[]),{id:uid(),fecha:hoy(),texto:"Estado: "+PIPE_ST.find(s=>s.id===st)?.label,tipo:"estado"}]}:t)}));};
+  const toggleEtq=(tid,eid)=>{setData(d=>({...d,talentos:(d.talentos||[]).map(t=>{if(t.id!==tid)return t;const etqs=t.etiquetas||[];return{...t,etiquetas:etqs.includes(eid)?etqs.filter(e=>e!==eid):[...etqs,eid]};})})  );};
+  const addObs=(tid)=>{if(!obsText.trim())return;setData(d=>({...d,talentos:(d.talentos||[]).map(t=>t.id===tid?{...t,ultimaObservacion:hoy(),historial:[...(t.historial||[]),{id:uid(),fecha:hoy(),texto:obsText.trim(),tipo:"observacion"}]}:t)}));setObsText("");};
+  const addVideo=(tid)=>{const ytId=getYTId(videoUrl);if(!ytId&&!videoUrl.trim())return;setData(d=>({...d,talentos:(d.talentos||[]).map(t=>t.id===tid?{...t,videos:[...(t.videos||[]),{id:uid(),url:videoUrl.trim(),ytId,fecha:hoy()}]}:t)}));setVideoUrl("");};
+  const delVideo=(tid,vid)=>{setData(d=>({...d,talentos:(d.talentos||[]).map(t=>t.id===tid?{...t,videos:(t.videos||[]).filter(v=>v.id!==vid)}:t)}));};
+  const del=(id)=>{if(perfil?.id===id)setPerfil(null);setData(d=>({...d,talentos:(d.talentos||[]).filter(t=>t.id!==id)}));};
+  const talentoPerfil=perfil?talentos.find(t=>t.id===perfil.id):null;
+  const totalPrioridad=talentos.filter(t=>(t.etiquetas||[]).includes("prioridad")).length;
+  const totalSeguimiento=talentos.filter(t=>(t.etiquetas||[]).includes("seguimiento")).length;
+  const totalRecomendado=talentos.filter(t=>(t.etiquetas||[]).includes("recomendado")).length;
+  return(<div style={{display:"grid",gridTemplateColumns:talentoPerfil?"1fr 420px":"1fr",gap:16,alignItems:"start"}}>
     <div>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22,flexWrap:"wrap",gap:12}}>
-        <div>
-          <div style={{fontWeight:700,color:"#eef2f6",fontSize:18}}>🔍 Base de Datos de Talentos</div>
-          <div style={{color:"#4a6070",fontSize:13,marginTop:2}}>{talentos.length} jugadores observados</div>
-        </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:10}}>
+        <div><div style={{fontWeight:800,color:"#eef2f6",fontSize:19}}>🔭 Base de Talentos</div><div style={{color:"#4a6070",fontSize:12,marginTop:2}}>{talentos.length} jugadores observados</div></div>
         <button style={BG} onClick={()=>setModal(true)}>+ Agregar Talento</button>
       </div>
-      <div style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
-        <input style={{...I,flex:1,minWidth:200}} placeholder="🔍 Buscar por nombre o equipo..." value={busq} onChange={e=>setBusq(e.target.value)}/>
-        <select style={{...I,width:"auto"}} value={fPos} onChange={e=>setFPos(e.target.value)}>
-          <option value="">Todas las posiciones</option>
-          {Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}
-        </select>
-        <select style={{...I,width:"auto"}} value={fSt} onChange={e=>setFSt(e.target.value)}>
-          <option value="">Todos los estados</option>
-          {PIPE_ST.map(s=><option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}
-        </select>
+      {talentos.length>0&&(<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}}>
+        {[{l:"Total",v:talentos.length,c:"#00e87a"},{l:"Prioridad",v:totalPrioridad,c:"#ef4444"},{l:"Seguimiento",v:totalSeguimiento,c:"#3b82f6"},{l:"Recomendados",v:totalRecomendado,c:"#00a855"}].map(({l,v,c})=>(<div key={l} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:10,padding:"10px 12px"}}><div style={{fontSize:10,color:"#4a6070",fontWeight:600}}>{l}</div><div style={{fontSize:22,fontWeight:800,color:c}}>{v}</div></div>))}
+      </div>)}
+      <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+        <input style={{...I,flex:1,minWidth:180}} placeholder="🔍 Buscar..." value={busq} onChange={e=>setBusq(e.target.value)}/>
+        <select style={{...I,width:"auto"}} value={fPos} onChange={e=>setFPos(e.target.value)}><option value="">Todas posiciones</option>{Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select>
+        <select style={{...I,width:"auto"}} value={fSt} onChange={e=>setFSt(e.target.value)}><option value="">Todos estados</option>{PIPE_ST.map(s=><option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}</select>
+        <select style={{...I,width:"auto"}} value={fEtq} onChange={e=>setFEtq(e.target.value)}><option value="">Todas etiquetas</option>{ETIQUETAS.map(e=><option key={e.id} value={e.id}>{e.icon} {e.label}</option>)}</select>
       </div>
-      {filtrados.length===0 && <div style={{textAlign:"center",padding:48,color:"#4a6070"}}><div style={{fontSize:48,marginBottom:12}}>🔍</div>{talentos.length===0?"Agrega tu primer talento observado":"Sin resultados para los filtros seleccionados"}</div>}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14}}>
-        {filtrados.map(t=>{
-          const pd = POS[t.posicion]; const st = PIPE_ST.find(s=>s.id===(t.pipeline||"radar"));
-          return (
-            <div key={t.id} style={{background:"rgba(255,255,255,0.03)",borderRadius:16,border:`1px solid ${st?.color||"#334155"}22`,padding:18}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.03)"}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
-                <div style={{display:"flex",alignItems:"center",gap:10}}>
-                  <div style={{width:40,height:40,borderRadius:11,background:`${pd?.color||"#334155"}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{pd?.icon||"⚽"}</div>
-                  <div>
-                    <div style={{fontWeight:700,color:"#eef2f6",fontSize:14}}>{t.nombre}</div>
-                    <div style={{color:"#4a6070",fontSize:11,marginTop:1}}>{t.posicion}{t.edad?` · ${t.edad}a`:""}</div>
-                  </div>
-                </div>
-                <button onClick={()=>del(t.id)} style={{background:"none",border:"none",color:"#ef444455",cursor:"pointer",fontSize:14}}>🗑</button>
+      {filtrados.length===0&&(<div style={{textAlign:"center",padding:48,color:"#4a6070"}}><div style={{fontSize:48,marginBottom:12}}>🔭</div>{talentos.length===0?"Agrega tu primer talento observado":"Sin resultados con estos filtros"}</div>)}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+        {filtrados.map(t=>{const pd=POS[t.posicion];const st=PIPE_ST.find(s=>s.id===(t.pipeline||"radar"));const etqs=(t.etiquetas||[]).map(e=>ETIQUETAS.find(x=>x.id===e)).filter(Boolean);const isSel=talentoPerfil?.id===t.id;
+          return(<div key={t.id} style={{background:isSel?"rgba(0,232,122,0.06)":"rgba(255,255,255,0.03)",borderRadius:14,border:"1px solid "+(isSel?"rgba(0,232,122,0.3)":(st?.color+"22")||"#334155"),padding:16,cursor:"pointer",transition:"all .15s"}} onClick={()=>setPerfil(isSel?null:t)}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:42,height:42,borderRadius:12,background:(pd?.color||"#334155")+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>{pd?.icon||"⚽"}</div>
+                <div><div style={{fontWeight:700,color:"#eef2f6",fontSize:14}}>{t.nombre}</div><div style={{color:"#4a6070",fontSize:11}}>{t.posicion}{t.edad?" · "+t.edad+"a":""}</div></div>
               </div>
-              {t.equipo && <div style={{color:"#4a6070",fontSize:12,marginBottom:8}}>🏟 {t.equipo}{t.liga?` · ${t.liga}`:""}</div>}
-              {t.notas && <div style={{color:"#607080",fontSize:12,marginBottom:10,lineHeight:1.5,background:"rgba(255,255,255,0.03)",borderRadius:7,padding:"6px 9px"}}>{t.notas}</div>}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10}}>
-                <Bdg color={st?.color||"#64748b"}>{st?.icon} {st?.label}</Bdg>
-                <select value={t.pipeline||"radar"} onChange={e=>updPipe(t.id,e.target.value)} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:7,padding:"3px 8px",color:"#94a3b8",fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
-                  {PIPE_ST.map(s=><option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}
-                </select>
-              </div>
+              <button onClick={e=>{e.stopPropagation();del(t.id);}} style={{background:"none",border:"none",color:"#ef444455",cursor:"pointer",fontSize:13}}>🗑</button>
             </div>
-          );
+            {t.equipo&&<div style={{color:"#4a6070",fontSize:11,marginBottom:8}}>🏟 {t.equipo}{t.liga?" · "+t.liga:""}</div>}
+            {etqs.length>0&&(<div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>{etqs.map(e=>(<span key={e.id} style={{background:e.color+"18",color:e.color,border:"1px solid "+e.color+"33",borderRadius:5,padding:"2px 7px",fontSize:10,fontWeight:700}}>{e.icon} {e.label}</span>))}</div>)}
+            {(t.videos||[]).length>0&&<div style={{color:"#4a6070",fontSize:11,marginBottom:6}}>🎬 {t.videos.length} video{t.videos.length!==1?"s":""}</div>}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
+              <Bdg color={st?.color||"#64748b"}>{st?.icon} {st?.label}</Bdg>
+              <div style={{fontSize:10,color:"#334155"}}>{t.ultimaObservacion||t.fecha}</div>
+            </div>
+          </div>);
         })}
       </div>
-      {modal && (
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setModal(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#07111a",border:"1px solid rgba(255,255,255,0.1)",borderRadius:18,padding:28,width:360,maxWidth:"92vw"}}>
-            <div style={{fontWeight:700,color:"#eef2f6",fontSize:16,marginBottom:18}}>🔭 Agregar Talento Observado</div>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              <input style={I} placeholder="Nombre del jugador *" value={form.nombre||""} onChange={e=>setForm(f=>({...f,nombre:e.target.value}))}/>
-              <select style={I} value={form.posicion||""} onChange={e=>setForm(f=>({...f,posicion:e.target.value}))}>
-                <option value="">Seleccionar posición *</option>
-                {Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}
-              </select>
-              <input style={I} placeholder="Equipo actual" value={form.equipo||""} onChange={e=>setForm(f=>({...f,equipo:e.target.value}))}/>
-              <input style={I} placeholder="Liga / Categoría" value={form.liga||""} onChange={e=>setForm(f=>({...f,liga:e.target.value}))}/>
-              <input style={I} placeholder="Edad" type="number" value={form.edad||""} onChange={e=>setForm(f=>({...f,edad:e.target.value}))}/>
-              <textarea style={{...I,resize:"vertical",minHeight:70}} placeholder="Notas del ojeador..." value={form.notas||""} onChange={e=>setForm(f=>({...f,notas:e.target.value}))}/>
-              <div style={{display:"flex",gap:8,marginTop:4}}>
-                <button style={BG} onClick={add}>Agregar</button>
-                <button style={BN} onClick={()=>setModal(false)}>Cancelar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
+    {talentoPerfil&&(()=>{const t=talentoPerfil;const pd=POS[t.posicion];const st=PIPE_ST.find(s=>s.id===(t.pipeline||"radar"));
+      return(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(0,232,122,0.15)",borderRadius:16,padding:18,position:"sticky",top:20}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{width:54,height:54,borderRadius:14,background:(pd?.color||"#334155")+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>{pd?.icon||"⚽"}</div>
+            <div><div style={{fontWeight:800,color:"#eef2f6",fontSize:16}}>{t.nombre}</div><div style={{color:"#4a6070",fontSize:12,marginTop:2}}>{t.posicion}</div><Bdg color={st?.color||"#64748b"} style={{marginTop:4}}>{st?.icon} {st?.label}</Bdg></div>
+          </div>
+          <button onClick={()=>setPerfil(null)} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:7,padding:"4px 10px",color:"#64748b",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>✕</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:14}}>
+          {[["🎂","Edad",t.edad?t.edad+" años":"—"],["🌍","Nac.",t.nacionalidad||"—"],["🏟","Equipo",t.equipo||"—"],["🏆","Liga",t.liga||"—"],["📏","Altura",t.altura?t.altura+"cm":"—"],["⚖️","Peso",t.peso?t.peso+"kg":"—"],["🦶","Pie",t.pieHabil||"—"],["💰","Valor",t.valorMercado||"—"]].map(([ic,lb,v])=>(<div key={lb} style={{background:"rgba(255,255,255,0.03)",borderRadius:8,padding:"6px 10px",display:"flex",gap:6,alignItems:"center"}}><span style={{fontSize:13}}>{ic}</span><div><div style={{fontSize:9,color:"#4a6070",fontWeight:600}}>{lb}</div><div style={{fontSize:11,color:"#eef2f6",fontWeight:600}}>{v}</div></div></div>))}
+        </div>
+        <div style={{marginBottom:14}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:7,letterSpacing:.5}}>ETIQUETAS</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{ETIQUETAS.map(e=>{const active=(t.etiquetas||[]).includes(e.id);return(<button key={e.id} onClick={()=>toggleEtq(t.id,e.id)} style={{background:active?e.color+"22":"rgba(255,255,255,0.04)",color:active?e.color:"#475569",border:"1px solid "+(active?e.color+"55":"rgba(255,255,255,0.08)"),borderRadius:7,padding:"4px 9px",fontSize:11,fontWeight:active?700:400,cursor:"pointer",fontFamily:"inherit"}}>{e.icon} {e.label}</button>);})}</div></div>
+        <div style={{marginBottom:14}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:7,letterSpacing:.5}}>ESTADO PIPELINE</div><select style={{...I,width:"100%"}} value={t.pipeline||"radar"} onChange={e=>updPipe(t.id,e.target.value)}>{PIPE_ST.map(s=><option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}</select></div>
+        <div style={{marginBottom:14}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:7,letterSpacing:.5}}>VIDEOS ({(t.videos||[]).length})</div>
+          {(t.videos||[]).map(v=>(<div key={v.id} style={{marginBottom:8}}>{v.ytId?(<div style={{position:"relative",paddingBottom:"56.25%",borderRadius:8,overflow:"hidden",background:"#000"}}><iframe src={"https://www.youtube.com/embed/"+v.ytId} style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",border:"none"}} allowFullScreen title="Video"/></div>):(<div style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"8px 10px",fontSize:11,color:"#64748b",display:"flex",justifyContent:"space-between"}}><span>🎬 {v.url.substring(0,35)}...</span><a href={v.url} target="_blank" rel="noreferrer" style={{color:"#3b82f6",fontSize:10}}>Ver</a></div>)}<div style={{display:"flex",justifyContent:"space-between",marginTop:3}}><span style={{fontSize:10,color:"#334155"}}>{v.fecha}</span><button onClick={()=>delVideo(t.id,v.id)} style={{background:"none",border:"none",color:"#ef444455",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>🗑 Eliminar</button></div></div>))}
+          <div style={{display:"flex",gap:6,marginTop:6}}><input style={{...I,flex:1,fontSize:11}} placeholder="URL YouTube..." value={videoUrl} onChange={e=>setVideoUrl(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addVideo(t.id)}/><button onClick={()=>addVideo(t.id)} style={{...BG,padding:"6px 12px",fontSize:11}}>+ Video</button></div>
+        </div>
+        <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:7,letterSpacing:.5}}>HISTORIAL DE OBSERVACIONES</div>
+          <div style={{maxHeight:200,overflowY:"auto",marginBottom:8}}>{[...(t.historial||[])].reverse().map(h=>(<div key={h.id} style={{padding:"7px 10px",borderLeft:"2px solid "+(h.tipo==="observacion"?"#00e87a":h.tipo==="estado"?"#3b82f6":"#334155"),marginBottom:6,background:"rgba(255,255,255,0.02)",borderRadius:"0 6px 6px 0"}}><div style={{fontSize:11,color:"#eef2f6",lineHeight:1.5}}>{h.texto}</div><div style={{fontSize:9,color:"#334155",marginTop:2}}>{h.fecha}</div></div>))}</div>
+          <div style={{display:"flex",gap:6}}><input style={{...I,flex:1,fontSize:11}} placeholder="Nueva observación..." value={obsText} onChange={e=>setObsText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addObs(t.id)}/><button onClick={()=>addObs(t.id)} style={{...BG,padding:"6px 12px",fontSize:11}}>✓</button></div>
+        </div>
+      </div>);
+    })()}
+    {modal&&(<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setModal(false)}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#07111a",border:"1px solid rgba(255,255,255,0.1)",borderRadius:18,padding:28,width:440,maxWidth:"94vw",maxHeight:"90vh",overflowY:"auto"}}>
+        <div style={{fontWeight:800,color:"#eef2f6",fontSize:17,marginBottom:18}}>🔭 Agregar Talento Observado</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <div style={{gridColumn:"1/-1"}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>NOMBRE *</div><input style={I} placeholder="Nombre completo" value={form.nombre||""} onChange={e=>setForm(f=>({...f,nombre:e.target.value}))}/></div>
+          <div style={{gridColumn:"1/-1"}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>POSICIÓN *</div><select style={I} value={form.posicion||""} onChange={e=>setForm(f=>({...f,posicion:e.target.value}))}><option value="">Seleccionar posición</option>{Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select></div>
+          {[["equipo","Equipo actual"],["liga","Liga / Categoría"],["edad","Edad"],["nacionalidad","Nacionalidad"],["altura","Altura (cm)"],["peso","Peso (kg)"]].map(([k,label])=>(<div key={k}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>{label.toUpperCase()}</div><input style={I} value={form[k]||""} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))}/></div>))}
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>PIE HÁBIL</div><select style={I} value={form.pieHabil||""} onChange={e=>setForm(f=>({...f,pieHabil:e.target.value}))}><option value="">—</option><option>Derecho</option><option>Zurdo</option><option>Ambidiestro</option></select></div>
+          <div><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>VALOR MERCADO</div><input style={I} placeholder="€ estimado" value={form.valorMercado||""} onChange={e=>setForm(f=>({...f,valorMercado:e.target.value}))}/></div>
+          <div style={{gridColumn:"1/-1"}}><div style={{fontSize:10,color:"#4a6070",fontWeight:700,marginBottom:4}}>NOTAS DEL OJEADOR</div><textarea style={{...I,resize:"vertical",minHeight:80}} placeholder="Observaciones iniciales..." value={form.notas||""} onChange={e=>setForm(f=>({...f,notas:e.target.value}))}/></div>
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:16}}><button style={BG} onClick={add}>Agregar Talento</button><button style={BN} onClick={()=>{setModal(false);setForm({});}}>Cancelar</button></div>
+      </div>
+    </div>)}
+  </div>);
 }
 
-// ─── PIPELINE ─────────────────────────────────────────────────────────────────
-function ModPipeline({data, setData}) {
-  const talentos = data.talentos||[];
-  const move = (id, dir) => {
-    const t = talentos.find(x=>x.id===id);
-    const idx = PIPE_ST.findIndex(s=>s.id===(t?.pipeline||"radar"));
-    const ni = Math.max(0, Math.min(PIPE_ST.length-1, idx+dir));
-    setData(d=>({...d,talentos:(d.talentos||[]).map(x=>x.id===id?{...x,pipeline:PIPE_ST[ni].id}:x)}));
-  };
-  const grouped = PIPE_ST.reduce((acc,s)=>{ acc[s.id]=talentos.filter(t=>(t.pipeline||"radar")===s.id); return acc; },{});
-  return (
-    <div>
-      <div style={{marginBottom:22}}>
-        <div style={{fontWeight:700,color:"#eef2f6",fontSize:18}}>📋 Pipeline de Fichajes</div>
-        <div style={{color:"#4a6070",fontSize:13,marginTop:2}}>{talentos.length} jugadores en seguimiento</div>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,alignItems:"start"}}>
-        {PIPE_ST.map(stage=>{
-          const items = grouped[stage.id]||[];
-          return (
-            <div key={stage.id} style={{background:"rgba(255,255,255,0.02)",borderRadius:14,border:`1px solid ${stage.color}22`,overflow:"hidden"}}>
-              <div style={{padding:"12px 14px",borderBottom:`1px solid ${stage.color}22`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div style={{color:stage.color,fontWeight:700,fontSize:13}}>{stage.icon} {stage.label}</div>
-                <div style={{background:`${stage.color}22`,color:stage.color,borderRadius:100,width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700}}>{items.length}</div>
-              </div>
-              <div style={{padding:10,display:"flex",flexDirection:"column",gap:8,minHeight:120}}>
-                {items.length===0 && <div style={{color:"#334155",fontSize:12,textAlign:"center",padding:"16px 0"}}>Vacío</div>}
-                {items.map(t=>{
-                  const pd = POS[t.posicion];
-                  return (
-                    <div key={t.id} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:12,border:`1px solid ${stage.color}18`}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                        <span style={{fontSize:16}}>{pd?.icon||"⚽"}</span>
-                        <div>
-                          <div style={{fontWeight:700,color:"#eef2f6",fontSize:12}}>{t.nombre}</div>
-                          <div style={{color:"#4a6070",fontSize:10}}>{t.posicion}{t.edad?` · ${t.edad}a`:""}</div>
-                        </div>
-                      </div>
-                      {t.equipo && <div style={{color:"#4a6070",fontSize:10,marginBottom:6}}>🏟 {t.equipo}</div>}
-                      {t.notas && <div style={{color:"#607080",fontSize:10,marginBottom:8,lineHeight:1.4}}>{t.notas.slice(0,55)}{t.notas.length>55?"...":""}</div>}
-                      <div style={{display:"flex",gap:5,justifyContent:"flex-end"}}>
-                        {stage.id!=="radar" && <button onClick={()=>move(t.id,-1)} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6,padding:"3px 8px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>←</button>}
-                        {stage.id!=="fichado" && <button onClick={()=>move(t.id,1)} style={{background:`${stage.color}18`,border:`1px solid ${stage.color}33`,borderRadius:6,padding:"3px 8px",color:stage.color,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>→</button>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {talentos.length===0 && <div style={{textAlign:"center",padding:48,color:"#4a6070"}}><div style={{fontSize:48,marginBottom:12}}>📋</div>Agrega talentos desde el módulo Talentos para comenzar el pipeline</div>}
+// ─── PIPELINE v2 ──────────────────────────────────────────────────
+function ModPipeline({data,setData}){
+  const talentos=data.talentos||[];
+  const [dragId,setDragId]=useState(null);
+  const [dragOver,setDragOver]=useState(null);
+  const [notif,setNotif]=useState(null);
+  const moverA=(id,stageId)=>{const t=talentos.find(x=>x.id===id);if(!t||t.pipeline===stageId)return;const stLabel=PIPE_ST.find(s=>s.id===stageId)?.label||stageId;setData(d=>({...d,talentos:(d.talentos||[]).map(x=>x.id===id?{...x,pipeline:stageId,ultimaObservacion:hoy(),historial:[...(x.historial||[]),{id:uid(),fecha:hoy(),texto:"Movido a: "+stLabel,tipo:"estado"}]}:x)}));const stColor=PIPE_ST.find(s=>s.id===stageId)?.color||"#00e87a";setNotif({msg:t.nombre+" → "+stLabel,color:stColor});setTimeout(()=>setNotif(null),2500);};
+  const grouped=PIPE_ST.reduce((acc,s)=>{acc[s.id]=talentos.filter(t=>(t.pipeline||"radar")===s.id);return acc;},{});
+  const diasDesde=(fecha)=>{if(!fecha)return null;const p=fecha.split("/");if(p.length<3)return null;const d=new Date(p[2],p[1]-1,p[0]);const diff=Math.floor((Date.now()-d.getTime())/(1000*60*60*24));return diff;};
+  const alertColor=(dias)=>{if(dias===null)return null;if(dias>30)return"#ef4444";if(dias>14)return"#f59e0b";return null;};
+  return(<div>
+    {notif&&(<div style={{position:"fixed",top:20,right:20,background:notif.color,color:"#fff",padding:"10px 18px",borderRadius:10,fontWeight:700,fontSize:13,zIndex:400,boxShadow:"0 4px 20px rgba(0,0,0,0.4)",animation:"fadeIn .2s ease"}}>✓ {notif.msg}<style>{"@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}"}</style></div>)}
+    <div style={{marginBottom:18,display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:10}}>
+      <div><div style={{fontWeight:800,color:"#eef2f6",fontSize:19}}>📋 Pipeline de Fichajes</div><div style={{color:"#4a6070",fontSize:12,marginTop:2}}>{talentos.length} jugadores · Arrastra entre columnas para mover</div></div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{PIPE_ST.map(s=>{const n=(grouped[s.id]||[]).length;return n>0?(<span key={s.id} style={{background:s.color+"18",color:s.color,border:"1px solid "+s.color+"33",borderRadius:7,padding:"3px 9px",fontSize:11,fontWeight:700}}>{s.icon} {n}</span>):null;})}</div>
     </div>
-  );
+    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,alignItems:"start"}}>
+      {PIPE_ST.map(stage=>{const items=grouped[stage.id]||[];const isOver=dragOver===stage.id;
+        return(<div key={stage.id} style={{background:isOver?stage.color+"08":"rgba(255,255,255,0.02)",borderRadius:14,border:"1px solid "+(isOver?stage.color+"55":stage.color+"22"),overflow:"hidden",transition:"all .15s",minHeight:200}} onDragOver={e=>{e.preventDefault();setDragOver(stage.id);}} onDragLeave={()=>setDragOver(null)} onDrop={e=>{e.preventDefault();setDragOver(null);if(dragId)moverA(dragId,stage.id);}}>
+          <div style={{padding:"11px 13px",borderBottom:"1px solid "+stage.color+"22",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{color:stage.color,fontWeight:700,fontSize:12}}>{stage.icon} {stage.label}</div>
+            <div style={{background:stage.color+"22",color:stage.color,borderRadius:100,minWidth:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,padding:"0 6px"}}>{items.length}</div>
+          </div>
+          <div style={{padding:8,display:"flex",flexDirection:"column",gap:7,minHeight:140}}>
+            {items.length===0&&(<div style={{color:"#2a3a4a",fontSize:11,textAlign:"center",padding:"20px 8px",border:"2px dashed "+stage.color+"22",borderRadius:8,marginTop:4}}>{isOver?"Soltar aquí":"Vacío"}</div>)}
+            {items.map(t=>{const pd=POS[t.posicion];const dias=diasDesde(t.ultimaObservacion||t.fecha);const aColor=alertColor(dias);const etqs=(t.etiquetas||[]).map(e=>ETIQUETAS.find(x=>x.id===e)).filter(Boolean);
+              return(<div key={t.id} draggable onDragStart={()=>setDragId(t.id)} onDragEnd={()=>setDragId(null)} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"11px 12px",border:"1px solid "+(dragId===t.id?"rgba(0,232,122,0.4)":stage.color+"18"),cursor:"grab",opacity:dragId===t.id?0.5:1,transition:"all .1s",outline:aColor?"1px solid "+aColor+"33":"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:6}}>
+                  <span style={{fontSize:17}}>{pd?.icon||"⚽"}</span>
+                  <div style={{flex:1,minWidth:0}}><div style={{fontWeight:700,color:"#eef2f6",fontSize:12,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.nombre}</div><div style={{color:"#4a6070",fontSize:10}}>{t.posicion}{t.edad?" · "+t.edad+"a":""}</div></div>
+                </div>
+                {t.equipo&&<div style={{color:"#4a6070",fontSize:10,marginBottom:5}}>🏟 {t.equipo}</div>}
+                {etqs.length>0&&(<div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:5}}>{etqs.map(e=><span key={e.id} style={{fontSize:9,color:e.color}}>{e.icon}</span>)}</div>)}
+                {(t.videos||[]).length>0&&<div style={{color:"#4a6070",fontSize:9,marginBottom:5}}>🎬 {t.videos.length} video{t.videos.length!==1?"s":""}</div>}
+                {dias!==null&&(<div style={{fontSize:9,color:aColor||"#334155",marginBottom:6}}>{aColor&&"⚠️ "}{dias===0?"Hoy":dias===1?"Ayer":dias+"d sin observar"}</div>)}
+                <div style={{display:"flex",gap:4,justifyContent:"flex-end"}}>
+                  {stage.id!=="radar"&&(<button onClick={()=>moverA(t.id,PIPE_ST[Math.max(0,PIPE_ST.findIndex(s=>s.id===stage.id)-1)].id)} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:5,padding:"2px 7px",color:"#4a6070",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>←</button>)}
+                  {stage.id!=="fichado"&&(<button onClick={()=>moverA(t.id,PIPE_ST[Math.min(PIPE_ST.length-1,PIPE_ST.findIndex(s=>s.id===stage.id)+1)].id)} style={{background:stage.color+"18",border:"1px solid "+stage.color+"33",borderRadius:5,padding:"2px 7px",color:stage.color,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>→</button>)}
+                </div>
+              </div>);
+            })}
+          </div>
+        </div>);
+      })}
+    </div>
+    {talentos.length===0&&(<div style={{textAlign:"center",padding:48,color:"#4a6070"}}><div style={{fontSize:48,marginBottom:12}}>📋</div>Agrega talentos desde el módulo Talentos para gestionar el pipeline</div>)}
+  </div>);
+}
+
+// ─── VIDEO ANALYSIS ────────────────────────────────────────────────
+function ModVideoAnalysis(){
+  const [url,setUrl]=useState("");const [ytId,setYtId]=useState(null);const [titulo,setTitulo]=useState("");const [jugador,setJugador]=useState("");const [posicion,setPosicion]=useState("");const [contexto,setContexto]=useState("");const [analisis,setAnalisis]=useState("");const [loading,setLoading]=useState(false);const [minuto,setMinuto]=useState("");const [historial,setHistorial]=useState([]);
+  const cargarVideo=()=>{const id=getYTId(url);if(!id){alert("URL de YouTube no válida.");return;}setYtId(id);setAnalisis("");};
+  const analizarConIA=async()=>{
+    if(!ytId&&!url){alert("Carga un video primero.");return;}
+    if(!ANTHROPIC_KEY){setAnalisis("⚠️ Recarga créditos en console.anthropic.com para usar el análisis IA.");return;}
+    setLoading(true);setAnalisis("");
+    const prompt="Eres un analista de scouting profesional de fútbol de elite. Analiza este video.
+
+VIDEO ID YouTube: "+ytId+"
+"+(titulo?"TÍTULO: "+titulo+"
+":"")+(jugador?"JUGADOR: "+jugador+"
+":"")+(posicion?"POSICIÓN: "+posicion+"
+":"")+(minuto?"MINUTO CLAVE: "+minuto+"
+":"")+(contexto?"CONTEXTO: "+contexto+"
+":"")+"
+Genera un informe de scouting profesional:
+
+1. PERFIL TÉCNICO
+   - Habilidades con balón, control, regate, pase
+   - Calidad en el juego directo e indirecto
+
+2. PERFIL TÁCTICO
+   - Lectura del juego y posicionamiento
+   - Movimientos sin balón, ocupación de espacios
+   - Presión y trabajo defensivo
+
+3. PERFIL FÍSICO Y MENTAL
+   - Intensidad, velocidad y resistencia
+   - Toma de decisiones bajo presión
+   - Liderazgo y comunicación
+
+4. FORTALEZAS CLAVE (top 3)
+
+5. ÁREAS DE MEJORA (top 3)
+
+6. PROYECCIÓN
+   - Nivel de liga recomendado
+   - Rol ideal en equipo
+   - Puntuación de interés scouting: /10
+
+7. VEREDICTO DEL OJEADOR
+   ¿Vale el seguimiento? ¿Para qué tipo de club?";
+    try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});const d=await r.json();const txt=d.content?.[0]?.text||"Error al generar análisis.";setAnalisis(txt);setHistorial(h=>[{id:uid(),fecha:hoy(),jugador:jugador||"Jugador",ytId,url,analisis:txt},...h].slice(0,10));}catch(e){setAnalisis("Error: "+e.message);}
+    setLoading(false);
+  };
+  const exportarPDF=()=>{if(!analisis)return;const fecha=new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});const html="<!DOCTYPE html><html><head><meta charset='UTF-8'/><title>Análisis Video "+jugador+"</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:28px;color:#0f172a}h1{font-size:22px;font-weight:900;border-bottom:3px solid #00e87a;padding-bottom:10px}pre{white-space:pre-wrap;font-size:12px;line-height:1.8;text-align:justify}.footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;display:flex;justify-content:space-between}</style></head><body><div style='font-size:10px;color:#94a3b8;font-weight:700;letter-spacing:.5px;margin-bottom:4px'>🎬 ANÁLISIS DE VIDEO · FICHASCOUT PRO</div><h1>"+(jugador||"Análisis de Jugador")+"</h1><div style='color:#64748b;font-size:12px;margin-bottom:16px'>"+(posicion?posicion+" · ":"")+"Fecha: "+fecha+(ytId?"<br><a href='https://www.youtube.com/watch?v="+ytId+"' style='color:#3b82f6'>Ver video</a>":"")+"</div><pre>"+analisis+"</pre><div class='footer'><span>FichaScout PRO</span><span>fichascout.com · "+fecha+"</span></div></body></html>";const w=window.open("","_blank");w.document.write(html);w.document.close();setTimeout(()=>w.print(),700);};
+  return(<div>
+    <div style={{marginBottom:18}}><div style={{fontWeight:800,color:"#eef2f6",fontSize:19,marginBottom:3}}>🎬 Analizador de Video</div><div style={{color:"#4a6070",fontSize:12}}>Pega una URL de YouTube · Configura el análisis · Obtén informe de scouting con IA</div></div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+      <div>
+        <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"14px 16px",marginBottom:12}}>
+          <div style={{fontSize:11,color:"#4a6070",fontWeight:700,marginBottom:10,letterSpacing:.5}}>CARGAR VIDEO</div>
+          <div style={{display:"flex",gap:8,marginBottom:10}}><input style={{...I,flex:1}} placeholder="https://youtube.com/watch?v=..." value={url} onChange={e=>{setUrl(e.target.value);setYtId(null);}}/><button style={BG} onClick={cargarVideo}>Cargar</button></div>
+          {ytId?(<div style={{position:"relative",paddingBottom:"56.25%",borderRadius:8,overflow:"hidden",background:"#000"}}><iframe src={"https://www.youtube.com/embed/"+ytId} style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",border:"none"}} allowFullScreen title="Video"/></div>):(<div style={{background:"rgba(255,255,255,0.02)",borderRadius:8,height:160,display:"flex",alignItems:"center",justifyContent:"center",color:"#334155",fontSize:13,border:"2px dashed rgba(255,255,255,0.06)"}}>🎬 El video aparecerá aquí</div>)}
+        </div>
+        <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:"14px 16px"}}>
+          <div style={{fontSize:11,color:"#4a6070",fontWeight:700,marginBottom:10,letterSpacing:.5}}>CONFIGURAR ANÁLISIS</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div><div style={{fontSize:10,color:"#4a6070",marginBottom:3}}>TÍTULO DEL VIDEO</div><input style={I} placeholder="Ej: Highlights J. Rodríguez vs Colo Colo" value={titulo} onChange={e=>setTitulo(e.target.value)}/></div>
+            <div><div style={{fontSize:10,color:"#4a6070",marginBottom:3}}>JUGADOR A OBSERVAR</div><input style={I} placeholder="Nombre del jugador" value={jugador} onChange={e=>setJugador(e.target.value)}/></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              <div><div style={{fontSize:10,color:"#4a6070",marginBottom:3}}>POSICIÓN</div><select style={I} value={posicion} onChange={e=>setPosicion(e.target.value)}><option value="">— Posición</option>{Object.keys(POS).map(p=><option key={p} value={p}>{POS[p].icon} {p}</option>)}</select></div>
+              <div><div style={{fontSize:10,color:"#4a6070",marginBottom:3}}>MINUTO CLAVE</div><input style={I} placeholder="Ej: 23:40" value={minuto} onChange={e=>setMinuto(e.target.value)}/></div>
+            </div>
+            <div><div style={{fontSize:10,color:"#4a6070",marginBottom:3}}>CONTEXTO ADICIONAL</div><textarea style={{...I,resize:"vertical",minHeight:60}} placeholder="Rival, importancia del partido, rol específico..." value={contexto} onChange={e=>setContexto(e.target.value)}/></div>
+            <button onClick={analizarConIA} disabled={loading} style={{width:"100%",border:"none",borderRadius:10,padding:"12px",color:"#fff",fontWeight:700,cursor:loading?"wait":"pointer",fontSize:13,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:loading?0.7:1}}>
+              {loading?<><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{animation:"spin 1s linear infinite"}}><path d="M12 2a10 10 0 0 1 10 10"/></svg>Analizando con IA...</>:"🤖 Generar Análisis de Scouting"}
+              <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div>
+        {analisis?(<div style={{background:"rgba(139,92,246,0.06)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:13,padding:16,marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <div><div style={{color:"#eef2f6",fontWeight:700,fontSize:14}}>🎬 Informe de Scouting — {jugador||"Jugador"}</div><div style={{color:"#64748b",fontSize:11,marginTop:2}}>{posicion&&posicion+" · "}{hoy()}</div></div>
+            <div style={{display:"flex",gap:7}}>
+              <span style={{background:"rgba(139,92,246,0.2)",color:"#8b5cf6",borderRadius:4,padding:"2px 8px",fontSize:10,fontWeight:700}}>FichaScout PRO</span>
+              <button onClick={exportarPDF} style={{background:"rgba(99,102,241,0.1)",border:"1px solid rgba(99,102,241,0.3)",borderRadius:6,padding:"3px 10px",color:"#818cf8",cursor:"pointer",fontSize:11,fontFamily:"inherit",fontWeight:700}}>📄 PDF</button>
+              <button onClick={()=>setAnalisis("")} style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"3px 10px",color:"#64748b",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↻</button>
+            </div>
+          </div>
+          <div style={{color:"#c4b5fd",lineHeight:1.9,fontSize:12.5,whiteSpace:"pre-wrap",maxHeight:520,overflowY:"auto"}}>{analisis}</div>
+        </div>):(<div style={{background:"rgba(255,255,255,0.02)",border:"2px dashed rgba(255,255,255,0.07)",borderRadius:13,padding:40,textAlign:"center",color:"#334155",marginBottom:12}}><div style={{fontSize:42,marginBottom:12}}>🤖</div><div style={{fontSize:14,color:"#475569",marginBottom:6}}>El análisis aparecerá aquí</div><div style={{fontSize:12,color:"#334155"}}>Carga un video y presiona<br/>«Generar Análisis de Scouting»</div></div>)}
+        {historial.length>0&&(<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:13,padding:14}}>
+          <div style={{fontSize:11,color:"#4a6070",fontWeight:700,marginBottom:10,letterSpacing:.5}}>HISTORIAL DE ANÁLISIS</div>
+          {historial.map(h=>(<div key={h.id} onClick={()=>{setAnalisis(h.analisis);setYtId(h.ytId);setUrl(h.url);setJugador(h.jugador);}} style={{padding:"8px 10px",background:"rgba(255,255,255,0.03)",borderRadius:8,marginBottom:6,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.03)"}><div><div style={{color:"#eef2f6",fontSize:12,fontWeight:600}}>🎬 {h.jugador}</div><div style={{color:"#334155",fontSize:10,marginTop:1}}>{h.fecha}</div></div><span style={{color:"#3b82f6",fontSize:11}}>Ver →</span></div>))}
+        </div>)}
+      </div>
+    </div>
+  </div>);
 }
 
 // ─── RIVAL ────────────────────────────────────────────────────────────────────
@@ -1841,6 +1956,7 @@ const NAV = [
   {id:"comparador",icon:"⚖️", label:"Comparar Jugadores",  roles:["scout","tecnico","club"], badge:"PRO"},
   {id:"rival",     icon:"⚔️", label:"Análisis Rival",      roles:["tecnico","club","scout"]},
   {id:"tactico",   icon:"🗺️", label:"Análisis Táctico",    roles:["tecnico","club","scout"]},
+  {id:"videoanalysis",icon:"🎬", label:"Análisis Video",       roles:["scout","club","tecnico"]},
   {id:"benchmarks",icon:"📊", label:"Benchmarks SA",       roles:["scout","tecnico","club"]},
 ];
 
@@ -1952,6 +2068,7 @@ export default function FichaScoutApp() {
           {tab==="basepro"    && <BasePro/>}
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
+          {tab==="videoanalysis" && <ModVideoAnalysis/>}
         </div>
       </div>
     </div>
