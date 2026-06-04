@@ -928,10 +928,6 @@ function ModPlantilla({data}) {
 
 // ─── TALENTOS v2 ──────────────────────────────────────────────────
 const ETIQUETAS=[{id:"proyeccion",label:"Proyección Alta",icon:"🌟",color:"#f59e0b"},{id:"seguimiento",label:"Seguimiento",icon:"👁",color:"#3b82f6"},{id:"prioridad",label:"Prioridad",icon:"🔴",color:"#ef4444"},{id:"recomendado",label:"Recomendado",icon:"✅",color:"#00a855"}];
-const PIPE_ST=[{id:"radar",label:"En Radar",icon:"🔭",color:"#64748b"},{id:"contactado",label:"Contactado",icon:"📞",color:"#3b82f6"},{id:"negociando",label:"Negociando",icon:"🤝",color:"#f59e0b"},{id:"preacuerdo",label:"Pre-Acuerdo",icon:"📄",color:"#a855f7"},{id:"fichado",label:"Fichado",icon:"✅",color:"#00a855"}];
-function uid(){return Math.random().toString(36).slice(2,9);}
-function hoy(){const d=new Date();return d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0")+"/"+d.getFullYear();}
-function getYTId(url){if(!url)return null;const m=url.match(/(?:youtu\.be\/|v=|\/embed\/)([^?&\n]{11})/);return m?m[1]:null;}
 
 function ModTalentos({data,setData}){
   const [busq,setBusq]=useState("");
@@ -1102,43 +1098,9 @@ function ModVideoAnalysis(){
     if(!ytId&&!url){alert("Carga un video primero.");return;}
     if(!ANTHROPIC_KEY){setAnalisis("⚠️ Recarga créditos en console.anthropic.com para usar el análisis IA.");return;}
     setLoading(true);setAnalisis("");
-    const prompt="Eres un analista de scouting profesional de fútbol de elite. Analiza este video.
-
-VIDEO ID YouTube: "+ytId+"
-"+(titulo?"TÍTULO: "+titulo+"
-":"")+(jugador?"JUGADOR: "+jugador+"
-":"")+(posicion?"POSICIÓN: "+posicion+"
-":"")+(minuto?"MINUTO CLAVE: "+minuto+"
-":"")+(contexto?"CONTEXTO: "+contexto+"
-":"")+"
-Genera un informe de scouting profesional:
-
-1. PERFIL TÉCNICO
-   - Habilidades con balón, control, regate, pase
-   - Calidad en el juego directo e indirecto
-
-2. PERFIL TÁCTICO
-   - Lectura del juego y posicionamiento
-   - Movimientos sin balón, ocupación de espacios
-   - Presión y trabajo defensivo
-
-3. PERFIL FÍSICO Y MENTAL
-   - Intensidad, velocidad y resistencia
-   - Toma de decisiones bajo presión
-   - Liderazgo y comunicación
-
-4. FORTALEZAS CLAVE (top 3)
-
-5. ÁREAS DE MEJORA (top 3)
-
-6. PROYECCIÓN
-   - Nivel de liga recomendado
-   - Rol ideal en equipo
-   - Puntuación de interés scouting: /10
-
-7. VEREDICTO DEL OJEADOR
-   ¿Vale el seguimiento? ¿Para qué tipo de club?";
-    try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});const d=await r.json();const txt=d.content?.[0]?.text||"Error al generar análisis.";setAnalisis(txt);setHistorial(h=>[{id:uid(),fecha:hoy(),jugador:jugador||"Jugador",ytId,url,analisis:txt},...h].slice(0,10));}catch(e){setAnalisis("Error: "+e.message);}
+    const prompt="Eres un analista de scouting profesional de fútbol.\n\n"
+      +"VIDEO: "+ytId+"\n"+(titulo?"TÍTULO: "+titulo+"\n":"")+(jugador?"JUGADOR: "+jugador+"\n":"")+(posicion?"POSICIÓN: "+posicion+"\n":"")+(minuto?"MINUTO: "+minuto+"\n":"")+(contexto?"CONTEXTO: "+contexto+"\n":"")
+      +"\nInforme profesional:\n\n1. PERFIL TÉCNICO\n   Habilidades, control, pase, regate\n\n2. PERFIL TÁCTICO\n   Lectura, posicionamiento, movimientos sin balón\n\n3. PERFIL FÍSICO\n   Intensidad, velocidad, toma de decisiones\n\n4. FORTALEZAS CLAVE (top 3)\n\n5. ÁREAS DE MEJORA (top 3)\n\n6. PROYECCIÓN\n   Nivel liga recomendado, rol ideal, puntuación /10\n\n7. VEREDICTO DEL OJEADOR";
     setLoading(false);
   };
   const exportarPDF=()=>{if(!analisis)return;const fecha=new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});const html="<!DOCTYPE html><html><head><meta charset='UTF-8'/><title>Análisis Video "+jugador+"</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:28px;color:#0f172a}h1{font-size:22px;font-weight:900;border-bottom:3px solid #00e87a;padding-bottom:10px}pre{white-space:pre-wrap;font-size:12px;line-height:1.8;text-align:justify}.footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;display:flex;justify-content:space-between}</style></head><body><div style='font-size:10px;color:#94a3b8;font-weight:700;letter-spacing:.5px;margin-bottom:4px'>🎬 ANÁLISIS DE VIDEO · FICHASCOUT PRO</div><h1>"+(jugador||"Análisis de Jugador")+"</h1><div style='color:#64748b;font-size:12px;margin-bottom:16px'>"+(posicion?posicion+" · ":"")+"Fecha: "+fecha+(ytId?"<br><a href='https://www.youtube.com/watch?v="+ytId+"' style='color:#3b82f6'>Ver video</a>":"")+"</div><pre>"+analisis+"</pre><div class='footer'><span>FichaScout PRO</span><span>fichascout.com · "+fecha+"</span></div></body></html>";const w=window.open("","_blank");w.document.write(html);w.document.close();setTimeout(()=>w.print(),700);};
