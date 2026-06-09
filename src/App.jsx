@@ -1921,6 +1921,7 @@ const NAV = [
   {id:"tactico",   icon:"🗺️", label:"Análisis Táctico",    roles:["tecnico","club","scout"]},
   {id:"videoanalysis",icon:"🎬", label:"Análisis Video",       roles:["scout","club","tecnico"]},
   {id:"benchmarks",icon:"📊", label:"Benchmarks SA",       roles:["scout","tecnico","club"]},
+  {id:"radaroculto",icon:"📡", label:"Radar Oculto",        roles:["scout","tecnico","club"]},
 ];
 
 export default function FichaScoutApp() {
@@ -2032,7 +2033,7 @@ export default function FichaScoutApp() {
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
           {tab==="videoanalysis" && <ModVideoAnalysis/>}
-     {tab==="radar" && <RadarOculto datos={data} />}
+     {tab==="radaroculto" && <RadarOculto datos={data} />}
         </div>
       </div>
     </div>
