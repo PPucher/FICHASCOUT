@@ -1,3 +1,4 @@
+import RadarOculto from "./RadarOculto.jsx";
 import BasePro from "./BasePro.jsx";
 import ComparadorPro from "./ComparadorPro.jsx";
 import { generarPDF } from "./PDFExport.jsx";
@@ -2031,6 +2032,7 @@ export default function FichaScoutApp() {
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
           {tab==="videoanalysis" && <ModVideoAnalysis/>}
+     {tab==="radar" && <RadarOculto datos={data} />}
         </div>
       </div>
     </div>
