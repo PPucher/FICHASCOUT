@@ -1,4 +1,5 @@
 import RadarOculto from "./RadarOculto.jsx";
+import BuscarReemplazo from "./BuscarReemplazo.jsx";
 import BasePro from "./BasePro.jsx";
 import ComparadorPro from "./ComparadorPro.jsx";
 import { generarPDF } from "./PDFExport.jsx";
@@ -1922,6 +1923,7 @@ const NAV = [
   {id:"videoanalysis",icon:"🎬", label:"Análisis Video",       roles:["scout","club","tecnico"]},
   {id:"benchmarks",icon:"📊", label:"Benchmarks SA",       roles:["scout","tecnico","club"]},
   {id:"radaroculto",icon:"📡", label:"Radar Oculto",        roles:["scout","tecnico","club"]},
+  {id:"buscarreemplazo",icon:"🔁", label:"Buscar Reemplazo",    roles:["scout","tecnico","club"]},
 ];
 
 export default function FichaScoutApp() {
@@ -2034,6 +2036,7 @@ export default function FichaScoutApp() {
           {tab==="benchmarks" && <ModBenchmarks/>}
           {tab==="videoanalysis" && <ModVideoAnalysis/>}
      {tab==="radaroculto" && <RadarOculto datos={data} />}
+     {tab==="buscarreemplazo" && <BuscarReemplazo datos={data} />}
         </div>
       </div>
     </div>
