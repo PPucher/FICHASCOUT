@@ -12,7 +12,6 @@ const I = { background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,
 const BG = { border:"none", borderRadius:10, padding:"10px 22px", color:"#000", fontWeight:700, cursor:"pointer", fontSize:13, background:"linear-gradient(135deg,#00e87a,#00c96a)", fontFamily:"inherit" };
 const BN = { background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"9px 18px", color:"#94a3b8", cursor:"pointer", fontWeight:600, fontSize:13, fontFamily:"inherit" };
 const BB = { border:"none", borderRadius:10, padding:"10px 22px", color:"#fff", fontWeight:700, cursor:"pointer", fontSize:13, background:"linear-gradient(135deg,#3b82f6,#1d4ed8)", fontFamily:"inherit" };
-const BR = { border:"none", borderRadius:10, padding:"10px 22px", color:"#fff", fontWeight:700, cursor:"pointer", fontSize:13, background:"linear-gradient(135deg,#ef4444,#dc2626)", fontFamily:"inherit" };
 const BP = { border:"none", borderRadius:10, padding:"10px 22px", color:"#fff", fontWeight:700, cursor:"pointer", fontSize:13, background:"linear-gradient(135deg,#8b5cf6,#7c3aed)", fontFamily:"inherit" };
 const Card = ({children, style={}}) => <div style={{background:"rgba(255,255,255,0.03)", borderRadius:16, border:"1px solid rgba(255,255,255,0.07)", padding:20, ...style}}>{children}</div>;
 const Lbl = ({children}) => <div style={{color:"#4a6070", fontSize:12, marginBottom:5, fontWeight:600, letterSpacing:.4}}>{children}</div>;
@@ -2035,8 +2034,8 @@ export default function FichaScoutApp() {
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
           {tab==="videoanalysis" && <ModVideoAnalysis/>}
-     {tab==="radaroculto" && <RadarOculto datos={data} />}
-     {tab==="buscarreemplazo" && <BuscarReemplazo datos={data} />}
+     {tab==="radaroculto" && <RadarOculto datos={dbPro?.jugadores||[]} />}
+     {tab==="buscarreemplazo" && <BuscarReemplazo datos={dbPro?.jugadores||[]} />}
         </div>
       </div>
     </div>
