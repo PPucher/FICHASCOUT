@@ -2034,8 +2034,8 @@ export default function FichaScoutApp() {
           {tab==="tactico"    && <ModTactico   data={data}/>}
           {tab==="benchmarks" && <ModBenchmarks/>}
           {tab==="videoanalysis" && <ModVideoAnalysis/>}
-     {tab==="radaroculto" && <RadarOculto datos={dbPro?.jugadores||[]} />}
-     {tab==="buscarreemplazo" && <BuscarReemplazo datos={dbPro?.jugadores||[]} />}
+     {tab==="radaroculto" && <RadarOculto datos={data?.jugadores||[]} />}
+     {tab==="buscarreemplazo" && <BuscarReemplazo datos={data?.jugadores||[]} />}
         </div>
       </div>
     </div>
