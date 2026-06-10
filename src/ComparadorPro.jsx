@@ -379,8 +379,9 @@ export default function ComparadorPro({ realPlayers=[] }){
     if(selec.length<2) return;
     setLoading(true); setIaText("");
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json"},
+      const r=await fetch("/api/claude", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
         body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1300,messages:[{role:"user",content:
           `Eres scout profesional de élite. Compara estos ${selec.length} ${posicion}es para decisión de fichaje.\n\n`+
           selec.map((j,i)=>`JUGADOR ${i+1}: ${j.nombre} | ${j.equipo} | ${j.liga} | ${j.pais||"—"} | ${j.edad||"—"}a\nPartidos:${j.stats.partidos||"—"} Min:${j.stats.minutos||"—"}' Rating:${j.stats.rating||"—"}\nGoles:${j.stats.goles||0} Asist:${j.stats.asistencias||0} Pases:${j.stats.pases_total||"—"} Tackles:${j.stats.tackles||"—"} Regates:${j.stats.regates_exito||"—"}\nNivel:${j.nivel===1?"1ª División":j.nivel===2?"2ª División":"Copa/Regional"}`).join("\n\n")+
