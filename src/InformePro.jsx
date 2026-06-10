@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 // ─── ESTILOS ─────────────────────────────────────────────────────────────────
 const Card = ({children,style={}}) => <div style={{background:"rgba(255,255,255,0.03)",borderRadius:16,border:"1px solid rgba(255,255,255,0.07)",padding:20,...style}}>{children}</div>;
@@ -129,6 +129,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   const [progreso, setProgreso] = useState("");
   const [error, setError]     = useState(null);
   const apiKey = import.meta.env.VITE_ANTHROPIC_KEY;
+  const llamandoRef = useRef(false); // Guard anti-doble-clic
   
   // Auto-load JSON if todos is empty
   useEffect(()=>{
@@ -162,14 +163,16 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   const radarData = jugador ? getDatosRadar(jugador) : {etiquetas:[],valores:[]};
 
   const generarInforme = async () => {
+    if(llamandoRef.current){console.warn("InformePro: llamada ya en curso, ignorando doble clic");return;}
     if(!apiKey){setError("No se encontro VITE_ANTHROPIC_KEY");return;}
+    llamandoRef.current = true;
     setFase("loading");setProgreso("Buscando informacion del jugador en internet...");setError(null);
     try {
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-6",max_tokens:2500,
+          model:"claude-sonnet-4-6",max_tokens:1800,
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{role:"user",content:buildPrompt(jugador,percentiles)}]
         })
@@ -182,7 +185,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
       const parsed = parseInforme(textBlocks);
       if(!parsed.perfil&&!parsed.estilo) parsed.perfil = textBlocks.substring(0,500);
       setInforme(parsed);setFase("done");
-    } catch(e) { setError(e.message);setFase("error"); }
+    } catch(e) { setError(e.message);setFase("error"); } finally { llamandoRef.current = false; }
   };
 
   const s = jugador?.s||{};
