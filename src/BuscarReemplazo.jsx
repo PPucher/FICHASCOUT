@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 const I={background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 13px",color:"#eef2f6",fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
 const BB={border:"none",borderRadius:10,padding:"9px 18px",color:"#fff",fontWeight:700,cursor:"pointer",fontSize:12,background:"linear-gradient(135deg,#3b82f6,#1d4ed8)",fontFamily:"inherit"};
@@ -33,7 +33,12 @@ function CompatBar({valor}){const c=valor>=85?"#00e87a":valor>=70?"#3b82f6":valo
 function StatChip({label,val,color="#94a3b8"}){return <div style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"7px 10px",textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{fontSize:15,fontWeight:800,color}}>{val??"-"}</div><div style={{fontSize:9,color:"#64748b",fontWeight:700,textTransform:"uppercase",marginTop:1}}>{label}</div></div>;}
 
 export default function BuscarReemplazo({datos}){
-  const jugadores=useMemo(()=>Array.isArray(datos)?datos:[],[datos]);
+  const [jugadores, setJugadores] = useState(Array.isArray(datos)&&datos.length>0?datos:[]);
+  useEffect(()=>{
+    if(Array.isArray(datos)&&datos.length>0){setJugadores(datos);return;}
+    // Self-load if parent hasn't loaded yet
+    fetch('/fichascout_pro_data.json').then(r=>r.json()).then(d=>{setJugadores(d?.jugadores||[]);}).catch(()=>{});
+  },[datos]);
   const[query,setQuery]=useState("");
   const[objetivo,setObjetivo]=useState(null);
   const[resultados,setResultados]=useState([]);
