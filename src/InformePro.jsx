@@ -119,14 +119,30 @@ function exportarPDF(jugador, informe) {
   setTimeout(()=>win.print(),800);
 }
 
-export default function InformePro({ jugador, todos, onClose }) {
+export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
+  const [jugadorActivo, setJugadorActivo] = useState(jugadorProp||null);
+  const [query, setQuery]         = useState(jugadorProp?.n||"");
+  const [showSugg, setShowSugg]   = useState(false);
+  const [jugadores2, setJugadores2] = useState(Array.isArray(todos)&&todos.length>0?todos:[]);
   const [fase, setFase]       = useState("idle");
   const [informe, setInforme] = useState(null);
   const [progreso, setProgreso] = useState("");
   const [error, setError]     = useState(null);
   const apiKey = import.meta.env.VITE_ANTHROPIC_KEY;
+  
+  // Auto-load JSON if todos is empty
+  useEffect(()=>{
+    if(Array.isArray(todos)&&todos.length>0){setJugadores2(todos);return;}
+    fetch('/fichascout_pro_data.json').then(r=>r.json()).then(d=>{setJugadores2(d?.jugadores||[]);}).catch(()=>{});
+  },[todos]);
 
-  const percentiles = todos ? (() => {
+  // Sugerencias autocomplete
+  const sugerencias = query.length>=2 ? jugadores2.filter(j=>j.n&&j.n.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>(b.s?.min||0)-(a.s?.min||0)).slice(0,8) : [];
+  
+  // Guard: if no jugador selected, show search
+  const jugador = jugadorActivo;
+
+  const percentiles = jugador&&todos ? (() => {
     const mp = todos.filter(j=>j.pos===jugador.pos&&j.s);
     const get = field => mp.map(j=>j.s?.[field]).filter(v=>v!==null&&v!==undefined);
     const s = jugador.s||{};
@@ -140,7 +156,7 @@ export default function InformePro({ jugador, todos, onClose }) {
     };
   })() : {};
 
-  const radarData = getDatosRadar(jugador);
+  const radarData = jugador ? getDatosRadar(jugador) : {etiquetas:[],valores:[]};
 
   const generarInforme = async () => {
     if(!apiKey){setError("No se encontro VITE_ANTHROPIC_KEY");return;}
@@ -166,7 +182,39 @@ export default function InformePro({ jugador, todos, onClose }) {
     } catch(e) { setError(e.message);setFase("error"); }
   };
 
-  const s = jugador.s||{};
+  const s = jugador?.s||{};
+
+  // If no jugador selected, show search interface
+  if(!jugador) return (
+    <div style={{fontFamily:"'Inter',sans-serif",color:"#eef2f6"}}>
+      <div style={{marginBottom:24}}>
+        <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
+          <div style={{background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",borderRadius:14,padding:"11px 15px",fontSize:24,boxShadow:"0 4px 20px rgba(139,92,246,0.3)"}}>📋</div>
+          <div><h2 style={{margin:0,fontSize:24,fontWeight:900,letterSpacing:-0.8}}>Informe Pro IA</h2><p style={{margin:0,fontSize:13,color:"#64748b"}}>Analisis profundo con Claude + busqueda web en tiempo real</p></div>
+        </div>
+      </div>
+      <div style={{background:"rgba(255,255,255,0.03)",borderRadius:16,border:"1px solid rgba(255,255,255,0.07)",padding:20,marginBottom:20}}>
+        <div style={{fontSize:11,color:"#4a6070",marginBottom:6,fontWeight:700,letterSpacing:.8,textTransform:"uppercase"}}>Busca el jugador a analizar</div>
+        <div style={{position:"relative"}}>
+          <span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",fontSize:14,pointerEvents:"none"}}>🔍</span>
+          <input style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 13px 9px 36px",color:"#eef2f6",fontSize:14,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"}} placeholder="Nombre del jugador..." value={query} onChange={e=>{setQuery(e.target.value);setShowSugg(true);}} onFocus={()=>setShowSugg(true)} onBlur={()=>setTimeout(()=>setShowSugg(false),180)}/>
+          {showSugg&&sugerencias.length>0&&<div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"#0f1923",border:"1px solid rgba(255,255,255,0.12)",borderRadius:12,overflow:"hidden",zIndex:200,boxShadow:"0 8px 32px rgba(0,0,0,0.5)"}}>
+            {sugerencias.map(j=><div key={j.id} onMouseDown={()=>{setJugadorActivo(j);setQuery(j.n);setShowSugg(false);}} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid rgba(255,255,255,0.04)"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(139,92,246,0.1)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+              <img src={j.foto} onError={e=>e.target.style.display='none'} style={{width:36,height:36,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
+              <div style={{flex:1,minWidth:0}}><div style={{fontWeight:700,fontSize:13}}>{j.n}</div><div style={{fontSize:11,color:"#64748b"}}>{j.pos} · {j.eq} · {j.pais}</div></div>
+              <div style={{fontSize:11,color:"#64748b"}}>{j.e}a</div>
+            </div>)}
+          </div>}
+          {jugadores2.length===0&&<div style={{marginTop:8,fontSize:12,color:"#ef4444"}}>Cargando base de datos...</div>}
+        </div>
+      </div>
+      <div style={{background:"rgba(139,92,246,0.05)",border:"1px solid rgba(139,92,246,0.15)",borderRadius:16,padding:40,textAlign:"center"}}>
+        <div style={{fontSize:40,marginBottom:12}}>🤖</div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:8}}>Informe Scout con IA + Web Search</div>
+        <div style={{fontSize:13,color:"#64748b",lineHeight:1.7,maxWidth:440,margin:"0 auto"}}>Busca un jugador arriba. Claude buscara informacion en internet, analizara sus estadisticas en contexto de los 43.400 jugadores y generara un informe profesional completo con radar chart y PDF exportable.</div>
+      </div>
+    </div>
+  );
 
   return(
     <div style={{fontFamily:"'Inter',sans-serif",color:"#eef2f6"}}>
@@ -180,7 +228,10 @@ export default function InformePro({ jugador, todos, onClose }) {
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Bdg color={posColor(jugador.pos)}>{jugador.pos}</Bdg><Bdg color="#64748b">{jugador.e} anos</Bdg>{jugador.alt&&<Bdg color="#64748b">{jugador.alt}</Bdg>}</div>
           </div>
         </div>
-        {onClose&&<button onClick={onClose} style={{...BB,padding:"8px 14px",fontSize:12}}>← Volver</button>}
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>{setJugadorActivo(null);setQuery("");setFase("idle");setInforme(null);}} style={{...BB,padding:"8px 14px",fontSize:12,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.1)"}}>🔍 Cambiar jugador</button>
+          {onClose&&<button onClick={onClose} style={{...BB,padding:"8px 14px",fontSize:12}}>← Volver</button>}
+        </div>
       </div>
 
       {/* Stats + Radar */}
