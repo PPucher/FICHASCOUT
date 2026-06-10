@@ -626,9 +626,9 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
     }
     setLoadIA(true); setIaText("");
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:2400, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
+      const r = await fetch("/api/claude",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1800, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
       });
       if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
@@ -844,9 +844,9 @@ export default function BasePro() {
     setLoadIa(true); setIaComp("");
     const scores = comparar.map(j=>calcScoutScore(j));
     try{
-      const r = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST", headers: API_HEADERS,
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:3500, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
+      const r = await fetch("/api/claude",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1800, messages:[{role:"user",content:buildPromptComparacion(comparar,scores)}]})
       });
       if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
       const d = await r.json();
