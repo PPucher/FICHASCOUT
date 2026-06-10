@@ -142,19 +142,23 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   // Guard: if no jugador selected, show search
   const jugador = jugadorActivo;
 
-  const percentiles = jugador&&todos ? (() => {
-    const mp = todos.filter(j=>j.pos===jugador.pos&&j.s);
+  // Percentiles calculados con useMemo para no bloquear render
+  const percentiles = useMemo(() => {
+    if(!jugador||!jugadores2||!jugadores2.length) return {};
+    // Sample max 3000 of same position for performance
+    const mp = jugadores2.filter(j=>j.pos===jugador.pos&&j.s).slice(0,3000);
+    if(mp.length===0) return {};
     const get = field => mp.map(j=>j.s?.[field]).filter(v=>v!==null&&v!==undefined);
     const s = jugador.s||{};
     return {
-      'Goles/90': calcPercentil(s.g&&s.min?(s.g/s.min)*90:0, get('g').map((g,i)=>mp[i].s?.min?(g/mp[i].s.min)*90:0)),
+      'Goles/90': calcPercentil(s.g&&s.min?(s.g/s.min)*90:0, get('g').map((g,i)=>mp[i]?.s?.min?(g/mp[i].s.min)*90:0)),
       'Pases': calcPercentil(s.pas, get('pas')),
       'Duelos': calcPercentil(s.due, get('due')),
       'Regates': calcPercentil(s.reg, get('reg')),
       'Tackles': calcPercentil(s.tac, get('tac')),
       'Rating': calcPercentil(s.rat, get('rat')),
     };
-  })() : {};
+  }, [jugador, jugadores2]);
 
   const radarData = jugador ? getDatosRadar(jugador) : {etiquetas:[],valores:[]};
 
