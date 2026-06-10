@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import InformePro from "./InformePro.jsx";
 
 const I  = {background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 13px",color:"#eef2f6",fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
 const BP = {border:"none",borderRadius:12,padding:"12px 32px",color:"#fff",fontWeight:800,cursor:"pointer",fontSize:14,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",boxShadow:"0 4px 20px rgba(139,92,246,0.35)",width:"100%",letterSpacing:0.3};
@@ -26,6 +27,7 @@ export default function RadarOculto({datos}){
   const[buscando,setBuscando]=useState(false);
   const[detalle,setDetalle]=useState(null);
   const[orden,setOrden]=useState("sub");
+  const[informeJugador,setInformeJugador]=useState(null);
 
   const [jugadores, setJugadores] = useState(Array.isArray(datos)&&datos.length>0?datos:[]);
   useEffect(()=>{
@@ -64,6 +66,8 @@ export default function RadarOculto({datos}){
   const cS=v=>v>=80?"#ef4444":v>=65?"#f59e0b":v>=50?"#3b82f6":"#64748b";
   const lS=v=>v>=80?"🔥 Joya Oculta":v>=65?"⭐ Alta Proyeccion":v>=50?"📡 En el Radar":"—";
   const cP=v=>v>=80?"#00e87a":v>=65?"#3b82f6":v>=50?"#f59e0b":"#64748b";
+
+  if(informeJugador) return <InformePro jugador={informeJugador} todos={jugadores} onClose={()=>setInformeJugador(null)}/>;
 
   return(
     <div style={{fontFamily:"'Inter',sans-serif",color:"#eef2f6"}}>
@@ -117,7 +121,8 @@ export default function RadarOculto({datos}){
               <div style={{textAlign:"center"}}><div style={{fontSize:13,fontWeight:800}}>{j.e}a</div><div style={{fontSize:9,color:"#64748b",textTransform:"uppercase"}}>Edad</div></div>
               <div style={{textAlign:"center"}}><div style={{fontSize:13,fontWeight:800,color:cP(j._pot)}}>{j._pot}</div><div style={{fontSize:9,color:"#64748b",textTransform:"uppercase"}}>Potencial</div></div>
               <Bdg color={cS(j._sub)}>{lS(j._sub)}</Bdg>
-              <div style={{color:"#64748b",fontSize:13}}>›</div>
+              <button onClick={e=>{e.stopPropagation();setInformeJugador(j);}} style={{background:"rgba(139,92,246,0.15)",border:"1px solid rgba(139,92,246,0.3)",borderRadius:6,padding:"3px 8px",color:"#c4b5fd",cursor:"pointer",fontSize:10,fontWeight:700,fontFamily:"inherit",marginRight:4}}>IA</button>
+        <div style={{color:"#64748b",fontSize:13}}>›</div>
             </div>
           ))}
         </Card>
