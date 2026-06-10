@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 // ─── ESTILOS ─────────────────────────────────────────────────────────────────
 const Card = ({children,style={}}) => <div style={{background:"rgba(255,255,255,0.03)",borderRadius:16,border:"1px solid rgba(255,255,255,0.07)",padding:20,...style}}>{children}</div>;
@@ -145,20 +145,19 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   // Percentiles calculados con useMemo para no bloquear render
   const percentiles = useMemo(() => {
     if(!jugador||!jugadores2||!jugadores2.length) return {};
-    // Sample max 3000 of same position for performance
-    const mp = jugadores2.filter(j=>j.pos===jugador.pos&&j.s).slice(0,3000);
-    if(mp.length===0) return {};
-    const get = field => mp.map(j=>j.s?.[field]).filter(v=>v!==null&&v!==undefined);
+    const mp = jugadores2.filter(j=>j.pos===jugador.pos&&j.s).slice(0,2000);
+    if(!mp.length) return {};
+    const get = f => mp.map(j=>j.s?.[f]).filter(v=>v!=null&&v!==0);
     const s = jugador.s||{};
     return {
-      'Goles/90': calcPercentil(s.g&&s.min?(s.g/s.min)*90:0, get('g').map((g,i)=>mp[i]?.s?.min?(g/mp[i].s.min)*90:0)),
+      'Goles/90': calcPercentil(s.g&&s.min?(s.g/s.min)*90:0, mp.map(j=>j.s?.min?(j.s.g||0)/j.s.min*90:0)),
       'Pases': calcPercentil(s.pas, get('pas')),
       'Duelos': calcPercentil(s.due, get('due')),
       'Regates': calcPercentil(s.reg, get('reg')),
       'Tackles': calcPercentil(s.tac, get('tac')),
       'Rating': calcPercentil(s.rat, get('rat')),
     };
-  }, [jugador, jugadores2]);
+  }, [jugador?.id, jugadores2.length])
 
   const radarData = jugador ? getDatosRadar(jugador) : {etiquetas:[],valores:[]};
 
