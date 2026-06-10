@@ -128,8 +128,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   const [informe, setInforme] = useState(null);
   const [progreso, setProgreso] = useState("");
   const [error, setError]     = useState(null);
-  const apiKey = import.meta.env.VITE_ANTHROPIC_KEY;
-  const llamandoRef = useRef(false); // Guard anti-doble-clic
+    const llamandoRef = useRef(false); // Guard anti-doble-clic
   
   // Auto-load JSON if todos is empty
   useEffect(()=>{
@@ -164,13 +163,12 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
 
   const generarInforme = async () => {
     if(llamandoRef.current){console.warn("InformePro: llamada ya en curso, ignorando doble clic");return;}
-    if(!apiKey){setError("No se encontro VITE_ANTHROPIC_KEY");return;}
-    llamandoRef.current = true;
+        llamandoRef.current = true;
     setFase("loading");setProgreso("Buscando informacion del jugador en internet...");setError(null);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/claude", {
         method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           model:"claude-sonnet-4-6",max_tokens:1800,
           tools:[{type:"web_search_20250305",name:"web_search"}],
