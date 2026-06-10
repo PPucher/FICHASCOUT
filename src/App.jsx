@@ -224,7 +224,7 @@ function calcDims(hist, pos) {
 }
 async function askClaude(prompt, maxT=1300) {
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:API_HEADERS, body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:maxT,messages:[{role:"user",content:prompt}]}) });
+    const r = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:Math.min(maxT,1800),messages:[{role:"user",content:prompt}]}) });
     const d = await r.json();
     return d.content?.[0]?.text || "Error al generar respuesta.";
   } catch { return "Error de conexión con IA."; }
@@ -1529,7 +1529,7 @@ function ModBenchmarks() {
     const fb=fuenteBK>0?("Benchmark calculado sobre "+fuenteBK+" jugadores reales."):"Benchmark referencial.";
     const prompt="Eres Chief Scout. Analiza este benchmark.\n\nJUGADOR: "+jugSel.n+" | "+jugSel.pos+" | "+(jugSel.e||"s/d")+"a | "+jugSel.eq+"\nLIGA: "+pais+" - "+div+" (Nivel "+nv+") | "+fb+"\nPERCENTIL: "+(percentilGlobal||"N/D")+" | SOBRE PROMEDIO: "+(sobrePromedio||"N/D")+"/"+metricasFilled.length+"\nMETRICAS: "+metStr+"\n\n1. POSICIONAMIENTO\nEn que percentil real esta? Que lo distingue del promedio?\n\n2. METRICAS DESTACADAS\nLas 2-3 stats donde mas supera y su impacto tactico.\n\n3. BRECHAS CRITICAS\nDonde esta bajo promedio y que riesgo implica.\n\n4. VEREDICTO\nSupera, iguala o esta bajo el promedio de "+div+"? Vale el fichaje?";
     try{
-      const rr=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+      const rr=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
       const d=await rr.json();setIaText(d.content?.[0]?.text||"Error.");
     }catch(err){setIaText("Error: "+err.message);}
     setLoadIA(false);
