@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const I  = {background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 13px",color:"#eef2f6",fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
 const BP = {border:"none",borderRadius:12,padding:"12px 32px",color:"#fff",fontWeight:800,cursor:"pointer",fontSize:14,background:"linear-gradient(135deg,#8b5cf6,#7c3aed)",fontFamily:"inherit",boxShadow:"0 4px 20px rgba(139,92,246,0.35)",width:"100%",letterSpacing:0.3};
@@ -27,9 +27,14 @@ export default function RadarOculto({datos}){
   const[detalle,setDetalle]=useState(null);
   const[orden,setOrden]=useState("sub");
 
+  const [jugadores, setJugadores] = useState(Array.isArray(datos)&&datos.length>0?datos:[]);
+  useEffect(()=>{
+    if(Array.isArray(datos)&&datos.length>0){setJugadores(datos);return;}
+    fetch('/fichascout_pro_data.json').then(r=>r.json()).then(d=>{setJugadores(d?.jugadores||[]);}).catch(()=>{});
+  },[datos]);
+
   const buscar=()=>{
-    const jugadores=Array.isArray(datos)?datos:[];
-    if(!jugadores.length){alert("Datos aun cargando, espera unos segundos");return;}
+    if(!jugadores.length){return;}
     setBuscando(true);setDetalle(null);
     setTimeout(()=>{
       const paisesActivos=filtros.paises.length===0?PAISES:PAISES.filter(p=>filtros.paises.includes(p.code));
@@ -149,7 +154,7 @@ export default function RadarOculto({datos}){
         <div style={{fontSize:46,marginBottom:12}}>📡</div>
         <div style={{fontSize:16,fontWeight:800,marginBottom:6}}>Radar listo para activarse</div>
         <div style={{fontSize:13,color:"#64748b"}}>Configura los filtros y presiona "Activar Radar"</div>
-        <div style={{marginTop:6,fontSize:12,color:"#4a6070"}}>Datos: {Array.isArray(datos)?datos.length:0} jugadores cargados</div>
+        <div style={{marginTop:6,fontSize:12,color:"#4a6070"}}>Datos: {jugadores.length} jugadores cargados</div>
       </Card>}
     </div>
   );
