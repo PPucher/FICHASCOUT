@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import InformePro from "./InformePro.jsx";
 
 const I={background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 13px",color:"#eef2f6",fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"inherit"};
 const BB={border:"none",borderRadius:10,padding:"9px 18px",color:"#fff",fontWeight:700,cursor:"pointer",fontSize:12,background:"linear-gradient(135deg,#3b82f6,#1d4ed8)",fontFamily:"inherit"};
@@ -47,6 +48,7 @@ export default function BuscarReemplazo({datos}){
   const[showSugg,setShowSugg]=useState(false);
   const[filtroRegion,setFiltroRegion]=useState("todas");
   const[filtroEdad,setFiltroEdad]=useState(5);
+  const[informeJugador,setInformeJugador]=useState(null);
 
   const sugerencias=useMemo(()=>{
     if(!query||query.length<2||!jugadores.length)return[];
@@ -81,6 +83,8 @@ export default function BuscarReemplazo({datos}){
 
   const top3=resultados.slice(0,3);
   const resto=resultados.slice(3);
+
+  if(informeJugador) return <InformePro jugador={informeJugador} todos={jugadores} onClose={()=>setInformeJugador(null)}/>;
 
   return(
     <div style={{fontFamily:"'Inter',sans-serif",color:"#eef2f6"}}>
@@ -167,6 +171,7 @@ export default function BuscarReemplazo({datos}){
             <div style={{textAlign:"center"}}><div style={{fontSize:12,fontWeight:800}}>{j.e}a</div></div>
             <div><Bdg color={posColor(j.pos)}>{posIcon(j.pos)}</Bdg></div>
             <div>{(()=>{const c=j._compat;const col=c>=80?"#00e87a":c>=65?"#3b82f6":c>=50?"#f59e0b":"#ef4444";return <Bdg color={col}>{c}%</Bdg>;})()}</div>
+            <button onClick={e=>{e.stopPropagation();setInformeJugador(j);}} style={{background:"rgba(139,92,246,0.15)",border:"1px solid rgba(139,92,246,0.3)",borderRadius:6,padding:"3px 8px",color:"#c4b5fd",cursor:"pointer",fontSize:10,fontWeight:700,fontFamily:"inherit",marginRight:4}}>IA</button>
             <div style={{color:"#64748b",fontSize:13}}>›</div>
           </div>)}
         </Card>}
