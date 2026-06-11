@@ -308,7 +308,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
               {k:"Asist.",  v:apiStats?.goals?.assists??s.a??0,  c:"#3b82f6"},
               {k:"Rating",  v:(parseFloat(apiStats?.games?.rating)||s.rat||0)?.toFixed(2)||"—", c:"#f59e0b"},
               {k:"Disparos",v:apiStats?.shots?.total??s.dis??0},
-            ]].map(st=><div key={st.k} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:8,textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{fontSize:16,fontWeight:800}}>{st.v}</div><div style={{fontSize:9,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{st.k}</div></div>)}
+            ].map(st=><div key={st.k} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:8,textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{fontSize:16,fontWeight:800}}>{st.v}</div><div style={{fontSize:9,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{st.k}</div></div>)}
           </div>
           <Lbl>Metricas detalladas</Lbl>
           <StatBar label="Pases totales" valor={apiStats?.passes?.total??s.pas??0} max={2500} percentil={percentiles['Pases']}/>
