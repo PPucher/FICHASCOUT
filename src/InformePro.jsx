@@ -48,16 +48,32 @@ function StatBar({label,valor,max,percentil}){
   return(<div style={{marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3,alignItems:"center"}}><span style={{fontSize:12,color:"#94a3b8",fontWeight:600}}>{label}</span><div style={{display:"flex",gap:8,alignItems:"center"}}>{percentil!==null&&percentil!==undefined&&<span style={{fontSize:10,color:percentil>=75?"#00e87a":percentil>=50?"#3b82f6":"#f59e0b",fontWeight:700}}>P{percentil}</span>}<span style={{fontSize:13,fontWeight:800,color:"#eef2f6"}}>{valor}</span></div></div><div style={{height:5,background:"rgba(255,255,255,0.07)",borderRadius:4,overflow:"hidden"}}><div style={{height:"100%",width:`${pct}%`,background:`linear-gradient(90deg,${c}88,${c})`,borderRadius:4,transition:"width 0.6s ease"}}/></div></div>);
 }
 
-function buildPrompt(jugador, percentiles) {
+function buildPrompt(jugador, percentiles, api, transfers) {
   const s=jugador.s||{};
-  const pctStr=percentiles?Object.entries(percentiles).filter(([,v])=>v!==null).map(([k,v])=>`${k}: percentil ${v}`).join(', '):'';
-  return `Eres un scout profesional de futbol sudamericano. Genera un informe completo del siguiente jugador buscando informacion en internet primero.
+  const g=api?.goals?.total??s.g??0,a2=api?.goals?.assists??s.a??0,pas=api?.passes?.total??s.pas??0,pc=api?.passes?.key??s.pc??0,tac=api?.tackles?.total??s.tac??0,due=api?.duels?.total??s.due??0,reg=api?.dribbles?.success??s.reg??0,dis=api?.shots?.total??s.dis??0,rat=parseFloat(api?.games?.rating)||s.rat||0,min=api?.games?.minutes??s.min??0,apps=api?.games?.appearences??s.am??0;
+  const team=api?.team?.name||jugador.eq,liga=api?.league?.name||jugador.l,season=api?.league?.season||2024;
+  const duePct=due>0?Math.round(((api?.duels?.won??0)/due)*100):0;
+  const driAtt=api?.dribbles?.attempts??0,driPct=driAtt>0?Math.round((reg/driAtt)*100):0;
+  const shotAcc=dis>0?Math.round(((api?.shots?.on??0)/dis)*100):0;
+  const pctStr=Object.entries(percentiles||{}).filter(([,v])=>v!=null).map(([k,v])=>`${k}: P${v}`).join(' | ');
+  const trHistory=transfers?.length?transfers.slice(0,4).map(t3=>{const tr=t3.transfers?.[0];return tr?`${tr.date?.substring(0,4)||'?'}: ${tr.teams?.out?.name||'?'} -> ${tr.teams?.in?.name||'?'} (${tr.type||'?'})`:null;}).filter(Boolean).join('\n'):'No disponible';
+  return `Eres un Director de Scouting profesional con 20 anos de experiencia. Genera un informe COMPLETO usando datos REALES de la temporada ${season}. Genera un informe completo del siguiente jugador buscando informacion en internet primero.
 
 JUGADOR: ${jugador.n} | ${jugador.pos} | ${jugador.e} anos | ${jugador.pais}
 EQUIPO: ${jugador.eq} | Liga: ${jugador.l}
-STATS: Partidos:${s.am||0} Min:${s.min||0} Goles:${s.g||0} Asist:${s.a||0} Rating:${s.rat?.toFixed(2)||'N/D'}
-AVANZADO: Pases:${s.pas||0} Pases clave:${s.pc||0} Disparos:${s.dis||0} Tackles:${s.tac||0} Int:${s.int||0} Duelos:${s.due||0} Regates:${s.reg||0}
+EQUIPO ACTUAL: ${team} | Liga: ${liga} | Temporada ${season}${jugador._apiPlayer?.injured?' | LESIONADO ACTUALMENTE':''}
+Altura: ${jugador._apiPlayer?.height||jugador.alt||'N/D'} | Peso: ${jugador._apiPlayer?.weight||jugador.pes||'N/D'}
+
+ESTADISTICAS T.${season}:
+Partidos: ${apps} (titulares: ${api?.games?.lineups??'?'}) | Minutos: ${min} | Rating: ${rat?.toFixed(2)||'N/D'}
+Goles: ${g} | Asistencias: ${a2} | Disparos: ${dis} (${shotAcc}% a puerta)
+Pases: ${pas}${api?.passes?.accuracy?' ('+api.passes.accuracy+'% precision)':''} | Pases clave: ${pc}
+Duelos: ${due} (${duePct}% ganados) | Regates: ${reg}/${driAtt} (${driPct}%)
+Tackles: ${tac} | Intercepciones: ${api?.tackles?.interceptions??s.int??0}
+Faltas: ${api?.fouls?.committed??0} cometidas | Tarjetas: ${api?.cards?.yellow??0}am ${api?.cards?.red??0}ro
+
 PERCENTILES vs posicion: ${pctStr||'calculando...'}
+HISTORIAL TRANSFERENCIAS: ${trHistory}
 
 INSTRUCCIONES: 
 1. Usa web_search para buscar "${jugador.n} ${jugador.eq} futbolista estadisticas"
@@ -90,9 +106,14 @@ function parseInforme(text){
   return {perfil:ex('perfil_general'),estilo:ex('estilo_de_juego'),fortalezas:ex('fortalezas'),debilidades:ex('debilidades'),analisis:ex('analisis_estadistico'),proyeccion:ex('proyeccion'),recomendacion:ex('recomendacion_scout')};
 }
 
-function exportarPDF(jugador, informe) {
+function exportarPDF(jugador, informe, api, transfers) {
   const color=posColor(jugador.pos);
   const s=jugador.s||{};
+  const foto=jugador._apiPlayer?.photo||jugador.foto||'';
+  const teamLogo=api?.team?.logo||jugador.eq_logo||'';
+  const team=api?.team?.name||jugador.eq;
+  const liga=api?.league?.name||jugador.l;
+  const season=api?.league?.season||2024;
   const vC=informe.recomendacion?.includes('FICHAR')?"#00e87a":informe.recomendacion?.includes('SEGUIR')?"#f59e0b":"#ef4444";
   const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Informe Scout - ${jugador.n}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1e293b;font-size:13px;line-height:1.6}.header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:28px 32px;display:flex;align-items:center;gap:20px}.name{font-size:22px;font-weight:800;margin-bottom:4px}.sub{color:#94a3b8;font-size:13px}.content{padding:24px 32px}.sec{margin-bottom:20px}.sec-t{font-size:12px;font-weight:800;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #f1f5f9}.sec-p{color:#334155;line-height:1.75;font-size:13px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid3{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}.chip{background:#f8fafc;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0}.chip-v{font-size:18px;font-weight:800;color:#1e293b}.chip-l{font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;margin-top:2px}.fort{padding:7px 12px;background:#f0fdf4;border-left:3px solid #00e87a;border-radius:4px;margin-bottom:5px;font-size:12px;color:#166534}.deb{padding:7px 12px;background:#fff7ed;border-left:3px solid #f59e0b;border-radius:4px;margin-bottom:5px;font-size:12px;color:#92400e}.verd{padding:14px;border-radius:10px;font-weight:800;font-size:14px;text-align:center;margin-bottom:10px}.footer{background:#f8fafc;padding:14px 32px;text-align:center;color:#94a3b8;font-size:11px;border-top:1px solid #e2e8f0}@media print{body{-webkit-print-color-adjust:exact}}</style></head><body>
   <div class="header"><div><div class="name">${jugador.n}</div><div class="sub">${jugador.pos} · ${jugador.eq} · ${jugador.l} · ${jugador.pais} · ${jugador.e} anos</div></div><div style="margin-left:auto;text-align:right"><div style="font-size:11px;color:#64748b">FichaScout Informe Pro</div><div style="font-size:11px;color:#64748b">${new Date().toLocaleDateString('es-CL')}</div></div></div>
@@ -128,13 +149,44 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
   const [informe, setInforme] = useState(null);
   const [progreso, setProgreso] = useState("");
   const [error, setError]     = useState(null);
+  // Datos en tiempo real API-Football
+  const [apiStats,setApiStats]         = useState(null);
+  const [apiTransfers,setApiTransfers] = useState(null);
+  const [apiLoading,setApiLoading]     = useState(false);
+  const [apiError,setApiError]         = useState(null);
+  const [apiSeason,setApiSeason]       = useState(null);
     const llamandoRef = useRef(false); // Guard anti-doble-clic
   
-  // Auto-load JSON if todos is empty
+  // Auto-load JSON
   useEffect(()=>{
     if(Array.isArray(todos)&&todos.length>0){setJugadores2(todos);return;}
     fetch('/fichascout_pro_data.json').then(r=>r.json()).then(d=>{setJugadores2(d?.jugadores||[]);}).catch(()=>{});
   },[todos]);
+
+  // Cargar datos en tiempo real de API-Football cuando se selecciona jugador
+  useEffect(()=>{
+    if(!jugadorActivo)return;
+    setApiStats(null);setApiTransfers(null);setApiError(null);setApiLoading(true);
+    setFase("idle");setInforme(null);
+    const year=new Date().getFullYear();
+    async function fetchAll(){
+      let statsData=null;
+      for(const season of[year,year-1]){
+        const r=await fetch('/api/football',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:'/players',params:{id:jugadorActivo.id,season}})}).then(r=>r.json()).catch(()=>null);
+        if(r?.response?.length>0){statsData=r;setApiSeason(season);break;}
+      }
+      const trData=await fetch('/api/football',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:'/transfers',params:{player:jugadorActivo.id}})}).then(r=>r.json()).catch(()=>null);
+      if(statsData?.response?.[0]){
+        const resp=statsData.response[0];
+        const best=resp.statistics?.sort((a,b)=>(b.games?.minutes||0)-(a.games?.minutes||0))[0];
+        setApiStats(best||null);
+        setJugadorActivo(prev=>({...prev,_apiPlayer:resp.player}));
+      }
+      if(trData?.response)setApiTransfers(trData.response);
+      setApiLoading(false);
+    }
+    fetchAll().catch(e=>{setApiError(e.message);setApiLoading(false);});
+  },[jugadorActivo?.id]);
 
   // Sugerencias autocomplete
   const sugerencias = query.length>=2 ? jugadores2.filter(j=>j.n&&j.n.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>(b.s?.min||0)-(a.s?.min||0)).slice(0,8) : [];
@@ -172,7 +224,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
         body:JSON.stringify({
           model:"claude-sonnet-4-6",max_tokens:1800,
           tools:[{type:"web_search_20250305",name:"web_search"}],
-          messages:[{role:"user",content:buildPrompt(jugador,percentiles)}]
+          messages:[{role:"user",content:buildPrompt(jugadorActivo,percentiles,apiStats,apiTransfers)}]
         })
       });
       if(!response.ok){const err=await response.json();throw new Error(err.error?.message||`HTTP ${response.status}`);}
@@ -225,10 +277,14 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
       {/* Header */}
       <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:20,flexWrap:"wrap"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",flex:1}}>
-          <img src={jugador.foto} alt={jugador.n} onError={e=>{e.target.style.display='none'}} style={{width:64,height:64,borderRadius:"50%",objectFit:"cover",border:`3px solid ${posColor(jugador.pos)}44`,flexShrink:0}}/>
+          <img src={jugador._apiPlayer?.photo||jugador.foto} alt={jugador.n} onError={e=>{e.target.style.display='none'}} style={{width:64,height:64,borderRadius:"50%",objectFit:"cover",border:`3px solid ${posColor(jugador.pos)}44`,flexShrink:0}}/>
           <div>
             <h2 style={{margin:0,fontSize:20,fontWeight:900}}>{jugador.n}</h2>
-            <div style={{fontSize:13,color:"#94a3b8",marginBottom:6}}>{jugador.eq} · {jugador.l} · {jugador.pais}</div>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+              {apiStats?.team?.logo&&<img src={apiStats.team.logo} style={{width:20,height:20,objectFit:"contain"}} onError={e=>e.target.style.display='none'}/>}
+              <span style={{fontSize:13,color:"#94a3b8"}}>{apiStats?.team?.name||jugador.eq} · {apiStats?.league?.name||jugador.l} · {jugador.pais}</span>
+              {apiStats&&<span style={{background:"rgba(0,232,122,0.1)",color:"#00e87a",border:"1px solid rgba(0,232,122,0.2)",borderRadius:6,padding:"1px 7px",fontSize:10,fontWeight:700}}>T.{apiSeason}</span>}
+            </div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}><Bdg color={posColor(jugador.pos)}>{jugador.pos}</Bdg><Bdg color="#64748b">{jugador.e} anos</Bdg>{jugador.alt&&<Bdg color="#64748b">{jugador.alt}</Bdg>}</div>
           </div>
         </div>
@@ -241,16 +297,25 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
       {/* Stats + Radar */}
       <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:16,marginBottom:20}}>
         <Card>
+          {apiStats&&<div style={{marginBottom:8,padding:"3px 10px",background:"rgba(0,232,122,0.08)",border:"1px solid rgba(0,232,122,0.2)",borderRadius:8,fontSize:11,color:"#00e87a",fontWeight:700,display:"inline-block"}}>✅ Datos reales temporada {apiSeason}</div>}
+          {apiLoading&&<div style={{marginBottom:8,fontSize:12,color:"#8b5cf6"}}>⏳ Cargando estadísticas actualizadas...</div>}
           <Lbl>Estadisticas de temporada</Lbl>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(80px,1fr))",gap:8,marginBottom:16}}>
-            {[{k:"Partidos",v:s.am||0},{k:"Minutos",v:s.min||0},{k:"Goles",v:s.g||0},{k:"Asist.",v:s.a||0},{k:"Rating",v:s.rat?.toFixed(2)||"—"},{k:"Disparos",v:s.dis||0}].map(st=><div key={st.k} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:8,textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{fontSize:16,fontWeight:800}}>{st.v}</div><div style={{fontSize:9,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{st.k}</div></div>)}
+            {[
+              {k:"Partidos",v:apiStats?.games?.appearences??s.am??0},
+              {k:"Minutos", v:apiStats?.games?.minutes??s.min??0},
+              {k:"Goles",   v:apiStats?.goals?.total??s.g??0,    c:"#ef4444"},
+              {k:"Asist.",  v:apiStats?.goals?.assists??s.a??0,  c:"#3b82f6"},
+              {k:"Rating",  v:(parseFloat(apiStats?.games?.rating)||s.rat||0)?.toFixed(2)||"—", c:"#f59e0b"},
+              {k:"Disparos",v:apiStats?.shots?.total??s.dis??0},
+            ]].map(st=><div key={st.k} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:8,textAlign:"center",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{fontSize:16,fontWeight:800}}>{st.v}</div><div style={{fontSize:9,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{st.k}</div></div>)}
           </div>
           <Lbl>Metricas detalladas</Lbl>
-          <StatBar label="Pases totales" valor={s.pas||0} max={2500} percentil={percentiles['Pases']}/>
-          <StatBar label="Duelos" valor={s.due||0} max={250} percentil={percentiles['Duelos']}/>
+          <StatBar label="Pases totales" valor={apiStats?.passes?.total??s.pas??0} max={2500} percentil={percentiles['Pases']}/>
+          <StatBar label="Duelos" valor={apiStats?.duels?.total??s.due??0} max={250} percentil={percentiles['Duelos']}/>
           <StatBar label="Regates" valor={s.reg||0} max={80} percentil={percentiles['Regates']}/>
-          <StatBar label="Tackles" valor={s.tac||0} max={80} percentil={percentiles['Tackles']}/>
-          <StatBar label="Pases clave" valor={s.pc||0} max={60}/>
+          <StatBar label="Tackles" valor={apiStats?.tackles?.total??s.tac??0} max={80} percentil={percentiles['Tackles']}/>
+          <StatBar label="Pases clave" valor={apiStats?.passes?.key??s.pc??0} max={60}/>
           {s.int>0&&<StatBar label="Intercepciones" valor={s.int} max={60}/>}
         </Card>
         <Card style={{display:"flex",flexDirection:"column",alignItems:"center",padding:16,minWidth:230}}>
@@ -267,6 +332,22 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
           {Object.entries(percentiles).filter(([,v])=>v!==null).map(([k,v])=>{const c=v>=75?"#00e87a":v>=50?"#3b82f6":v>=25?"#f59e0b":"#ef4444";const l=v>=75?"Top 25%":v>=50?"Sobre media":v>=25?"Bajo media":"Bottom 25%";return(<div key={k} style={{background:"rgba(255,255,255,0.03)",borderRadius:10,border:`1px solid ${c}33`,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:900,color:c}}>P{v}</div><div style={{fontSize:10,color:"#64748b",fontWeight:700,textTransform:"uppercase",marginTop:2}}>{k}</div><div style={{fontSize:10,color:c,marginTop:2}}>{l}</div></div>);})}
         </div>
       </Card>}
+
+      {/* TRANSFERENCIAS EN VIVO */}
+      {apiTransfers?.length>0&&<div style={{background:"rgba(255,255,255,0.03)",borderRadius:16,border:"1px solid rgba(255,255,255,0.07)",padding:16,marginBottom:16}}>
+        <Lbl>Historial de Transferencias</Lbl>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {apiTransfers.slice(0,5).map((t2,i)=>{const tr=t2.transfers?.[0];if(!tr)return null;return(<div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:"rgba(255,255,255,0.03)",borderRadius:8,border:"1px solid rgba(255,255,255,0.06)"}}>
+            <span style={{fontSize:11,color:"#64748b",minWidth:36}}>{tr.date?.substring(0,4)||'?'}</span>
+            <div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:0,flexWrap:"wrap"}}>
+              <div style={{display:"flex",alignItems:"center",gap:4}}>{tr.teams?.out?.logo&&<img src={tr.teams.out.logo} style={{width:18,height:18,objectFit:"contain"}} onError={e=>e.target.style.display='none'}/>}<span style={{fontSize:12,color:"#94a3b8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:110}}>{tr.teams?.out?.name||'?'}</span></div>
+              <span style={{color:"#64748b",fontSize:12}}>→</span>
+              <div style={{display:"flex",alignItems:"center",gap:4}}>{tr.teams?.in?.logo&&<img src={tr.teams.in.logo} style={{width:18,height:18,objectFit:"contain"}} onError={e=>e.target.style.display='none'}/>}<span style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:110}}>{tr.teams?.in?.name||'?'}</span></div>
+            </div>
+            <span style={{background:tr.type?.includes('€')||tr.type?.includes('M')?"rgba(245,158,11,0.15)":"rgba(100,116,139,0.15)",color:tr.type?.includes('€')||tr.type?.includes('M')?"#f59e0b":"#64748b",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,padding:"2px 8px",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{tr.type||'Free'}</span>
+          </div>);})}
+        </div>
+      </div>}
 
       {/* CTA generar */}
       {fase==="idle"&&<Card style={{textAlign:"center",padding:32,background:"rgba(139,92,246,0.05)",borderColor:"rgba(139,92,246,0.2)"}}>
@@ -294,7 +375,7 @@ export default function InformePro({ jugador: jugadorProp, todos, onClose }) {
           <div><div style={{fontWeight:800,fontSize:16}}>Informe Scout Completo</div><div style={{fontSize:12,color:"#64748b"}}>IA Claude + busqueda web en tiempo real</div></div>
           <div style={{display:"flex",gap:10}}>
             <button onClick={generarInforme} style={{...BB,padding:"8px 14px",fontSize:12}}>Regenerar</button>
-            <button onClick={()=>exportarPDF(jugador,informe)} style={{...BG,padding:"8px 14px",fontSize:12}}>Exportar PDF</button>
+            <button onClick={()=>exportarPDF(jugador,informe,apiStats,apiTransfers)} style={{...BG,padding:"8px 14px",fontSize:12}}>Exportar PDF</button>
           </div>
         </div>
         {informe.recomendacion&&(()=>{const eF=informe.recomendacion.includes('FICHAR'),eS=informe.recomendacion.includes('SEGUIR'),c=eF?"#00e87a":eS?"#f59e0b":"#ef4444",ic=eF?"?":"?";return(<Card style={{marginBottom:16,background:`${c}0a`,borderColor:`${c}33`,textAlign:"center",padding:16}}><div style={{fontSize:28,marginBottom:6}}>{ic}</div><div style={{fontSize:16,fontWeight:900,color:c}}>{informe.recomendacion.split('\n')[0]}</div>{informe.recomendacion.split('\n').slice(1).join(' ').trim()&&<div style={{fontSize:13,color:"#94a3b8",marginTop:6}}>{informe.recomendacion.split('\n').slice(1).join(' ').trim()}</div>}</Card>);})()}
