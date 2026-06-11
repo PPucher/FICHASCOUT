@@ -1,15 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 // ─── CONFIGURACIÓN API ────────────────────────────────────────────────────────
-// Agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables
-const ANTHROPIC_KEY = import.meta.env?.VITE_ANTHROPIC_KEY || "";
-const API_HEADERS = {
-  "Content-Type": "application/json",
-  "anthropic-version": "2023-06-01",
-  "anthropic-dangerous-direct-browser-access": "true",
-  ...(ANTHROPIC_KEY ? {"x-api-key": ANTHROPIC_KEY} : {}),
-};
-
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
 const G = "#00e87a";
 const SLOTS = ["#00e87a","#3b82f6","#f59e0b","#ec4899"];
@@ -620,11 +611,7 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
   const c = POS_COLOR[j.pos] || G;
 
   async function generarIA() {
-    if (!ANTHROPIC_KEY) {
-      setIaText("⚙️ Para activar el análisis IA, agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables → VITE_ANTHROPIC_KEY = tu_api_key_de_anthropic");
-      return;
-    }
-    setLoadIA(true); setIaText("");
+        setLoadIA(true); setIaText("");
     try {
       const r = await fetch("/api/claude",{
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -837,11 +824,7 @@ export default function BasePro() {
 
   async function analizarComparacion() {
     if(comparar.length<2) return;
-    if (!ANTHROPIC_KEY) {
-      setIaComp("⚙️ Para activar el análisis IA, agrega VITE_ANTHROPIC_KEY en Vercel → Settings → Environment Variables.");
-      return;
-    }
-    setLoadIa(true); setIaComp("");
+        setLoadIa(true); setIaComp("");
     const scores = comparar.map(j=>calcScoutScore(j));
     try{
       const r = await fetch("/api/claude",{
@@ -884,11 +867,7 @@ export default function BasePro() {
           </div>
         </div>
         <div style={{display:"flex",gap:7}}>
-          {!ANTHROPIC_KEY&&(
-            <div style={{background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:8,padding:"6px 12px",fontSize:11,color:"#f59e0b",display:"flex",alignItems:"center",gap:6}}>
-              ⚙️ <span>Agrega VITE_ANTHROPIC_KEY en Vercel para activar IA</span>
-            </div>
-          )}
+          
           {comparar.length>0&&(
             <button onClick={()=>setPanel(p=>!p)} style={{background:panel?"rgba(0,232,122,0.15)":"rgba(255,255,255,0.07)",border:`1px solid ${panel?"rgba(0,232,122,0.3)":"rgba(255,255,255,0.1)"}`,borderRadius:8,padding:"7px 14px",color:panel?G:"#eef2f6",fontWeight:700,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>
               ⚖️ Comparando ({comparar.length}/4)
