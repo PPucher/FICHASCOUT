@@ -46,8 +46,19 @@ export default async function handler(req) {
       headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
       body: JSON.stringify(payload),
     });
-    const data = await r.json();
-    if (!r.ok) return new Response(JSON.stringify({error: data.error?.message || 'Error Anthropic', type: data.error?.type}), {status:r.status, headers:{...corsHeaders,'Content-Type':'application/json'}});
+
+    // Leer respuesta de forma segura (Anthropic a veces devuelve texto plano en errores)
+    let data;
+    const contentType = r.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await r.json();
+    } else {
+      const rawText = await r.text();
+      try { data = JSON.parse(rawText); }
+      catch { return new Response(JSON.stringify({error: 'Error Anthropic (HTTP ' + r.status + '): ' + rawText.substring(0,200)}), {status: r.status >= 400 ? r.status : 500, headers:{...corsHeaders,'Content-Type':'application/json'}}); }
+    }
+
+    if (!r.ok) return new Response(JSON.stringify({error: data.error?.message || 'Error Anthropic HTTP ' + r.status, type: data.error?.type}), {status:r.status, headers:{...corsHeaders,'Content-Type':'application/json'}});
     return new Response(JSON.stringify(data), {status:200, headers:{...corsHeaders,'Content-Type':'application/json'}});
   } catch(err) {
     return new Response(JSON.stringify({error:'Error proxy: '+err.message}), {status:500, headers:{...corsHeaders,'Content-Type':'application/json'}});
