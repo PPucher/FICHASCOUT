@@ -611,16 +611,24 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
   const c = POS_COLOR[j.pos] || G;
 
   async function generarIA() {
-        setLoadIA(true); setIaText("");
+    setLoadIA(true); setIaText("");
     try {
       const r = await fetch("/api/claude",{
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1800, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]})
+        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1800, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]}),
       });
-      if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||`HTTP ${r.status}`); }
-      const d = await r.json();
+      // Parsear respuesta de forma segura
+      let d;
+      const ct = r.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        d = await r.json();
+      } else {
+        const raw = await r.text();
+        try { d = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor: ' + raw.substring(0,100)); }
+      }
+      if (!r.ok) throw new Error(d.error?.message || 'HTTP ' + r.status);
       setIaText(d.content?.[0]?.text || "Error al generar.");
-    } catch(e) { setIaText(`Error: ${e.message}`); }
+    } catch(e) { setIaText("Error: " + e.message); }
     setLoadIA(false);
   }
 
