@@ -613,23 +613,47 @@ function ModalJugador({j, ss, vm, onClose, onToggle, enCompar}) {
   async function generarIA() {
     setLoadIA(true); setIaText("");
     try {
-      const r = await fetch("/api/claude",{
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1800, messages:[{role:"user",content:buildPromptIndividual(j,ss,vm)}]}),
+      const r = await fetch("/api/claude", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1500,
+          stream: true,
+          messages: [{role: "user", content: buildPromptIndividual(j, ss, vm)}]
+        }),
       });
-      // Parsear respuesta de forma segura
-      let d;
-      const ct = r.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        d = await r.json();
-      } else {
-        const raw = await r.text();
-        try { d = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor: ' + raw.substring(0,100)); }
+      if (!r.ok) {
+        let errMsg = "HTTP " + r.status;
+        try { const e = await r.json(); errMsg = e.error || e.message || errMsg; } catch {}
+        throw new Error(errMsg);
       }
-      if (!r.ok) throw new Error(d.error?.message || 'HTTP ' + r.status);
-      setIaText(d.content?.[0]?.text || "Error al generar.");
+      // Leer stream SSE - evita timeout de 25s en Vercel Hobby
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, {stream: true});
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") break;
+          try {
+            const evt = JSON.parse(data);
+            if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
+              fullText += evt.delta.text;
+              setIaText(fullText);
+            }
+          } catch {}
+        }
+      }
+      if (!fullText) setIaText("No se recibio respuesta.");
     } catch(e) { setIaText("Error: " + e.message); }
     setLoadIA(false);
+  }
   }
 
   const statsKeys = STATS_POS[j.pos] || STATS_DEF.map(s=>s.k);
